@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - aranoz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1A5D8C 0%, rgba(255, 255, 255, 0.825) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            min-height: 600px;
+            display: flex;
+            position: relative;
+        }
+
+        .login-form-section {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+        }
+
+        .login-image-section {
+            flex: 1;
+            background: linear-gradient(45deg, #1A5D8C, rgba(255, 255, 255, 0.825));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-image-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="3" fill="rgba(255,255,255,0.05)"/><circle cx="40" cy="60" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="70" r="2" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s infinite linear;
+        }
+
+        .brand-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            margin-bottom: 1rem;
+            z-index: 2;
+        }
+
+        .brand-tagline {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-size: 1.1rem;
+            z-index: 2;
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1A5D8C;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: none;
+            padding-left: 5px;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1A5D8C, rgba(8, 129, 162, 0.825));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+            color: #666;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .google-btn:hover {
+            border-color: #db4437;
+            background: #fafafa;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #666;
+        }
+
+        .signup-link a {
+            color:  #165582;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            color: #764ba2;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                margin: 10px;
+                min-height: auto;
+            }
+
+            .login-image-section {
+                min-height: 200px;
+                order: -1;
+            }
+
+            .login-form-section {
+                padding: 40px 30px;
+            }
+
+            .form-title {
+                font-size: 1.8rem;
+            }
+
+            .brand-logo {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-form-section {
+                padding: 30px 20px;
+            }
+
+            .form-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading .login-btn {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Input validation states */
+        .form-input.valid {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .form-input.invalid {
+            border-color: #e74c3c;
+            background: #fff8f8;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form-section">
+            <h2 class="form-title">Welcome Back</h2>
+            <p class="form-subtitle">Please sign in to your account</p>
+            
+            <form id="loginForm" method="post" action="/login">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input
+                        type="email"
+                        class="form-input"
+                        name="email"
+                        id="email"
+                        placeholder="Enter your email address"
+                        required
+                    />
+                <div style="color:red;"><%=msg1%></div>
+
+                    <div id="emailError" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input
+                        type="password"
+                        class="form-input"
+                        name="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        required
+                    />
+                    <div id="passwordError" class="error-message"></div>
+                </div>
+
+                <!-- Server-side error message -->
+                <div id="serverMessage" class="alert" style="display: none;">
+                    <!-- Server message will be displayed here -->
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span>Sign In</span>
+                </button>
+
+                <div class="divider">
+                    <span>or continue with</span>
+                </div>
+
+                <a href="/auth/google" class="google-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </a>
+            </form>
+
+            <div class="signup-link">
+                Don't have an account? <a href="/signup">Sign up here</a>
+            </div>
+        </div>
+
+        <div class="login-image-section">
+            <div class="brand-logo">
+                <i class="fas fa-shopping-bag"></i> Aranoz Furniture
+            </div>
+            <p class="brand-tagline">Discover your styled furniture with our premium collection</p>
+        </div>
+    </div>
+
+    <script>
+        // class LoginValidator {
+        //     constructor() {
+        //         this.form = document.getElementById('loginForm');
+        //         this.emailInput = document.getElementById('email');
+        //         this.passwordInput = document.getElementById('password');
+        //         this.emailError = document.getElementById('emailError');
+        //         this.passwordError = document.getElementById('passwordError');
+        //         this.loginBtn = document.getElementById('loginBtn');
+                
+        //         this.initializeEventListeners();
+        //     }
+
+        //     initializeEventListeners() {
+        //         // Real-time validation
+        //         this.emailInput.addEventListener('blur', () => this.validateEmail());
+        //         this.emailInput.addEventListener('input', () => this.clearError('email'));
+                
+        //         this.passwordInput.addEventListener('blur', () => this.validatePassword());
+        //         this.passwordInput.addEventListener('input', () => this.clearError('password'));
+                
+        //         // Form submission
+        //         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+        //     }
+
+        //     validateEmail() {
+        //         const email = this.emailInput.value.trim();
+        //         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                
+        //         if (!email) {
+        //             this.showError('email', 'Email address is required');
+        //             return false;
+        //         }
+                
+        //         if (!emailPattern.test(email)) {
+        //             this.showError('email', 'Please enter a valid email address');
+        //             return false;
+        //         }
+                
+        //         this.showSuccess('email');
+        //         return true;
+        //     }
+
+        //     validatePassword() {
+        //         const password = this.passwordInput.value;
+                
+        //         if (!password) {
+        //             this.showError('password', 'Password is required');
+        //             return false;
+        //         }
+                
+        //         if (password.length < 6) {
+        //             this.showError('password', 'Password must be at least 6 characters long');
+        //             return false;
+        //         }
+                
+        //         this.showSuccess('password');
+        //         return true;
+        //     }
+
+        //     showError(field, message) {
+        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
+        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
+                
+        //         input.classList.remove('valid');
+        //         input.classList.add('invalid');
+        //         errorDiv.textContent = message;
+        //         errorDiv.classList.add('show');
+        //     }
+
+        //     showSuccess(field) {
+        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
+        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
+                
+        //         input.classList.remove('invalid');
+        //         input.classList.add('valid');
+        //         errorDiv.classList.remove('show');
+        //     }
+
+        //     clearError(field) {
+        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
+        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
+                
+        //         input.classList.remove('invalid', 'valid');
+        //         errorDiv.classList.remove('show');
+        //     }
+
+        //     handleSubmit(e) {
+        //         e.preventDefault();
+                
+        //         const isEmailValid = this.validateEmail();
+        //         const isPasswordValid = this.validatePassword();
+                
+        //         if (isEmailValid && isPasswordValid) {
+        //             this.submitForm();
+        //         }
+        //     }
+
+        //     submitForm() {
+        //         // Add loading state
+        //         this.form.classList.add('loading');
+        //         this.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                
+        //         // Simulate form submission (replace with actual form submission)
+        //         setTimeout(() => {
+        //             // Remove loading state
+        //             this.form.classList.remove('loading');
+        //             this.loginBtn.innerHTML = '<span>Sign In</span>';
+                    
+        //             // In a real application, you would submit the form here
+        //             // this.form.submit();
+                    
+        //             // For demo purposes, show success message
+        //             this.showServerMessage('Login successful! Redirecting...', 'success');
+        //         }, 2000);
+        //     }
+
+        //     showServerMessage(message, type = 'error') {
+        //         const serverMessage = document.getElementById('serverMessage');
+        //         serverMessage.textContent = message;
+        //         serverMessage.style.display = 'block';
+        //         serverMessage.className = `alert ${type === 'success' ? 'alert-success' : ''}`;
+                
+        //         if (type === 'success') {
+        //             serverMessage.style.background = '#d4edda';
+        //             serverMessage.style.color = '#155724';
+        //             serverMessage.style.borderColor = '#c3e6cb';
+        //         }
+        //     }
+        // }
+
+        // // Initialize the login validator when the DOM is loaded
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     new LoginValidator();
+        // });
+
+        // // Add some interactive effects
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     // Add hover effect to form inputs
+        //     const inputs = document.querySelectorAll('.form-input');
+        //     inputs.forEach(input => {
+        //         input.addEventListener('focus', function() {
+        //             this.parentElement.style.transform = 'translateY(-2px)';
+        //         });
+                
+        //         input.addEventListener('blur', function() {
+        //             this.parentElement.style.transform = 'translateY(0)';
+        //         });
+        //     });
+        // });
+    </script>
+</body>
+</html>
