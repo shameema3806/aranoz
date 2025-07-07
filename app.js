@@ -7,11 +7,18 @@ const env = require("dotenv").config();
 const db = require("./config/db");
 const userRouter = require("./routes/userRouter");
 const flash = require('connect-flash');
+const adminRouter = require("./routes/adminRouter")
+db();
 
-db()
+
 app.use(flash());
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
+
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+console.log("Public folder path:", publicPath);
+
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -39,9 +46,22 @@ app.set("views", [
   
 ]);
 console.log("Using views path:", app.get("views"));
-app.use(express.static(path.join(__dirname,"public")));
+// app.use(express.static(path.join(__dirname,"public")));
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user ? req.session.userData : null;
+  next();
+});
+
+
+
+
+
 
 app.use("/",userRouter);
+app.use('/admin',adminRouter);
+
+
 const PORT=3000 || process.env.PORT ;
 app.listen(PORT,() =>{
     console.log("server is running");

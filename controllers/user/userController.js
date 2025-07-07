@@ -5,14 +5,40 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 
 
-const loadHomepage = async (req,res)=>{
-  try{
-         return res.render("home");
-  }catch (error){
-    console.log("Home page not found");
-    res.status(500).send("server error");
+// const loadHomepage = async (req,res)=>{
+//   try{
+//     const user = req.session.user;
+//     if(user){
+//        const userData = await User.findOne({_id:user._id});
+//        res.render("home",{user:userData});
+//     }else{
+//       return res.render("home");
+//     }
+
+//   }catch (error){
+//     console.log("Home page not found");
+//     res.status(500).send("server error");
+//   }
+// }
+
+
+const loadHomepage = async (req, res) => {
+  try {
+    const userId = req.session.user;  
+    if (userId) {
+      const userData = await User.findById(userId);
+      res.render("home", { user: userData });
+    } else {
+      res.render("home", { user: null });  
+    }
+  } catch (error) {
+    console.log("Home page not found:", error); 
+    res.status(500).send("Server error");
   }
-}
+};
+
+
+
 
 
 const loadSignup = async(req,res)=>{
@@ -237,33 +263,51 @@ const login = async(req,res)=>{
   try {
     const {email,password} = req.body;
     console.log(req.body)
+
     const findUser = await User.findOne({isAdmin:0,email:email});
 
     if(!findUser){
-      // return res.render("login",{message:"User not found"})
       req.flash('err1', 'Invalid credentials');
       return res.redirect("/login")
     }
 
-    if(findUser.isBlocked){
-      return res.render("login",{message:"User is blocked by admin"})
-    }
+       if (findUser.isBlocked) {
+            req.flash('err1', 'User is blocked by admin');
+            return res.redirect('/login');
+        }
     console.log(findUser);
 
     const passwordMatch = await bcrypt.compare(password,findUser.password);
 
-    if(!passwordMatch){
-      return res.render("login",{message:"Incorrect password"})
+    if (!passwordMatch) {
+            req.flash('err1', 'Incorrect password');
+            return res.redirect('/login');
+        }
+
+        req.session.user = findUser._id;
+        console.log('Redirecting to home');
+        res.redirect('/');
+
+    } catch (error) {
+        console.error('Login error:', error);
+        req.flash('err1', 'Login failed. Please try again later');
+        res.redirect('/login');
     }
+}
 
-    req.session.user = findUser._id;
-    console.log("redirectiong")
-    res.redirect("/")
 
+const logout = async (req,res)=>{
+  try {
+    req.session.destroy((err)=>{
+      if(err){
+       console.log("session destruction error",err.message);
+       return res.redirect("/pageNotFound");
+      }
+      return res.redirect("/login")
+    })
   } catch (error) {
-    
-    console.error("login error",error);
-    res.render("login",{message:"login failed. Please try again later"})
+    console.log("logout error",error);
+    res.redirect("/pageNotFound")
   }
 }
 
@@ -276,5 +320,7 @@ module.exports ={
     resendOtp,
     loadLogin,
     login,
-    loadShopping,
+    logout,
+    loadShopping
+  
 };

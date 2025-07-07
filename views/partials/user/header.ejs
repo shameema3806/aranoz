@@ -31,6 +31,45 @@
     text-decoration: none;
     font-weight: 500;
   }
+
+  .dropdown{
+    position: relative;
+    display: inline-block;
+
+  }
+  .dropdown-content{
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2) ;
+    z-index: 1000;
+    right: 0;  
+  }
+   .dropdown-content a {
+     color: black;
+     padding: 12px 16px;
+     text-decoration: none;
+     display: block;
+     width: 100%;
+   }
+   .dropdown-content a:hover{
+    background-color: #f1f1f1;
+   }
+   .dropdown:hover .dropdown-content{
+    display: block;
+   }
+   .header{
+    position: relative;
+    z-index: 500;
+
+   }
+  .btn{
+     border: none;
+     font-size: small;
+  }
+
+
 </style>
 
 </head>
@@ -96,8 +135,23 @@
                             </ul>
                         </div>
                         <div class="hearer_icon d-flex">
-                              <a href="/signup" class="signup-in-link">Sign Up</a>
-                              <a href="/login" class="signup-in-link">  login </a>
+                           <% if (user) { %>
+                             <div class="dropdown">
+                                 <a href="#" class="signup-in-link"><%= user.name %></a>
+                                 <div class="dropdown-content">
+                                 <a href="/userProfile">Profile</a>
+                                 <form method="post" action="/logout">
+                                    <button class="btn">logout</button>
+                                <!-- <a href="/logout">Logout</a> -->
+                              
+                                 </form>
+                                 </div>
+                                 </div>
+                                 <% } else { %>
+                               <a href="/signup" class="signup-in-link">Sign Up</a>
+                                <a href="/login" class="signup-in-link">Log In</a>
+                                 <% } %>
+
 
                             <a id="search_1" href="javascript:void(0)"><i class="ti-search"></i></a>
                             <a href=""><i class="ti-heart"></i></a>
