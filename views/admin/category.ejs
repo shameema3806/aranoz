@@ -13,6 +13,12 @@
         .text{
           color: #154b70;
         }
+        .text-white{
+          color: #ddd;
+          text-decoration: none;
+
+        
+        }
         .btn-back {
             background-color: #154b70;
             color: rgba(255, 255, 255, 0.906);
@@ -186,7 +192,7 @@
             z-index: 900;
         }
         .btn-create {
-            color: #000 !important;
+            color: #fff;
         }
      
         /* Responsive Table Styles */
@@ -239,8 +245,8 @@
                         <th><strong>Offer Price</strong></th>
                         <th><strong>Offer</strong></th>
                         <th><strong>Status</strong></th>
-                        <th><strong>Edit</strong></th>
                         <th><strong>Action</strong></th>
+                        <th><strong>Edit</strong></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -252,12 +258,30 @@
                         <td class="text-start"><%= category.description %></td>
                         <td>$50</td>
                         <td>10%</td>
-                        <td>Active</td>
-                        <td><button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Edit</button></td>
-                        <td class="action">
-                             <button >List</button>
-                            <button class="unlist" onclick="showDeleteBox(this)">Unlist</button>
-                        </td>
+                        <td class="text-start">
+                          <% if(category.isListed) { %> 
+                          <span style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Active</span>
+                          <%} else {%>
+                            <span style="background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 3px;">inactive </span>
+                            <%}%>
+
+                          </td>
+
+                        <td class="text-start">
+                          <%if(category.isListed){%>
+                             <button style="background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 3px;" >
+                              <a href="/admin/ListCategory?id=<%=category._id%>" class="text-white">UnList</a>
+                            </button>
+                             <%}else{%>
+                            <!-- <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">list</button> -->
+                        
+                           <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;" >
+                              <a href="/admin/unListCategory?id=<%=category._id%>" class="text-white">List</a>
+                            </button>
+                            <%}%>
+                          </td>
+                        <td> <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Edit</button></td>
+
                     </tr>
                     <!-- <tr> -->
                         <!-- <td>2.</td>

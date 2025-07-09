@@ -23,6 +23,7 @@ router.get("/unblockUser",adminAuth,userController.userunBlocked);
 //category Management
 router.get("/category",adminAuth,categoryController.categoryInfo);
 router.post("/addCategory",adminAuth,categoryController.addCategory);
-
+router.get("/ListCategory",adminAuth,categoryController.getListCategory);
+router.get("/unListCategory",adminAuth,categoryController.getUnListCategory);
 
 module.exports = router;

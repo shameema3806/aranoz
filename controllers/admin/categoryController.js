@@ -58,11 +58,35 @@ const addCategory = async (req,res) =>{
         return res.status(500).json({error:"Internal Server Error"})
     }
 }
+  
+
+   const getListCategory = async(req,res)=>{
+    try {
+        let id= req.query.id;
+        await Category.updateOne({_id:id},{$set:{isListed:false}});
+        res.redirect("/admin/category");
+    } catch (error) {
+        res.redirect("/pagerror");
+    }
+   }
+
+      const getUnListCategory = async(req,res)=>{
+    try {
+        let id= req.query.id;
+        await Category.updateOne({_id:id},{$set:{isListed:true}});
+        res.redirect("/admin/category");
+    } catch (error) {
+        res.redirect("/pagerror");
+    }
+   }
+
 
 module.exports = {
     categoryInfo,
     addCategory,
     
+    getListCategory,
+    getUnListCategory,
 
 
 
