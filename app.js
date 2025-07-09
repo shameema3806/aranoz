@@ -13,7 +13,6 @@ db();
 
 app.use(flash());
 
-// app.use(express.static('public'));
 
 const publicPath = path.join(__dirname, 'public');
 app.use(express.static(publicPath));

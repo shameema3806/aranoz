@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Category</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .text{
+          color: #154b70;
+        }
+        .btn-back {
+            background-color: #154b70;
+            color: rgba(255, 255, 255, 0.906);
+            border: none;
+            padding: 5px 20px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .header {
+            border-bottom: 3px solid #1A5D8C;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .search-bar {
+            background-color: #1A5D8C;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 300px;
+            display: flex;
+            align-items: center;
+        }
+        .search-bar input {
+            background: none;
+            border: none;
+            color: #fff;
+            width: 80%;
+            outline: none;
+        }
+        .search-bar input::placeholder {
+            color: #fff;
+            opacity: 0.7;
+        }
+        .search-bar button {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 0 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .action button {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .action .unlist {
+            color: #ff0000;
+            border-color: #ff0000;
+        }
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #000;
+        }
+        .pagination .current-page {
+            background-color: #ddd;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 0 5px;
+        }
+        .col-md-3 {
+            padding: 20px;
+            border: 1px solid #1A5D8C;
+            border-radius: 30px;
+            margin: 50px;
+        }
+        .form-label {
+            margin-bottom: 8px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #1A5D8C;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .d-grid {
+            margin-top: 20px;
+        }
+        .error-message {
+            color: red;
+        }
+        .container {
+            display: block; /* Changed from flex to block */
+        }
+        .category-table {
+            width: 100%;
+            min-width: 0;
+        }
+        .category-form {
+            width: 100%;
+            min-width: 300px;
+        }
+        strong {
+            color: #1A5D8C;
+        }
+        .btn-primary {
+            background-color: #1A5D8C;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn-primary:hover {
+            background-color: #1A5D8C; /* Removed black hover */
+        }
+        #deleteBox {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 2px solid #1A5D8C;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        #deleteBox button {
+            margin: 0 10px;
+            padding: 5px 15px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 900;
+        }
+        .btn-create {
+            color: #000 !important;
+        }
+     
+        /* Responsive Table Styles */
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .category-form, .category-table {
+                flex: 100%;
+                margin-bottom: 20px;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            th, td {
+                min-width: 120px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .search-bar {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/admin" class="btn btn-back mt-3">
+        ← Back
+    </a>
+    <div class="header">
+        <h1 class="text">Category</h1>
+        <form action="/admin/users/" method="get" class="search-bar">
+            <input type="text" placeholder="Search categories..." name="search">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div class="container">
+        <div class="category-table">
+            <table id="categoryTable">
+                <thead>
+                    <tr>
+                        <th><strong>S.No.</strong></th>
+                        <th><strong>Category</strong></th>
+                        <th><strong>description</strong></th>
+                        <th><strong>Offer Price</strong></th>
+                        <th><strong>Offer</strong></th>
+                        <th><strong>Status</strong></th>
+                        <th><strong>Edit</strong></th>
+                        <th><strong>Action</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                   <% cat.reverse().forEach((category, index) => { %>
+
+                    <tr>
+                       <td><%= (currentPage - 1) * itemsPerPage + index + 1 %></td>
+                        <td class="text-start"><%= category.name %></td>
+                        <td class="text-start"><%= category.description %></td>
+                        <td>$50</td>
+                        <td>10%</td>
+                        <td>Active</td>
+                        <td><button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Edit</button></td>
+                        <td class="action">
+                             <button >List</button>
+                            <button class="unlist" onclick="showDeleteBox(this)">Unlist</button>
+                        </td>
+                    </tr>
+                    <!-- <tr> -->
+                        <!-- <td>2.</td>
+                        <td>chair</td>
+                        <td>its a chair</td>
+                        <td>$20</td>
+                        <td>5%</td>
+                        <td>Active</td>
+                        <td><button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Edit</button></td>
+                        <td class="action">
+                        <button >List</button>
+                        <button class="unlist" onclick="showDeleteBox(this)">Unlist</button>
+                         </td>
+                    </tr> -->
+                
+                    <%})%>
+                </tbody>
+            </table>
+            
+               
+    
+
+
+         <div class="pagination-container" style="text-align: center; margin-top: 20px;">
+  <% if (totalPages > 1) { %>
+    <% if (currentPage > 1) { %>
+      <a href="?page=<%= currentPage - 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&lt;</a>
+    <% } else { %>
+      <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&lt;</span>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <% if (i === currentPage) { %>
+        <span style="padding: 8px 12px; background-color: #1A5D8C; color: white; margin: 0 3px; border-radius: 4px;"><%= i %></span>
+      <% } else { %>
+        <a href="?page=<%= i %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 3px; text-decoration: none; border-radius: 4px;"><%= i %></a>
+      <% } %>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+      <a href="?page=<%= currentPage + 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&gt;</a>
+    <% } else { %>
+      <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&gt;</span>
+    <% } %>
+  <% } %>
+</div>
+
+
+        </div>
+        <div class="category-form">
+            <div class="col-md-3">
+                <!-- <form method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)"> -->
+                  <form onsubmit="return handleFormSubmit(event)">
+  
+                  <div class="mb-4">
+                        <label for="product_name" class="form-label"><strong>Name</strong></label>
+                        <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name" />
+                        <div id="name-error" class="error-message"></div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label"><strong>Description</strong></label>
+                        <textarea placeholder="Type here" name="description" class="form-control" id="descriptionId" ></textarea>
+                        <div id="description-error" class="error-message"></div>
+                    </div>
+                    <div class="d-grid">
+                        <button class="btn btn-primary btn-create" type="submit">
+                            Create category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="deleteBox">
+        <p>Are you sure you want to delete this category?</p>
+        <button onclick="confirmDelete()">Yes</button>
+        <button onclick="hideDeleteBox()">No</button>
+    </div>
+    <div class="overlay" id="overlay" onclick="hideDeleteBox()"></div>
+
+   
+
+       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+       <script>
+        
+
+        function handleFormSubmit(event) {
+    event.preventDefault();
+    if (!ValidateForm()){
+     return false;
+    } 
+
+    const name = document.getElementsByName("name")[0].value.trim();
+    const description = document.getElementById("descriptionId").value.trim();
+
+    fetch("/admin/addCategory", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, description })
+    })
+    .then(async (response) => {
+        const data = await response.json();
+        console.log("FETCH RESPONSE:", data);  //  Check exact response
+
+        if (!response.ok) {
+            throw new Error(data.error || "Unknown Error");
+        }
+
+       
+        Swal.fire({
+            icon: "success",
+            title: "Category Added",
+            text: data.message
+        }).then(() => location.reload());
+    })
+    .catch((error) => {
+        console.error("FETCH ERROR:", error.message);
+
+        Swal.fire({
+            icon: "error",
+            title: "Oops!",
+            text: error.message || "Something went wrong"
+        });
+    });
+}
+
+
+        function ValidateForm() {
+            clearErrorMessage();
+            const name = document.getElementsByName("name")[0].value.trim();
+            const description = document.getElementById("descriptionId").value.trim();
+            let isValid = true;
+
+            console.log("Validating form...");
+
+            if (name === "") {
+                displayErrorMessage("name-error", "Please enter a name");
+                isValid = false;
+            } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+                      console.log("Name format is wrong");
+
+                displayErrorMessage("name-error", "Category name should contain only alphabetic characters");
+                isValid = false;
+            }
+            if (description === "") {
+                console.log("Description is empty");
+
+                displayErrorMessage("description-error", "Please enter a description");
+                isValid = false;
+            }
+            return isValid;
+        }
+
+        function displayErrorMessage(elementId, message) {
+            var errorElement = document.getElementById(elementId);
+            errorElement.innerText = message;
+            errorElement.style.display = "block";
+        }
+
+        function clearErrorMessage() {
+            const errorElements = document.getElementsByClassName("error-message");
+            Array.from(errorElements).forEach((element) => {
+                element.innerText = "";
+                element.style.display = "none";
+            });
+        }
+    </script>
+
+
+</body>
+</html>
