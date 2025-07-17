@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+        .btn-back {
+            background-color: #154b70;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .btn-back:hover {
+            background-color: #123a5a;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 60px auto;
+            width: 100%;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border: 1px solid #e0e0e0;
+        }
+        .content-header {
+            border-bottom: 2px solid #1A5D8C;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .content-title {
+            color: #1A5D8C;
+            font-weight: bold;
+            font-size: 24px;
+            margin: 0;
+        }
+        .card-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .form-control {
+            border: 1px solid #ccc;
+            border-radius: 50px 0 0 50px;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        .form-control:focus {
+            border-color: #1A5D8C;
+            outline: none;
+            box-shadow: 0 0 5px rgba(26, 93, 140, 0.3);
+        }
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+            background-color: #1A5D8C;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+        }
+        .input-group .btn:hover {
+            background-color: #154b70;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            color: #1A5D8C;
+            font-weight: 600;
+        }
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .input-group {
+                max-width: 100%;
+            }
+            .table {
+                font-size: 14px;
+            }
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .btn-back {
+                position: static;
+                margin-bottom: 20px;
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/admin" class="btn-back">← Back</a>
+    <div class="container">
+        <div class="card">
+            <div class="content-header">
+                <h2 class="content-title">Products</h2>
+            </div>
+            <div class="card-header">
+                <form action="/admin/productlisting" method="get">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search products or brands" name="search">
+                        <button class="btn" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Product Name</th>
+                            <th scope="col">Brand</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Sale Price</th>
+                            <th scope="col">Offer Price</th>
+                            <th scope="col">Offer</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% products.forEach(product => { %>
+                        <tr>
+                            <td><%= product.name %></td>
+                            <td><%= product.brand || 'N/A' %></td>
+                            <td><%= product.category %></td>
+                            <td>$<%= product.salePrice.toFixed(2) %></td>
+                            <td>$<%= product.offerPrice ? product.offerPrice.toFixed(2) : 'N/A' %></td>
+                            <td>
+                                <button class="btn btn-info btn-sm" onclick="addOffer('<%= product._id %>')">Add Offer</button>
+                                <button class="btn btn-info btn-sm" onclick="removeOffer('<%= product._id %>')">Remove</button>
+                            </td>
+                            <td><%= product.quantity %></td>
+                            <td>
+                                <button class="btn <%= product.isBlocked ? 'btn-success' : 'btn-danger' %> btn-sm" onclick="blockProduct('<%= product._id %>')">
+                                    <%= product.isBlocked ? 'Unblock' : 'Block' %>
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-sm">
+                                    <a href="/admin/editProduct/<%= product._id %>" class="text-white" style="text-decoration: none;">Edit</a>
+                                </button>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        function addOffer(productId) {
+            Swal.fire({
+                title: 'Add Offer',
+                input: 'number',
+                inputLabel: 'Enter offer price',
+                inputAttributes: {
+                    min: 0,
+                    step: 0.01
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Add',
+                confirmButtonColor: '#1A5D8C',
+                cancelButtonColor: '#dc3545'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/productlisting/${productId}/offer`,
+                        method: 'POST',
+                        data: { offerPrice: result.value },
+                        success: function(response) {
+                            Swal.fire('Success', `Offer added for product ${productId}`, 'success').then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Failed to add offer', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function removeOffer(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Remove offer for product ${productId}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, remove it!',
+                confirmButtonColor: '#1A5D8C',
+                cancelButtonColor: '#dc3545'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/productlisting/${productId}/offer`,
+                        method: 'DELETE',
+                        success: function(response) {
+                            Swal.fire('Success', `Offer removed for product ${productId}`, 'success').then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Failed to remove offer', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function blockProduct(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Toggle block status for product ${productId}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, toggle it!',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/productlisting/${productId}/block`,
+                        method: 'PATCH',
+                        success: function(response) {
+                            Swal.fire('Success', `Product ${productId} status updated`, 'success').then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Failed to update product status', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

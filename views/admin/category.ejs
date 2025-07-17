@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
+           
         }
         .text{
           color: #154b70;
@@ -280,7 +281,11 @@
                             </button>
                             <%}%>
                           </td>
-                        <td> <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Edit</button></td>
+                        <td class="text-start"> 
+                          <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
+                          <a href="/admin/editCategory?id=<%=category._id%>" class="text-white">Edit</a> 
+                        </button>
+                      </td>
 
                     </tr>
                     <!-- <tr> -->

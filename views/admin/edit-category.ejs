@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Category</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f6f0f0e9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: flex-start; /* Align content from left for back button */
+            align-items: flex-start; /* Start from top */
+            min-height: 100vh;
+            position: relative; /* For positioning back button */
+        }
+        .btn-back {
+            background-color: #154b70;
+            color: rgba(255, 255, 255, 0.906);
+            border: none;
+            padding: 5px 20px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin-bottom: 20px;
+            position: absolute; /* Position absolutely for left top */
+            top: 20px;
+            left: 20px;
+        }
+        .container {
+    width: 100%;
+    max-width: 800px; /* Updated to match the card's max-width for consistency */
+    margin: 0 auto; /* Ensures horizontal centering */
+    display: flex;
+    justify-content: center;
+}
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    border: 1px solid #e0e0e0;
+    width: 100%;
+    max-width: 800px;
+}
+        .header {
+            border-bottom: 2px solid #1A5D8C;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: center; /* Center the header */
+        }
+        .header h2 {
+            color: #1A5D8C;
+            font-weight: bold;
+            font-size: 24px;
+            margin: 0;
+        }
+        .form-label {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+            text-align: left; /* Align labels to left */
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box; /* Ensure padding doesn't affect width */
+        }
+        .form-control:focus {
+            border-color: #1A5D8C;
+            outline: none;
+            box-shadow: 0 0 5px rgba(26, 93, 140, 0.3);
+        }
+        .border {
+            border-color: #ccc !important;
+        }
+        .btn-primary {
+            background-color: #1A5D8C;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background-color: #154b70;
+        }
+        .d-grid {
+            margin-top: 20px;
+            text-align: right; /* Align button to right within grid */
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .mt-30 {
+            margin-top: 30px;
+        }
+        .mt-60 {
+            margin-top: 60px;
+        }
+        .text-end {
+            text-align: end;
+        }
+        @media (max-width: 768px) {
+            .card {
+                padding: 20px;
+            }
+            .btn-primary {
+                width: 100%;
+            }
+            .text-end {
+                text-align: center;
+            }
+            .btn-back {
+                position: relative; /* Reset to relative on small screens */
+                top: auto;
+                left: auto;
+                margin-bottom: 10px;
+                display: block; /* Ensure it takes full width on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/admin/category" class="btn btn-back mt-3">
+        ← Back
+    </a>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 mt-60">
+                <div class="card">
+                    <div class="header">
+                        <h2>Update Category</h2>
+                    </div>
+                    <form method="post" action="/admin/editCategory/<%=category._id%>">
+                        <div class="mb-4 mt-30">
+                            <label for="product_name" class="form-label">Name</label>
+                            <input type="text" name="categoryName" value="<%=category.name%>" class="form-control border" id="product_name"  />
+                            <div id="name-error" class="error-message">Please enter a valid name.</div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea name="description" class="form-control border" id="description" rows="4" ><%= category.description %></textarea>
+                            <div id="description-error" class="error-message">Please enter a description.</div>
+                        </div>
+                        <div class="d-grid text-end mt-30 col-md-5">
+                            <button class="btn btn-primary" type="submit">Update Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic form validation
+        const form = document.querySelector('form');
+        const nameInput = document.getElementById('product_name');
+        const descriptionInput = document.getElementById('description');
+        const nameError = document.getElementById('name-error');
+        const descriptionError = document.getElementById('description-error');
+
+        form.addEventListener('submit', (e) => {
+            let isValid = true;
+
+            if (!nameInput.value.trim()) {
+                nameError.style.display = 'block';
+                isValid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            if (!descriptionInput.value.trim()) {
+                descriptionError.style.display = 'block';
+                isValid = false;
+            } else {
+                descriptionError.style.display = 'none';
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+
+        // Clear error messages on input
+        nameInput.addEventListener('input', () => {
+            if (nameInput.value.trim()) {
+                nameError.style.display = 'none';
+            }
+        });
+
+        descriptionInput.addEventListener('input', () => {
+            if (descriptionInput.value.trim()) {
+                descriptionError.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
