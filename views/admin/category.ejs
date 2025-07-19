@@ -309,30 +309,30 @@
                
     
 
+                  
+        <div class="pagination-container" style="text-align: center; margin-top: 20px;">
+           <% if (totalPages > 1) { %>
+           <% if (currentPage > 1) { %>
+           <a href="?page=<%= currentPage - 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&lt;</a>
+           <% } else { %>
+           <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&lt;</span>
+           <% } %>
 
-         <div class="pagination-container" style="text-align: center; margin-top: 20px;">
-  <% if (totalPages > 1) { %>
-    <% if (currentPage > 1) { %>
-      <a href="?page=<%= currentPage - 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&lt;</a>
-    <% } else { %>
-      <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&lt;</span>
-    <% } %>
+           <% for (let i = 1; i <= totalPages; i++) { %>
+           <% if (i === currentPage) { %>
+           <span style="padding: 8px 12px; background-color: #1A5D8C; color: white; margin: 0 3px; border-radius: 4px;"><%= i %></span>
+           <% } else { %>
+           <a href="?page=<%= i %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 3px; text-decoration: none; border-radius: 4px;"><%= i %></a>
+           <% } %>
+           <% } %>
 
-    <% for (let i = 1; i <= totalPages; i++) { %>
-      <% if (i === currentPage) { %>
-        <span style="padding: 8px 12px; background-color: #1A5D8C; color: white; margin: 0 3px; border-radius: 4px;"><%= i %></span>
-      <% } else { %>
-        <a href="?page=<%= i %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 3px; text-decoration: none; border-radius: 4px;"><%= i %></a>
-      <% } %>
-    <% } %>
-
-    <% if (currentPage < totalPages) { %>
-      <a href="?page=<%= currentPage + 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&gt;</a>
-    <% } else { %>
-      <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&gt;</span>
-    <% } %>
-  <% } %>
-</div>
+           <% if (currentPage < totalPages) { %>
+           <a href="?page=<%= currentPage + 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&gt;</a>
+           <% } else { %>
+          <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&gt;</span>
+          <% } %>
+          <% } %>
+        </div>
 
 
         </div>

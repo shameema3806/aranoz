@@ -111,11 +111,11 @@
             transition: background-color 0.3s;
         }
         .btn-info {
-            background-color: #17a2b8;
+            background-color: #1A5D8C;
             color: white;
         }
         .btn-info:hover {
-            background-color: #138496;
+            background-color: #1A5D8C;
         }
         .btn-danger {
             background-color: #dc3545;
@@ -173,11 +173,13 @@
                 </form>
             </div>
             <div class="card-body">
+             <div style="max-height: 400px; overflow-y: auto;"> 
+
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th scope="col">Product Name</th>
-                            <th scope="col">Brand</th>
+                            <!-- <th scope="col">Brand</th> -->
                             <th scope="col">Category</th>
                             <th scope="col">Sale Price</th>
                             <th scope="col">Offer Price</th>
@@ -190,9 +192,9 @@
                     <tbody>
                         <% products.forEach(product => { %>
                         <tr>
-                            <td><%= product.name %></td>
-                            <td><%= product.brand || 'N/A' %></td>
-                            <td><%= product.category %></td>
+                            <td><%= product.productName %></td>
+                            <!-- <td><%= product.brand || 'N/A' %></td> -->
+                            <td><%= product.category.name %></td>
                             <td>$<%= product.salePrice.toFixed(2) %></td>
                             <td>$<%= product.offerPrice ? product.offerPrice.toFixed(2) : 'N/A' %></td>
                             <td>
@@ -207,16 +209,42 @@
                             </td>
                             <td>
                                 <button class="btn btn-info btn-sm">
-                                    <a href="/admin/editProduct/<%= product._id %>" class="text-white" style="text-decoration: none;">Edit</a>
+                                    <a href="/admin/editProduct/<%= product._id %>" class="text-white" style=" color: white; text-decoration: none;">Edit</a>
                                 </button>
                             </td>
                         </tr>
                         <% }) %>
                     </tbody>
                 </table>
+                 </div> 
             </div>
         </div>
     </div>
+
+         <div class="pagination-container" style="text-align: center; margin-top: 20px;">
+           <% if (totalPages > 1) { %>
+           <% if (currentPage > 1) { %>
+           <a href="?page=<%= currentPage - 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&lt;</a>
+           <% } else { %>
+           <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&lt;</span>
+           <% } %>
+
+           <% for (let i = 1; i <= totalPages; i++) { %>
+           <% if (i === currentPage) { %>
+           <span style="padding: 8px 12px; background-color: #1A5D8C; color: white; margin: 0 3px; border-radius: 4px;"><%= i %></span>
+           <% } else { %>
+           <a href="?page=<%= i %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 3px; text-decoration: none; border-radius: 4px;"><%= i %></a>
+           <% } %>
+           <% } %>
+
+           <% if (currentPage < totalPages) { %>
+           <a href="?page=<%= currentPage + 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&gt;</a>
+           <% } else { %>
+          <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&gt;</span>
+          <% } %>
+          <% } %>
+        </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

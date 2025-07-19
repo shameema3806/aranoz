@@ -23,8 +23,10 @@ const getProductAddPage = async (req,res)=>{
     }
 
 } 
+
 const addProducts = async (req,res)=>{
     try {
+        console.log(req.files)
         const products = req.body;
         const productExists = await Product.findOne({
             productName:products.productName,
@@ -48,7 +50,7 @@ const addProducts = async (req,res)=>{
             const categoryId = await Category.findOne({name:products.category} );
 
             if(!categoryId) {
-                return res.status(400).join("Invalid category name")
+                return res.status(400).json("Invalid category name")
             }
 
             const newProduct = new Product({
@@ -68,15 +70,18 @@ const addProducts = async (req,res)=>{
             });
             
             await newProduct.save();
-            return res.redirect("/admin/addProducts");
+            return res.status(200).json({message:"product successfully added",success:true});
+            console.log(req.body);
              }else{
-                return res.status(400).json("Product already exits,please try with another name");
+              
+                return res.status(400).json({message:"Product already exits,please try with another name",success:false });
+
              }
     } catch (error) {
        console.error("Error saving product",error);
-       return res.redirect("/admin/pagerror") 
+       return res.status(404).json(error) 
     }
-}
+  }
 
     const productListing = async (req, res) => {
     try {
@@ -91,10 +96,101 @@ const addProducts = async (req,res)=>{
     }
 };
 
+// const getAllProducts = async(req,res)=>{
+//     try {
+//         const search = req.query.search || "";
+//         const page = req.query.page || 1;
+//         const limit = 4;
 
-module.exports ={
+//         const productData = await Product.find({
+//             $or:[
+//                 {productName:{$regex:new RegExp(".*" + search +".*","i")}},
+//                 // {brand:{$regex:new RegExp(".*" + search+".*","i")}}
+//             ],
+//         })
+//         .limit(limit*1)
+//         .skip((page-1)*limit)
+//         .populate("category")
+//         .exec();
+
+//         const count = await Product.find({
+//             $or:[
+//                 {productName:{$regex:new RegExp(".*" + search +".*","i")}},
+//                   // {brand:{$regex:new RegExp(".*" + search+".*","i")}}
+
+//             ], 
+
+//         }).countDocuments();
+
+//         const category = await Category.find({isListed:true});
+//         // const brand = await Brand.find({isBlocked:false});
+
+//         // if(category && brand){
+//         if(category){
+//             res.render("products",{
+//                 data:productData,
+//                 currentPage:page,
+//                 totalPages:Math.ceil(count/limit),
+//                 cat:category,
+//                 // brand:brand,
+            
+//             })
+//         }else{
+//             res.render("page-404");
+//         }
+
+//     } catch (error) {
+//          console.error("Error in getAllProducts:", error);
+//         res.redirect("/pagerror"); 
+//     }
+// }
+
+const getAllProducts = async (req, res) => {
+    try {
+        const search = req.query.search || "";
+        const page = parseInt(req.query.page) || 1;
+        const limit = 4;
+
+        const query = {
+            $or: [
+                { productName: { $regex: new RegExp(".*" + search + ".*", "i") } }
+                // { brand: { $regex: new RegExp(".*" + search + ".*", "i") } }
+            ]
+        };
+
+        const [productData, count, category] = await Promise.all([
+            Product.find(query)
+                .limit(limit)
+                .skip((page - 1) * limit)
+                .populate("category")
+                .exec(),
+            Product.countDocuments(query),
+            Category.find({ isListed: true })
+        ]);
+
+        if (category) {
+            res.render("products", {
+                products: productData,
+                currentPage: page,
+                totalPages: Math.ceil(count / limit),
+                cat: category,
+                // brand: brand
+            });
+        } else {
+            res.render("page-404");
+        }
+
+    } catch (error) {
+        console.error("Error in getAllProducts:", error);
+        res.redirect("/pagerror"); // Corrected: removed leading slash issue
+    }
+};
+
+
+
+module.exports = {
     getProductAddPage,
     addProducts,
-     productListing,
+    getAllProducts,
     
 };

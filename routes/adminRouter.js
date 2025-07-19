@@ -33,8 +33,8 @@ router.post("/editCategory/:id",adminAuth,categoryController.editCategory);
 
 //product Management
 router.get("/addProducts",adminAuth,productController.getProductAddPage);
-router.post('/addProducts', adminAuth, upload.array('images', 4), productController.addProducts);
-router.get('/productlisting',adminAuth, productController.productListing);
+router.post('/addProducts', adminAuth, upload.array('productImages', 4), productController.addProducts);
+router.get('/products',adminAuth, productController.getAllProducts);
 
 
 module.exports = router;
