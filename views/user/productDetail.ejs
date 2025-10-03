@@ -1,0 +1,133 @@
+<%- include("../partials/user/header") %>
+
+<main class="main">
+  <div class="page-header breadcrumb-wrap">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="/" rel="nofollow">Home</a>
+        <span></span>
+        <a href="/shop">Shop</a>
+        <span></span>
+        <%= product.name %>
+      </div>
+    </div>
+  </div>
+
+  <section class="mt-50 mb-50">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-9">
+          <div class="product-detail accordion-detail">
+            <div class="row mb-50">
+              <!-- Product Gallery -->
+              <div class="col-md-6">
+                <div class="detail-gallery">
+                  <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                  <div class="product-image-slider">
+                    <% product.images.forEach(image => { %>
+                      <figure class="border-radius-10">
+                        <img src="/product-images/<%= image %>" alt="product image">
+                      </figure>
+                    <% }) %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product Info -->
+              <div class="col-md-6">
+                <div class="detail-info">
+                  <h2 class="title-detail"><%= product.name %></h2>
+                  <div class="product-detail-rating">
+                    <div class="product-rate d-inline-block">
+                      <div class="product-rating" style="width:<%= product.rating * 20 %>%"></div>
+                    </div>
+                    <span class="font-small ml-5 text-muted">(<%= product.reviews.length %> reviews)</span>
+                  </div>
+
+                  <div class="clearfix product-price-cover">
+                    <div class="product-price primary-color float-left">
+                      <ins><span class="text-brand">₹<%= product.price %></span></ins>
+                      <% if (product.originalPrice > product.price) { %>
+                        <ins><span class="old-price font-md ml-15">₹<%= product.originalPrice %></span></ins>
+                        <span class="save-price font-md color3 ml-15">
+                          Save ₹<%= product.originalPrice - product.price %>
+                        </span>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <div class="short-desc mb-30">
+                    <p><%= product.description %></p>
+                  </div>
+
+                  <div class="product_sort_info font-xs mb-30">
+                    <ul>
+                      <li><i class="fi-rs-crown mr-5"></i> 1 Year Brand Warranty</li>
+                      <li><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
+                      <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                    </ul>
+                  </div>
+
+                  <% if (product.quantity > 0) { %>
+                    <div class="detail-extralink">
+                      <div class="detail-qty border radius">
+                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                        <span class="qty-val" id="quantity">1</span>
+                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                      </div>
+                      <div class="product-extra-link2">
+                        <button class="button button-add-to-cart">Add to cart</button>
+                        <a class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <div class="alert alert-danger mt-3">Out of Stock</div>
+                  <% } %>
+
+                  <ul class="product-meta font-xs color-grey mt-50">
+                    <li>Stock Code: <%= product._id %></li>
+                    <li>Availability: <span class="in-stock text-success ml-5"><%= product.quantity > 0 ? 'In stock' : 'Sold out' %></span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="product-review">
+              <h4>Reviews:</h4>
+              <% if (product.reviews.length > 0) { %>
+                <% product.reviews.forEach(review => { %>
+                  <div>
+                    <strong><%= review.userName %></strong> - <%= review.comment %>
+                    <br />
+                    <small>Rating: <%= review.rating %>/5</small>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <p>No reviews yet.</p>
+              <% } %>
+            </div>
+
+            <!-- Related Products -->
+            <% if (relatedProducts && relatedProducts.length > 0) { %>
+              <h3>Related Products</h3>
+              <div class="row">
+                <% relatedProducts.forEach(p => { %>
+                  <div class="col-md-4">
+                    <a href="/product/<%= p._id %>">
+                      <img src="/product-images/<%= p.images[0] %>" style="width: 100%;" alt="<%= p.name %>">
+                      <p><%= p.name %></p>
+                      <p>₹<%= p.price %></p>
+                    </a>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include("../partials/user/footer") %>

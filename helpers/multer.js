@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Correct path: public/img/product
-const uploadPath = path.join(__dirname, '../public/upload/product-images');
+const uploadPath = path.join(__dirname, '../uploads/product-images');
 
 if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });

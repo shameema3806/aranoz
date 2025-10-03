@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -12,6 +12,7 @@
             box-sizing: border-box;
         }
 
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg,  #d7d8d8 0%,  #2874A6 100%);
@@ -22,9 +23,11 @@
             padding: 20px;
         }
 
+
     .container {
       max-width: 1000px;
     }
+
 
     .signup-container {
       background-color: #ffffff;
@@ -34,29 +37,35 @@
       width: 100%;
     }
 
+
     .signup-container h2 {
       color: #1f2d3d;
     }
+
 
     .form-label {
       color: #1f2d3d;
       font-weight: 500;
     }
 
+
     .form-control {
       border: 1px solid #cbd5e0;
       border-radius: 6px;
     }
+
 
     .btn-primary {
       background-color: #2874A6;
       border-color: #2874A6;
     }
 
+
     .btn-primary:hover {
       background-color: #1A5D8C;
       border-color: #1A5D8C;
     }
+
 
     .google-btn {
       display: flex;
@@ -72,14 +81,17 @@
       transition: background-color 0.2s;
     }
 
+
     .google-btn:hover {
       background-color: #f5f5f5;
     }
+
 
     .google-btn img {
       width: 20px;
       margin-right: 10px;
     }
+
 
     .signup-image img {
       width: 100%;
@@ -88,11 +100,13 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
+
     @media (max-width: 767px) {
       .signup-container {
         margin-top: 1.5rem;
       }
     }
+
 
     .error-message{
       color: red;
@@ -103,19 +117,30 @@
 </head>
 <body>
   <div class="container">
-    <div class="row align-items-center justify-content-center g-4 flex-wrap">
-      
+    <div class="row align-items-center justify-content-center g-4 flex-wrap"> -->
+     
       <!-- Image Column -->
+
+
+<!--
       <div class="col-lg-6 col-md-6 col-12 signup-image text-center">
         <a href="/">
           <img src="/img/sfa.jpg" alt="Shopping Site" />
         </a>
-      </div>
+      </div> -->
+
+
+
 
       <!-- Form Column -->
-      <div class="col-lg-6 col-md-6 col-12">
+
+
+
+
+      <!-- <div class="col-lg-6 col-md-6 col-12">
         <div class="signup-container">
           <h2 class="text-center mb-4">Sign Up</h2>
+
 
           <form id="signform"  action="/signup" method="POST">
             <div class="mb-3">
@@ -123,35 +148,50 @@
             <input type="text" class="form-control" id="name" name="name" >
                <div style="color:red;"><%=msg1%></div>
 
+
              <div id="error1" class="error-message"> </div>
             </div>
 
+
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" name="email"  required/>
+              <input type="email" class="form-control" id="email" name="email"  required/> -->
+
+
+
+
                  <!-- <div style="color:red;"><%=msg2%></div> -->
-                    <% if (msg2) { %>
+
+
+
+
+                    <!-- <% if (msg2) { %>
                           <div style="color:red;"><%= msg2 %></div>
                             <% } %>
  
             <div id="error2" class="error-message"></div>
             </div>
 
+
             <div class="mb-3">
               <label for="phone" class="form-label">Phone Number</label>
               <input type="tel" class="form-control" id="phone" name="phone"  />
               <div style="color:red;"><%=msg3%></div>
 
+
             <div id="error3" class="error-message"></div>
             </div>
+
 
             <div class="mb-3">
               <label for="password" class="form-label">Password</label>
               <input type="password" class="form-control" id="password" name="password"  />
                   <div style="color:red;"><%=msg5%></div>
 
+
             <div id="error4" class="error-message"></div>
             </div>
+
 
             <div class="mb-3">
               <label for="confirmPassword" class="form-label">Confirm Password</label>
@@ -172,11 +212,13 @@
         </div>
       </div>
 
+
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-  //   const nameid = document.getElementById("name");
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"> -->
+  <!-- //   const nameid = document.getElementById("name");
   //   const emailid = document.getElementById("email");
   //   const phoneid = document.getElementById("phone");
   //   const passid = document.getElementById("password");
@@ -189,9 +231,12 @@
   //   const signform = document.getElementById("signform");
 
 
+
+
   //   function nameValidateChecking(e){
   //     const nameval = nameid.value;
   //     const namepattern = /^[A-Za-z\s]+$/;
+
 
   //     if(nameval.trim()===""){
   //       error1.style.display="block";
@@ -205,12 +250,15 @@
   //     }
   //   }
 
+
    
 
-    
+
+   
   //   function emailValidateChecking(e){
   //     const emailval = emailid.value;
   //    const emailpattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
 
   //     if(!emailpattern.test(emailval)){
   //       error2.style.display="block";
@@ -222,9 +270,11 @@
   //   }
 
 
+
+
   //    function phoneValidateChecking(e){
   //     const phoneval = phoneid.value;
-  
+ 
   //     if(phoneval.trim()===""){
   //       error3.style.display="block";
   //       error3.innerHTML="Enter valid phone number";
@@ -236,14 +286,15 @@
   //       error3.innerHTML="";
   //     }
   //   }
-    
+   
   //    function passValidateChecking(e){
   //     const passval = passid.value;
   //     const cpassval = cpassid.value;
   //     const alpha = /[a-zA-Z]/;
   //     const digit= /\d/;
 
-  
+
+ 
   //     if(passval.length<6){
   //       error4.style.display="block";
   //       error4.innerHTML="Should contain atleast 8 characters";
@@ -255,6 +306,7 @@
   //       error4.innerHTML="";
   //     }
 
+
   //    if(passval !== cpassval){
   //     error5.style.display="block";
   //     error5.innerHTML="Passwords do not match"
@@ -264,21 +316,24 @@
   //    }
   //     return !hasError;
 
-  //   }
-    
 
-  
+  //   }
+   
+
+
+ 
    
   //  document.addEventListener("DOMContentLoaded",function(){
   //   signform.addEventListener("submit",function(e){
-          
+         
   //    nameValidateChecking();
   //    emailValidateChecking();
   //    phoneValidateChecking();
   //    passValidateChecking();
 
+
   //    if(
-  //     !nameid || 
+  //     !nameid ||
   //     !emailid ||
   //     !phoneid ||
   //     !passid ||
@@ -289,6 +344,7 @@
   //     !error5 ||
   //     !signform
 
+
   //    ){
   //     console.error("One or more elements not found")
   //    }
@@ -297,19 +353,367 @@
   //       error2.innerHTML ||
   //       error3.innerHTML ||
   //       error4.innerHTML ||
-  //       error5.innerHTML 
+  //       error5.innerHTML
+
 
   //    ){
   //     e.preventDefault();
   //    }
   // });
 
+
   //   cpassid.addEventListener("input", passValidateChecking);
   // passid.addEventListener("input", passValidateChecking);
 
+
   //  })
-  
-  
+ 
+
+
+ 
+ 
+//   </script> -->
+<!-- // </body>
+// </html> -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+      * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #d7d8d8 0%, #2874A6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+
+    .container {
+      max-width: 1000px;
+    }
+
+
+    .signup-container {
+      background-color: #ffffff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+
+
+    .signup-container h2 {
+      color: #1f2d3d;
+    }
+
+
+    .form-label {
+      color: #1f2d3d;
+      font-weight: 500;
+    }
+
+
+    .form-control {
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+    }
+
+
+    .btn-primary {
+      background-color: #2874A6;
+      border-color: #2874A6;
+    }
+
+
+    .btn-primary:hover {
+      background-color: #1A5D8C;
+      border-color: #1A5D8C;
+    }
+
+
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      margin-top: 1rem;
+      text-decoration: none;
+      color: #333;
+      transition: background-color 0.2s;
+    }
+
+
+    .google-btn:hover {
+      background-color: #f5f5f5;
+    }
+
+
+    .google-btn img {
+      width: 20px;
+      margin-right: 10px;
+    }
+
+
+    .signup-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+
+    @media (max-width: 767px) {
+      .signup-container {
+        margin-top: 1.5rem;
+      }
+    }
+
+
+    .error-message {
+      color: red;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row align-items-center justify-content-center g-4 flex-wrap">
+     
+      <!-- Image Column -->
+      <div class="col-lg-6 col-md-6 col-12 signup-image text-center">
+        <a href="/">
+          <img src="/img/sfa.jpg" alt="Shopping Site" />
+        </a>
+      </div>
+
+
+      <!-- Form Column -->
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="signup-container">
+          <h2 class="text-center mb-4">Sign Up</h2>
+
+
+          <form id="signform" action="/signup" method="POST">
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" name="name" />
+              <div id="error1" class="error-message"><%= msg1 %></div>
+            </div>
+
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required />
+              <div id="error2" class="error-message"><%= msg2 %></div>
+            </div>
+
+
+            <div class="mb-3">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="phone" name="phone" />
+              <div id="error3" class="error-message"><%= msg3 %></div>
+            </div>
+
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" />
+              <div id="error4" class="error-message"><%= msg5 %></div>
+            </div>
+
+
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" id="confirmPassword" name="cPassword" />
+              <div id="error5" class="error-message"><%= msg4 %></div>
+            </div>
+         
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+          </form>
+          <div class="text-center mt-3">
+            <p>Or</p>
+            <a href="/auth/google" class="google-btn">
+              <img src="https://www.google.com/favicon.ico" alt="Google logo" />
+              Sign up with Google
+            </a>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const signform = document.getElementById("signform");
+      const nameid = document.getElementById("name");
+      const emailid = document.getElementById("email");
+      const phoneid = document.getElementById("phone");
+      const passid = document.getElementById("password");
+      const cpassid = document.getElementById("confirmPassword");
+      const error1 = document.getElementById("error1");
+      const error2 = document.getElementById("error2");
+      const error3 = document.getElementById("error3");
+      const error4 = document.getElementById("error4");
+      const error5 = document.getElementById("error5");
+
+
+      function validateName() {
+        const nameval = nameid.value.trim();
+        const namepattern = /^[A-Za-z\s]+$/;
+        if (nameval === "") {
+          error1.textContent = "Please enter a valid name";
+          return false;
+        } else if (!namepattern.test(nameval)) {
+          error1.textContent = "Name can only contain alphabets and spaces";
+          return false;
+        }
+        error1.textContent = "";
+        return true;
+      }
+
+
+      function validateEmail() {
+        const emailval = emailid.value.trim();
+        const emailpattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        if (!emailpattern.test(emailval)) {
+          error2.textContent = "Invalid email format";
+          return false;
+        }
+        error2.textContent = "";
+        return true;
+      }
+
+
+      function validatePhone() {
+        const phoneval = phoneid.value.trim();
+        if (phoneval === "") {
+          error3.textContent = "Enter valid phone number";
+          return false;
+        } else if (phoneval.length !== 10 || isNaN(phoneval)) {
+          error3.textContent = "Enter a 10-digit phone number";
+          return false;
+        }
+        error3.textContent = "";
+        return true;
+      }
+
+
+      function validatePassword() {
+        const passval = passid.value;
+        const alpha = /[a-zA-Z]/;
+        const digit = /\d/;
+        if (passval.length < 8) {
+          error4.textContent = "Password should contain at least 8 characters";
+          return false;
+        } else if (!alpha.test(passval) || !digit.test(passval)) {
+          error4.textContent = "Password should contain numbers and alphabets";
+          return false;
+        }
+        error4.textContent = "";
+        return true;
+      }
+
+
+      function validateConfirmPassword() {
+        const passval = passid.value;
+        const cpassval = cpassid.value;
+        if (passval !== cpassval) {
+          error5.textContent = "Passwords do not match";
+          return false;
+        }
+        error5.textContent = "";
+        return true;
+      }
+
+
+      function validateForm() {
+
+        const isNameValid = validateName();
+        const isEmailValid = validateEmail();
+        const isPhoneValid = validatePhone();
+        const isPasswordValid = validatePassword();
+        const isConfirmPasswordValid = validateConfirmPassword();
+        return isNameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid;
+      }
+
+
+      // Real-time validation
+      nameid.addEventListener("input", validateName);
+      emailid.addEventListener("input", validateEmail);
+      phoneid.addEventListener("input", validatePhone);
+      passid.addEventListener("input", validatePassword);
+      cpassid.addEventListener("input", validateConfirmPassword);
+
+
+      signform.addEventListener("submit", async function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+
+        if (!validateForm()) {
+          return;
+        }
+
+
+        // const formData = new FormData(signform);
+            const formObj = Object.fromEntries(new FormData(signform));
+
+        try {
+          const response = await fetch("/signup", {
+            method: "POST",
+               headers: {
+            "Content-Type": "application/json"
+        },
+            body:JSON.stringify(formObj)
+          });
+
+
+          if (response.ok) {
+            // Handle successful signup (e.g., redirect or show success message)
+            window.location.href = "/verify-otp"; // Adjust redirect as needed
+          } else {
+            const errors = await response.json();
+            // Display server-side errors
+            error1.textContent = errors.msg1 || "";
+            error2.textContent = errors.msg2 || "";
+            error3.textContent = errors.msg3 || "";
+            error4.textContent = errors.msg5 || "";
+            error5.textContent = errors.msg4 || "";
+          }
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          // Display general error message
+          // error1.textContent = "An error occurred. Please try againn.";
+        }
+      });
+    });
   </script>
 </body>
 </html>
+
+
+

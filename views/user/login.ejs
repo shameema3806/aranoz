@@ -307,6 +307,21 @@
             border-color: #e74c3c;
             background: #fff8f8;
         }
+           
+        .forgot-password-link{
+            font-size: 0.875rem;
+            color: #165582;
+            text-decoration: none;
+        }
+        .forgot-password-link:hover{
+            color: #165582;
+            text-decoration: underline;
+        }
+
+
+
+
+
     </style>
 </head>
 <body>
@@ -324,13 +339,12 @@
                         name="email"
                         id="email"
                         placeholder="Enter your email address"
-                        required
-                    />
-              <% if (typeof msg1 !== 'undefined' && msg1) { %>
-            <div style="color:red;"><%= msg1 %></div>
-        <% } %>
-        <div id="emailError" class="error-message"></div>
-    </div>
+                        required/>
+                   <% if (typeof msg1 !== 'undefined' && msg1) { %>
+                   <div style="color:red;"><%= msg1 %></div>
+                   <% } %>
+                   <div id="emailError" class="error-message"></div>
+                   </div>
             
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
@@ -340,10 +354,14 @@
                         name="password"
                         id="password"
                         placeholder="Enter your password"
-                        required
-                    />
+                        required />
                     <div id="passwordError" class="error-message"></div>
                 </div>
+                  
+                 <div class="form-group d-flex justify-content-end">
+                    <a href="/forgot-password" class="forgot-password-link ms-auto">Forgot Password</a>
+                 </div>
+
 
                 <!-- Server-side error message -->
                 <div id="serverMessage" class="alert" style="display: none;">
@@ -353,6 +371,9 @@
                 <button type="submit" class="login-btn" id="loginBtn">
                     <span>Sign In</span>
                 </button>
+                  
+                
+
 
                 <div class="divider">
                     <span>or continue with</span>

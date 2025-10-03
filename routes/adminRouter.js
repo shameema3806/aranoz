@@ -35,6 +35,15 @@ router.post("/editCategory/:id",adminAuth,categoryController.editCategory);
 router.get("/addProducts",adminAuth,productController.getProductAddPage);
 router.post('/addProducts', adminAuth, upload.array('productImages', 4), productController.addProducts);
 router.get('/products',adminAuth, productController.getAllProducts);
+router.post('/addProductOffer/:id/offer', adminAuth, productController.addProductOffer);
+// router.post('/removeProductOffer', adminAuth, productController.removeProductOffer);
+router.delete('/removeProductOffer/:id/offer', adminAuth, productController.removeProductOffer);
+
+router.get('/blockProduct', adminAuth, productController.blockProduct);
+router.get('/unblockProduct', adminAuth, productController.unblockProduct);
+router.get('/editProduct', adminAuth, productController.getEditProduct);
+router.post('/editProduct/:id', adminAuth,upload.array('productImages', 4), productController.updateProduct);
+
 
 
 module.exports = router;

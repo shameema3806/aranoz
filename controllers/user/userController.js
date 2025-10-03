@@ -1,35 +1,32 @@
 
 const User = require("../../models/userSchema");
+const Category = require("../../models/categorySchema");
+const Product = require("../../models/productSchema");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 
-
-// const loadHomepage = async (req,res)=>{
-//   try{
-//     const user = req.session.user;
-//     if(user){
-//        const userData = await User.findOne({_id:user._id});
-//        res.render("home",{user:userData});
-//     }else{
-//       return res.render("home");
-//     }
-
-//   }catch (error){
-//     console.log("Home page not found");
-//     res.status(500).send("server error");
-//   }
-// }
-
-
 const loadHomepage = async (req, res) => {
   try {
     const userId = req.session.user;  
+    const categories = await Category.find({ isListed: true });
+
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categories.map(category => category._id) },
+      quantity: { $gt: 0 }
+    });
+
+    productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+    productData = productData.slice(0, 4);
+
+    res.set("Cache-Control", "no-store");
+
     if (userId) {
       const userData = await User.findById(userId);
-      res.render("home", { user: userData });
+      res.render("home", { user: userData, products: productData });
     } else {
-      res.render("home", { user: null });  
+      res.render("home", { products: productData }); 
     }
   } catch (error) {
     console.log("Home page not found:", error); 
@@ -38,13 +35,11 @@ const loadHomepage = async (req, res) => {
 };
 
 
-
-
-
 const loadSignup = async(req,res)=>{
   try{
     // return res.render("signup",{msg1:req.flash('err1'),msg2:req.flash('err2'),msg3:req.flash('err3'),msg4:req.flash('err4'),msg5:req.flash('err5')});
-return res.render("signup", {
+   res.set('Cache-Control', 'no-store');
+    return res.render("signup", {
   msg1: req.flash("err1")[0] || "",
   msg2: req.flash("err2")[0] || "", 
   msg3: req.flash("err3")[0] || "",
@@ -57,15 +52,56 @@ return res.render("signup", {
   }
 }
 
-const loadShopping = async (req,res)=>{
-  try{
-    return res.render("shop");
+// const loadShopping = async (req,res)=>{
+//   try{
+//     res.set("Cache-Control", "no-store");  
+//     return res.render("shop");
 
-  }catch(error){
-    console.log("shopping page not loading:",error);
-    res.status(500).send("Server Error")
+//   }catch(error){
+//     console.log("shopping page not loading:",error);
+//     res.status(500).send("Server Error")
+//   }
+// }
+const loadShopping = async (req, res) => {
+  try {
+    const categories = await Category.find({ isListed: true });
+
+    const filter = {
+      isBlocked: false,
+      quantity: { $gt: 0 },
+      category: { $in: categories.map(cat => cat._id) }
+    };
+
+    // Optional: filter by category
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+
+    // Optional: search by name
+    if (req.query.search) {
+      const regex = new RegExp(req.query.search, "i");
+      filter.name = regex;
+    }
+
+    const products = await Product.find(filter);
+
+    res.set("Cache-Control", "no-store");
+    const userId = req.session.user;
+    const user = userId ? await User.findById(userId) : null;
+
+    res.render("shop", {
+      user,
+      categories,
+      products,
+      selectedCategory: req.query.category || "",
+      searchQuery: req.query.search || ""
+    });
+
+  } catch (error) {
+    console.log("Shopping page not loading:", error);
+    res.status(500).send("Server Error");
   }
-}
+};
 
 const pageNotFound = async (req, res) => {
   try {
@@ -184,6 +220,9 @@ const securePasswrod = async (password)=>{
   }
 }
 
+const showVerifyOtpPage = (req, res) => {
+    res.render('verify-otp'); 
+};
 
 
 const verifyOtp = async (req,res)=>{
@@ -247,7 +286,8 @@ const loadLogin = async (req,res)=>{
   try {
     if(!req.session.user){
       // return res.render("login")
-          return res.render("login",{msg1:req.flash('err1')});
+      res.set('Cache-Control', 'no-store');
+       return res.render("login",{msg1:req.flash('err1')});
 
     }else{
       res.redirect("/")
@@ -262,7 +302,7 @@ const loadLogin = async (req,res)=>{
 const login = async(req,res)=>{
   try {
     const {email,password} = req.body;
-    console.log(req.body)
+    console.log(req.body);
 
     const findUser = await User.findOne({isAdmin:0,email:email});
 
@@ -278,6 +318,7 @@ const login = async(req,res)=>{
     console.log(findUser);
 
     const passwordMatch = await bcrypt.compare(password,findUser.password);
+    console.log('Password Match:', passwordMatch);
 
     if (!passwordMatch) {
             req.flash('err1', 'Incorrect password');
@@ -290,7 +331,7 @@ const login = async(req,res)=>{
 
     } catch (error) {
         console.error('Login error:', error);
-        req.flash('err1', 'Login failed. Please try again later');
+        req.flash('err1', 'Login failed. Invalid credentials');
         res.redirect('/login');
     }
 }
@@ -311,6 +352,11 @@ const logout = async (req,res)=>{
   }
 }
 
+
+
+
+
+
 module.exports ={
     loadHomepage,
     pageNotFound,
@@ -321,6 +367,6 @@ module.exports ={
     loadLogin,
     login,
     logout,
-    loadShopping
+    loadShopping,
   
 };
