@@ -1,6 +1,5 @@
 <!-- views/partials/admin/header.ejs -->
 
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -19,14 +18,82 @@
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <!-- Main Styling -->
      <link href="../assets/css/argon-dashboard-tailwind.css?v=1.0.1" rel="stylesheet" /> 
+    <style>
+      /* Custom CSS for sidebar responsiveness and user section */
+      #sidenav {
+        transition: transform 0.3s ease-in-out;
+      }
+      #sidenav.open {
+        transform: translateX(0);
+      }
+      @media (min-width: 1280px) {
+        #sidenav {
+          transform: translateX(0) !important;
+        }
+      }
+      .user-profile {
+        border-top: 1px solid #e9ecef;
+        padding-top: 1rem;
+      }
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1A5D8C 0%, #2c5282 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+      }
+      .user-name {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 0.875rem;
+      }
+      .user-role {
+        color: #6b7280;
+        font-size: 0.75rem;
+      }
+      .user-menu a {
+        display: block;
+        padding: 0.5rem 0;
+        color: #6b7280;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.2s;
+      }
+      .user-menu a:hover {
+        color: #1A5D8C;
+      }
+      /* Overlay for mobile when sidebar is open */
+      .sidenav-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 980;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out;
+      }
+      .sidenav-overlay.open {
+        opacity: 1;
+        visibility: visible;
+      }
+    </style>
   </head>
 
-     <body class="m-0 font-sans text-base antialiased font-normal dark:bg-slate-900 leading-default bg-gray-50 text-slate-500">
-      <div class="absolute w-full dark:hidden min-h-75" style="background-color: #1A5D8C;"></div> 
+  <body class="m-0 font-sans text-base antialiased font-normal dark:bg-slate-900 leading-default bg-gray-50 text-slate-500">
+    <div class="absolute w-full dark:hidden min-h-75" style="background-color: #1A5D8C;"></div> 
     
-      
-      <!-- sidenav  -->
-     <aside class="fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 shadow-xl dark:shadow-none dark:bg-slate-850 max-w-64 ease-nav-brand z-990 xl:ml-6 rounded-2xl xl:left-0 xl:translate-x-0" aria-expanded="false">
+    <!-- Overlay for mobile -->
+    <div id="sidenav-overlay" class="sidenav-overlay"></div>
+    
+    <!-- sidenav  -->
+    <aside id="sidenav" class="fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 shadow-xl dark:shadow-none dark:bg-slate-850 max-w-64 ease-nav-brand z-990 xl:ml-6 rounded-2xl xl:left-0 xl:translate-x-0" aria-expanded="false">
       <div class="h-19">
         <i class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400 xl:hidden" sidenav-close></i>
         <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" >
@@ -49,7 +116,7 @@
             </a>
           </li>
 
-                     <li class="mt-0.5 w-full">
+          <li class="mt-0.5 w-full">
             <a class=" dark :text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="/admin/users">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                 <i class="relative top-0 text-sm leading-normal text-slate-700 ni ni-single-02"></i>
@@ -77,25 +144,15 @@
             </a>
           </li>
 
-          <!-- <li class="mt-0.5 w-full">
-            <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="/admin/addProducts">
+          <li class="mt-0.5 w-full">
+            <a class="dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="/admin/addProducts">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                <i class="relative top-0 text-sm leading-normal text-red-600 ni ni-world-2"></i>
+                <!-- Plus icon -->
+                <i class="relative top-0 text-lg leading-normal text-cyan-500 ni ni-fat-add"></i>
               </div>
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Add product</span>
             </a>
-          </li> -->
-
-                <li class="mt-0.5 w-full">
-                 <a class="dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="/admin/addProducts">
-                <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                <!-- Plus icon -->
-                <i class="relative top-0 text-lg leading-normal text-cyan-500 ni ni-fat-add"></i>
-                </div>
-                <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Add product</span>
-                 </a>
-                </li>
-
+          </li>
 
           <li class="mt-0.5 w-full">
             <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="../pages/billing.html">
@@ -106,11 +163,7 @@
             </a>
           </li> 
 
-          <!-- <li class="w-full mt-4">
-            <h6 class="pl-6 ml-2 text-xs font-bold leading-tight uppercase dark:text-white opacity-60">Account pages</h6>
-          </li> -->
-
-           <li class="mt-0.5 w-full">
+          <li class="mt-0.5 w-full">
             <a class=" dark :text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="../pages/profile.html">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                 <i class="relative top-0 text-sm leading-normal text-slate-700 ni ni-single-02"></i>
@@ -127,8 +180,74 @@
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Order</span>
             </a>
           </li>
+        </ul>
+      </div>
 
+      <!-- User Profile Section -->
+      <div class="user-profile p-4 mt-auto">
+        <hr class="mb-4 border-gray-200" />
+        <div class="flex items-center mb-4">
+          <div class="user-avatar mr-3">
+            <i class="ni ni-single-02 text-white"></i>
+          </div>
+          <div>
+            <div class="user-name"><%= typeof user !== 'undefined' ? user.name : 'Admin User' %></div>
+            <div class="user-role">Administrator</div>
+          </div>
+        </div>
+        <div class="user-menu">
+          <a href="/admin/profile"><i class="ni ni-circle-08 mr-2"></i>Profile</a>
+          <a href="/admin/settings"><i class="ni ni-settings-gear-65 mr-2"></i>Settings</a>
+          <a href="/admin/logout"><i class="ni ni-button-power mr-2"></i>Logout</a>
+        </div>
+      </div>
+    </aside>
 
-  
-    </aside>  
-    
+    <script>
+      // Responsive sidebar functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidenav = document.getElementById('sidenav');
+        const sidenavClose = document.querySelector('[sidenav-close]');
+        const sidenavOverlay = document.getElementById('sidenav-overlay');
+        const sidenavToggle = document.getElementById('sidenav-toggle'); // Add this button in your main content: <button id="sidenav-toggle" class="text-white"><i class="fas fa-bars"></i></button>
+
+        // Close sidebar
+        if (sidenavClose) {
+          sidenavClose.addEventListener('click', function() {
+            sidenav.classList.remove('open');
+            sidenavOverlay.classList.remove('open');
+            sidenav.setAttribute('aria-expanded', 'false');
+          });
+        }
+
+        // Open sidebar (if toggle button exists)
+        if (sidenavToggle) {
+          sidenavToggle.addEventListener('click', function() {
+            sidenav.classList.add('open');
+            sidenavOverlay.classList.add('open');
+            sidenav.setAttribute('aria-expanded', 'true');
+          });
+        }
+
+        // Close on overlay click
+        if (sidenavOverlay) {
+          sidenavOverlay.addEventListener('click', function() {
+            sidenav.classList.remove('open');
+            sidenavOverlay.classList.remove('open');
+            sidenav.setAttribute('aria-expanded', 'false');
+          });
+        }
+
+        // Close on window resize if open on mobile
+        window.addEventListener('resize', function() {
+          if (window.innerWidth >= 1280) {
+            sidenav.classList.add('open');
+            sidenavOverlay.classList.remove('open');
+          } else if (!sidenav.classList.contains('open')) {
+            sidenav.classList.remove('open');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

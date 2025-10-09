@@ -80,7 +80,7 @@ const loadShopping = async (req, res) => {
     // Optional: search by name
     if (req.query.search) {
       const regex = new RegExp(req.query.search, "i");
-      filter.name = regex;
+      filter.productName  = regex;
     }
 
     const products = await Product.find(filter);

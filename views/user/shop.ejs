@@ -3,6 +3,7 @@
 <head>
   <%- include("../partials/user/header") %>
   <title>Shop</title>
+ 
 </head>
 <body>
 
@@ -10,7 +11,7 @@
     <div class="row">
       <!-- Sidebar: Categories -->
       <div class="col-md-3">
-        <h5>Categories</h5>
+        <h5 class="mt-5">Categories</h5>
         <ul class="list-group">
           <li class="list-group-item <%= !selectedCategory ? 'active' : '' %>">
             <a href="/shop" class="text-decoration-none">All</a>
@@ -28,12 +29,16 @@
       <!-- Product Grid -->
       <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h3>Products</h3>
+          <h3 class="mt-5">Products</h3>
           <form method="GET" action="/shop" class="d-flex">
             <input type="text" name="search" class="form-control me-2" placeholder="Search..." value="<%= searchQuery %>">
-            <button type="submit" class="btn btn-outline-primary">Search</button>
+            <button type="submit" class="btn btn-outline-primary me-2">Search</button>
+            <% if (searchQuery && searchQuery.trim() !== '') { %>
+            <a href="/shop" class="btn btn-outline-danger">Cancel</a>
+            <% } %>
           </form>
         </div>
+
         <div class="row">
           <% if (products.length === 0) { %>
             <p>No products found.</p>
@@ -41,11 +46,13 @@
             <% products.forEach(product => { %>
               <div class="col-md-4 mb-4">
                 <div class="card h-100">
-                  <img src="<%= product.image && product.image.length > 0 ? '/product-images/' + product.image[0] : '/img/product/placeholder.jpg' %>" class="card-img-top" alt="<%= product.name %>">
+                  <div style="display: flex; justify-content: center; align-items: center;">
+                  <img src="<%= product.productImage && product.productImage.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>" class="card-img-top" style="width: 100px; height: 100px;" alt="<%= product.name %>">
+                  </div>
                   <div class="card-body">
-                    <h5 class="card-title"><%= product.name %></h5>
-                    <p class="card-text">₹ <%= product.price %></p>
-                    <a href="/product/<%= product._id %>" class="btn btn-sm btn-primary">View Details</a>
+                    <h5 class="card-title"><%= product.productName %></h5>
+                    <p class="card-text">₹ <%= product.salePrice %></p>
+                    <a href="/product/<%= product._id %>" class="btn btn-sm btn-primary">Add to cart</a>
                   </div>
                 </div>
               </div>
@@ -57,5 +64,6 @@
   </div>
 
   <%- include("../partials/user/footer") %>
+  
 </body>
 </html>

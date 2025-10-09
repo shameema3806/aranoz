@@ -26,7 +26,6 @@ const login = async (req,res)=>{
                 return res.redirect("/admin")
              }else{
                 return res.redirect("/login");
-
              }
         }
 
