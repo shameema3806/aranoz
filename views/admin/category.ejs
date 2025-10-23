@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -230,10 +231,19 @@
     </a>
     <div class="header">
         <h1 class="text">Category</h1>
-        <form action="/admin/users/" method="get" class="search-bar">
+        <!-- <form action="/admin/users/" method="get" class="search-bar">
             <input type="text" placeholder="Search categories..." name="search">
             <button type="submit">Search</button>
-        </form>
+        </form> -->
+
+        <form action="/admin/category" method="get" class="search-bar">
+  <input type="text" name="search" placeholder="Search categories..." value="<%= searchQuery || '' %>">
+  <button type="submit">Search</button>
+  <% if (searchQuery) { %>
+    <a href="/admin/category" style="margin-left: 10px; color: white; text-decoration: underline;">Clear</a>
+  <% } %>
+</form>
+
     </div>
     <div class="container">
         <div class="category-table">
@@ -251,7 +261,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                   <% cat.reverse().forEach((category, index) => { %>
+                     <% cat.forEach((category, index) => { %>
 
                     <tr>
                        <td><%= (currentPage - 1) * itemsPerPage + index + 1 %></td>

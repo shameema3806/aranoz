@@ -5,6 +5,7 @@ const Product = require("../../models/productSchema");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
+const { render } = require("ejs");
 
 const loadHomepage = async (req, res) => {
   try {
@@ -18,7 +19,7 @@ const loadHomepage = async (req, res) => {
     });
 
     productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
-    productData = productData.slice(0, 4);
+    // productData = productData.slice(0,4);
 
     res.set("Cache-Control", "no-store");
 
@@ -66,42 +67,68 @@ const loadShopping = async (req, res) => {
   try {
     const categories = await Category.find({ isListed: true });
 
+    // Base filter
     const filter = {
       isBlocked: false,
       quantity: { $gt: 0 },
-      category: { $in: categories.map(cat => cat._id) }
+      category: { $in: categories.map(cat => cat._id) },
     };
 
-    // Optional: filter by category
+    // Category filter
     if (req.query.category) {
       filter.category = req.query.category;
     }
 
-    // Optional: search by name
-    if (req.query.search) {
-      const regex = new RegExp(req.query.search, "i");
-      filter.productName  = regex;
+    // Price filter
+    if (req.query.priceRange) {
+      if (req.query.priceRange === 'under5000') filter.salePrice = { $lt: 5000 };
+      else if (req.query.priceRange === '5000to10000') filter.salePrice = { $gte: 5000, $lte: 10000 };
+      else if (req.query.priceRange === 'above10000') filter.salePrice = { $gt: 10000 };
     }
 
-    const products = await Product.find(filter);
+    // Search filter
+    if (req.query.search && req.query.search.trim() !== '') {
+      filter.productName = { $regex: req.query.search.trim(), $options: 'i' };
+    }
 
-    res.set("Cache-Control", "no-store");
-    const userId = req.session.user;
-    const user = userId ? await User.findById(userId) : null;
+    // Sort logic
+    let sort = {};
+    switch (req.query.sort) {
+      case 'priceLow':
+        sort = { salePrice: 1 };
+        break;
+      case 'priceHigh':
+        sort = { salePrice: -1 };
+        break;
+      case 'az':
+        sort = { productName: 1 };
+        break;
+      case 'za':
+        sort = { productName: -1 };
+        break;
+      default:
+        sort = { createdAt: -1 }; 
+    }
 
+    // Fetch products
+    const products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } })
+                                  .sort({ productName: 1 }) // Sort A→Z
+                                  .lean();
     res.render("shop", {
-      user,
       categories,
       products,
-      selectedCategory: req.query.category || "",
-      searchQuery: req.query.search || ""
+      selectedCategory: req.query.category || null,
+      selectedPriceRange: req.query.priceRange || null,
+      searchQuery: req.query.search || '',
+      sort: req.query.sort || ''
     });
 
   } catch (error) {
-    console.log("Shopping page not loading:", error);
-    res.status(500).send("Server Error");
+    console.error(error);
+    res.status(500).send("Error loading shop page");
   }
 };
+
 
 const pageNotFound = async (req, res) => {
   try {
@@ -351,7 +378,6 @@ const logout = async (req,res)=>{
     res.redirect("/pageNotFound")
   }
 }
-
 
 
 

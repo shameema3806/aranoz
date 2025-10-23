@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require("passport");
 const userController = require("../controllers/user/userController");
 const profileController = require("../controllers/user/profileController");
+const productController = require("../controllers/user/productController");
 const { userAuth } = require("../middlewares/auth");
 
 
@@ -16,8 +17,6 @@ router.post("/verify-otp",userController.verifyOtp);
 router.get('/verify-otp', (req, res) => {
     res.render('verify-otp');
 });
-
-
 router.post("/signup/resend-otp",userController.resendOtp);
 router.get('/auth/google',passport.authenticate('google',{scope:["profile","email"]}));
 router.get("/auth/google/callback", 
@@ -29,8 +28,36 @@ router.get("/auth/google/callback",
     res.redirect('/');
 });
 
-
+//shop page
 router.get("/shop", userController.loadShopping);
+
+
+//product management
+router.get("/productDetail",productController.productDetail);
+// POST review
+router.post("/product/:id/review", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.redirect("/shop");
+
+    const { userName, rating, comment } = req.body;
+
+    product.reviews.push({ userName, rating: Number(rating), comment });
+
+    product.rating =
+      product.reviews.reduce((sum, r) => sum + r.rating, 0) /
+      product.reviews.length;
+
+    await product.save();
+
+    res.redirect(`/productDetail?id=${product._id}`);
+  } catch (err) {
+    console.error(err);
+    res.redirect("/shop");
+  }
+});
+
+
 
 //login Management
 router.get("/login",userController.loadLogin);

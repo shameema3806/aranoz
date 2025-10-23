@@ -1,159 +1,156 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Users</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
+<%- include("../../views/partials/admin/header") %>
+<style >
+.margin-left-300px{
+  margin-left: 300px;
 
+} 
+@media (max-width:200px){
+ .margin-left-300px{
+  margin-left: 100px;
+ }
+}
+</style>
+<div class="ml-0 xl:ml-5 p-6 relative margin-left-300px" > <!-- leave space for sidebar -->
 
-  <style>
-    body {
-      background-color:  #f8faff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<!-- Hamburger Button  -->
+<button id="hamburger" 
+  class="xl:hidden p-1.5 text-white bg-[#1A5D8C] rounded-md fixed top-4 left-4 z-50">
+  <a href="javascript:;" 
+     class="block p-0 text-sm text-white transition-all ease-nav-brand" 
+     sidenav-trigger>
+    <div class="w-4 overflow-hidden">
+      <i class="ease mb-0.5 relative block h-0.5 rounded-sm bg-white transition-all"></i>
+      <i class="ease mb-0.5 relative block h-0.5 rounded-sm bg-white transition-all"></i>
+      <i class="ease relative block h-0.5 rounded-sm bg-white transition-all"></i>
+    </div>
+  </a>
+</button>
 
-     .btn-back {
-    background-color: #154b70;
-    color: white;
-    border: none;
-    padding: 5px 20px;
-    border-radius: 9px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s;
-  }
-
-  .btn-back:hover {
-    background-color: #154b70;
-    color: white;
-  }
-
-     
-    .card-custom {
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      background-color: white;
-      padding: 25px;
-    }
-
-    .header-title {
-      color: #1A5D8C;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-
-    .search-bar .form-control {
-      border-radius: 50px 0 0 50px;
-    }
-
-    .search-bar .btn {
-      background-color: #1A5D8C;
-      color: white;
-      border-radius: 0 50px 50px 0;
-    }
-
-    .table th {
-      background-color: #1A5D8C;
-      color: white;
-    }
-
-    .btn-custom {
-      background-color: #1A5D8C;
-      border: none;
-    }
-
-    .btn-custom:hover {
-      background-color: #154b70;
-    }
-  </style>
-</head>
-<body>
-  
-
-
-     <a href="/admin" class="btn btn-back mt-3">
-        ← Back
-      </a>
-
-
+<!-- Bootstrap Scoped Wrapper -->
+ <div class="max-w-full">
+ <div id="bootstrap-scope">
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 
   <div class="container mt-5">
-   <div class="card card-custom">
-      <div class="d-flex justify-content-between align-items-center">
-        <h2 class="header-title">Customers</h2>
+    <div class="card card-custom border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="header-title px-3 py-2 rounded" style="color:#1A5D8C; font-weight:800;">Customers</h2>
       </div> 
-  
 
-      <header class="text-center my-4">
-        <form action="/admin/users/" method="get" class="d-flex justify-content-center">
-          <div class="input-group search-bar" style="width: 500px;">
-            <input type="text" class="form-control" placeholder="Search customers..." name="search">
-            <button class="btn" type="submit">Search</button>
-          </div>
-        </form>
-      </header>
+<header class="text-center my-4">
+  <form id="searchForm" action="/admin/users" method="get" class="d-flex justify-content-center" onsubmit="preserveSidebarState(); toggleCancelButton()">
+    <div class="input-group" style="width: 500px;">
+      <input type="text" class="form-control" placeholder="Search customers..." name="search" id="searchInput" value="<%= typeof search !== 'undefined' ? search : '' %>" oninput="toggleCancelButton()">
+      <button class="btn text-white" type="submit" style="background-color:#1A5D8C;">Search</button>
+      <button type="button" class="btn text-white d-none" id="cancelButton" style="background-color:#dc3545;" onclick="cancelSearch()">Cancel</button>
+    </div>
+    <input type="hidden" name="sidebarState" id="sidebarStateInput">
+  </form>
+</header>
 
-      <div class="table-responsive mt-4">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone Number</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <%for(let i=0;i<data.length;i++){%>
-            <tr>
-              <td><%=data[i].name%></td>
-              <td><%=data[i].email%></td>
-              <td><%=data[i].phone%></td>
-              <td>
-                <% if (data[i].isBlocked === false){ %>
-                <button class="btn btn-danger btn-sm me-1">
-              <a href="/admin/blockUser?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Block</a>
-            </button>
-             <%}else{%>
-               <button class="btn btn-success btn-sm">
-                   <a href="/admin/unblockUser?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;">Unblock</a>
-                 </button>
-
-              <%}%>   
-              </td>  
-            </tr>
-            <%}%>
-          </tbody>
-        </table>
+      <div class="table-responsive mt-15">
+        <div>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for(let i=0;i<data.length;i++){ %>
+              <tr>
+                <td><%=data[i].name%></td>
+                <td><%=data[i].email%></td>
+                <td><%=data[i].phone%></td>
+                <td>
+                  <% if (!data[i].isBlocked){ %>
+                    <a href="/admin/blockUser?id=<%=data[i]._id%>" class="btn btn-danger btn-sm">Block</a>
+                  <% } else { %>
+                    <a href="/admin/unblockUser?id=<%= data[i]._id %>" class="btn btn-success btn-sm">Unblock</a>
+                  <% } %>
+                </td>  
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center mt-4">
-               <% for(let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%=(i=== currentPage) ? 'active' : '' %>"> 
-             <a class="page-link" href="?page=<%= i %>"><%= i %></a> 
-
+          <% for(let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= i===currentPage ? 'active' : '' %>">
+              <a class="page-link" href="?page=<%= i %>"><%= i %></a>
             </li>
-             <%}%>
+          <% } %>
         </ul>
       </nav>
     </div>
   </div>
+</div>
+ </div>
+</div>
+
 
 <script>
-  // Push current page to history
-  history.pushState(null, null, location.href);
+  const sidebar = document.getElementById('sidebar');
+  const hamburger = document.getElementById('hamburger');
+  const searchInput = document.getElementById('searchInput');
+  const cancelButton = document.getElementById('cancelButton');
 
-  // Prevent back button
-  window.onpopstate = function () {
-    history.go(1);
-  };
+  // Toggle sidebar visibility
+  hamburger.addEventListener('click', () => {
+    sidebar.classList.toggle('-translate-x-full');
+    localStorage.setItem('sidebarState', sidebar.classList.contains('-translate-x-full') ? 'collapsed' : 'open');
+  });
+
+  // Restore sidebar state on load
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedState = localStorage.getItem('sidebarState');
+    if (savedState === 'collapsed') {
+      sidebar.classList.add('-translate-x-full');
+    } else {
+      sidebar.classList.remove('-translate-x-full');
+    }
+    // Show cancel button if search param exists on load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('search')) {
+      cancelButton.classList.remove('d-none');
+    }
+  });
+
+  // Click outside to close on small screens
+  document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !hamburger.contains(e.target) && window.innerWidth < 1280) {
+      sidebar.classList.add('-translate-x-full');
+      localStorage.setItem('sidebarState', 'collapsed');
+    }
+  });
+
+  // Keep sidebar state across search reloads
+  function preserveSidebarState() {
+    const state = localStorage.getItem('sidebarState');
+    document.getElementById('sidebarStateInput').value = state || 'open';
+  }
+
+  // Toggle cancel button visibility
+  function toggleCancelButton() {
+    if (searchInput.value.trim() !== '') {
+      cancelButton.classList.remove('d-none');
+    } else {
+      cancelButton.classList.add('d-none');
+    }
+  }
+
+  // Cancel search function
+  function cancelSearch() {
+    searchInput.value = ''; // Clear the input field
+    cancelButton.classList.add('d-none'); // Hide cancel button
+    window.location.href = '/admin/users?page=1'; // Reset to all customers
+  }
 </script>
 
-
-</body>
-</html>
-
-
+<%- include("../../views/partials/admin/footer") %>

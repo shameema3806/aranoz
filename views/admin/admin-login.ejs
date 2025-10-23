@@ -280,11 +280,7 @@
                 Admin Portal
             </h2>
             <p class="admin-subtitle">Secure administrator access</p>
-<!--             
-            <div class="admin-notice">
-                <i class="fas fa-info-circle"></i>
-                This is a restricted area for authorized personnel only
-            </div> -->
+
             
             <form id="adminLoginForm" method="post" action="/admin/login">
                 <div class="form-group">
@@ -339,151 +335,163 @@
     </div>
 
     <script>
-        // class AdminLoginValidator {
-        //     constructor() {
-        //         this.form = document.getElementById('adminLoginForm');
-        //         this.emailInput = document.getElementById('email');
-        //         this.passwordInput = document.getElementById('password');
-        //         this.emailError = document.getElementById('emailError');
-        //         this.passwordError = document.getElementById('passwordError');
-        //         this.loginBtn = document.getElementById('adminLoginBtn');
+        class AdminLoginValidator {
+            constructor() {
+                this.form = document.getElementById('adminLoginForm');
+                this.emailInput = document.getElementById('email');
+                this.passwordInput = document.getElementById('password');
+                this.emailError = document.getElementById('emailError');
+                this.passwordError = document.getElementById('passwordError');
+                this.loginBtn = document.getElementById('adminLoginBtn');
                 
-        //         this.initializeEventListeners();
-        //     }
+                this.initializeEventListeners();
+            }
 
-        //     initializeEventListeners() {
-        //         // Real-time validation
-        //         this.emailInput.addEventListener('blur', () => this.validateEmail());
-        //         this.emailInput.addEventListener('input', () => this.clearError('email'));
+            initializeEventListeners() {
+                // Real-time validation
+                this.emailInput.addEventListener('blur', () => this.validateEmail());
+                this.emailInput.addEventListener('input', () => this.clearError('email'));
                 
-        //         this.passwordInput.addEventListener('blur', () => this.validatePassword());
-        //         this.passwordInput.addEventListener('input', () => this.clearError('password'));
+                this.passwordInput.addEventListener('blur', () => this.validatePassword());
+                this.passwordInput.addEventListener('input', () => this.clearError('password'));
                 
-        //         // Form submission
-        //         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        //     }
+                // Form submission
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+            }
 
-        //     validateEmail() {
-        //         const email = this.emailInput.value.trim();
-        //         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            validateEmail() {
+                const email = this.emailInput.value.trim();
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 
-        //         if (!email) {
-        //             this.showError('email', 'Admin email is required');
-        //             return false;
-        //         }
+                if (!email) {
+                    this.showError('email', 'Admin email is required');
+                    return false;
+                }
                 
-        //         if (!emailPattern.test(email)) {
-        //             this.showError('email', 'Please enter a valid email address');
-        //             return false;
-        //         }
+                if (!emailPattern.test(email)) {
+                    this.showError('email', 'Please enter a valid email address');
+                    return false;
+                }
                 
-        //         this.showSuccess('email');
-        //         return true;
-        //     }
+                this.showSuccess('email');
+                return true;
+            }
 
-        //     validatePassword() {
-        //         const password = this.passwordInput.value;
+            validatePassword() {
+                const password = this.passwordInput.value;
                 
-        //         if (!password) {
-        //             this.showError('password', 'Password is required');
-        //             return false;
-        //         }
+                if (!password) {
+                    this.showError('password', 'Password is required');
+                    return false;
+                }
                 
-        //         if (password.length < 6) {
-        //             this.showError('password', 'Password must be at least 6 characters long');
-        //             return false;
-        //         }
+                if (password.length < 6) {
+                    this.showError('password', 'Password must be at least 6 characters long');
+                    return false;
+                }
                 
-        //         this.showSuccess('password');
-        //         return true;
-        //     }
+                this.showSuccess('password');
+                return true;
+            }
 
-        //     showError(field, message) {
-        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
-        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
+            showError(field, message) {
+                const input = field === 'email' ? this.emailInput : this.passwordInput;
+                const errorDiv = field === 'email' ? this.emailError : this.passwordError;
                 
-        //         input.classList.remove('valid');
-        //         input.classList.add('invalid');
-        //         errorDiv.textContent = message;
-        //         errorDiv.classList.add('show');
-        //     }
+                input.classList.remove('valid');
+                input.classList.add('invalid');
+                errorDiv.textContent = message;
+                errorDiv.classList.add('show');
+            }
 
-        //     showSuccess(field) {
-        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
-        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
+            showSuccess(field) {
+                const input = field === 'email' ? this.emailInput : this.passwordInput;
+                const errorDiv = field === 'email' ? this.emailError : this.passwordError;
                 
-        //         input.classList.remove('invalid');
-        //         input.classList.add('valid');
-        //         errorDiv.classList.remove('show');
-        //     }
+                input.classList.remove('invalid');
+                input.classList.add('valid');
+                errorDiv.classList.remove('show');
+            }
 
-        //     clearError(field) {
-        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
-        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
+            clearError(field) {
+                const input = field === 'email' ? this.emailInput : this.passwordInput;
+                const errorDiv = field === 'email' ? this.emailError : this.passwordError;
                 
-        //         input.classList.remove('invalid', 'valid');
-        //         errorDiv.classList.remove('show');
-        //     }
+                input.classList.remove('invalid', 'valid');
+                errorDiv.classList.remove('show');
+            }
 
-        //     handleSubmit(e) {
-        //         e.preventDefault();
+            handleSubmit(e) {
+                e.preventDefault();
                 
-        //         const isEmailValid = this.validateEmail();
-        //         const isPasswordValid = this.validatePassword();
+                const isEmailValid = this.validateEmail();
+                const isPasswordValid = this.validatePassword();
                 
-        //         if (isEmailValid && isPasswordValid) {
-        //             this.submitForm();
-        //         }
-        //     }
+                if (isEmailValid && isPasswordValid) {
+                    this.submitForm();
+                }
+            }
 
-        //     submitForm() {
-        //         // Add loading state
-        //         this.form.classList.add('loading');
-        //         this.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+async submitForm() {
+    this.form.classList.add('loading');
+    this.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+    try {
+        const response = await fetch('/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: this.emailInput.value.trim(),
+                password: this.passwordInput.value
+            })
+        });
+
+        if (response.redirected) {
+            window.location.href = response.url; // redirect to dashboard if success
+            return;
+        }
+
+        const result = await response.text();
+        if (result.includes("Invalid") || result.includes("Incorrect")) {
+            this.showServerMessage("Invalid email or password", "error");
+        } else {
+            this.showServerMessage("Something went wrong", "error");
+        }
+    } catch (error) {
+        this.showServerMessage("Server error, please try again later.", "error");
+    } finally {
+        this.form.classList.remove('loading');
+        this.loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Admin Login</span>';
+    }
+}
+
+
+            showServerMessage(message, type = 'error') {
+                const serverMessage = document.getElementById('serverMessage');
+                serverMessage.textContent = message;
+                serverMessage.style.display = 'block';
+                serverMessage.className = `alert ${type === 'success' ? 'success' : ''}`;
+            }
+        }
+
+        // Initialize the admin login validator when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new AdminLoginValidator();
+        });
+
+        // Add interactive effects
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
                 
-        //         // Simulate form submission
-        //         setTimeout(() => {
-        //             // Remove loading state
-        //             this.form.classList.remove('loading');
-        //             this.loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Admin Login</span>';
-                    
-        //             // Show success message
-        //             this.showServerMessage('Admin authentication successful! Redirecting to dashboard...', 'success');
-                    
-        //             // In a real application, redirect to admin dashboard
-        //             setTimeout(() => {
-        //                 // window.location.href = '/admin/dashboard';
-        //                 console.log('Redirecting to admin dashboard...');
-        //             }, 2000);
-        //         }, 2000);
-        //     }
-
-        //     showServerMessage(message, type = 'error') {
-        //         const serverMessage = document.getElementById('serverMessage');
-        //         serverMessage.textContent = message;
-        //         serverMessage.style.display = 'block';
-        //         serverMessage.className = `alert ${type === 'success' ? 'success' : ''}`;
-        //     }
-        // }
-
-        // // Initialize the admin login validator when the DOM is loaded
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     new AdminLoginValidator();
-        // });
-
-        // // Add interactive effects
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     const inputs = document.querySelectorAll('.form-input');
-        //     inputs.forEach(input => {
-        //         input.addEventListener('focus', function() {
-        //             this.parentElement.style.transform = 'translateY(-2px)';
-        //         });
-                
-        //         input.addEventListener('blur', function() {
-        //             this.parentElement.style.transform = 'translateY(0)';
-        //         });
-        //     });
-        // });
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+        });
     </script>
 </body>
 </html>

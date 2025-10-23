@@ -49,7 +49,8 @@ app.set("view engine","ejs");
 app.set("views", [
   path.join(__dirname, "views/user"),
   path.join(__dirname, "views/admin"),
-  
+  path.join(__dirname, "views/index"),
+
 ]);
 
 console.log("Using views path:", app.get("views"));
