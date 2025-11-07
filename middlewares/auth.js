@@ -1,7 +1,8 @@
 const User = require("../models/userSchema");
 
 const userAuth = (req,res,next)=>{
-if(req.session.user){
+
+    if(req.session.user){
 
     User.findById(req.session.user)
     .then(data =>{
@@ -19,6 +20,32 @@ if(req.session.user){
     res.redirect("/login")
 }
 }
+
+
+// const userAuth = async (req, res, next) => {
+//   try {
+//     if (!req.session.user) {
+//       console.log("❌ No session user found, redirecting to login");
+//       return res.redirect("/login");
+//     }
+
+//     const user = await User.findById(req.session.user);
+//     if (!user) {
+//       console.log("❌ User not found, redirecting to login");
+//       return res.redirect("/login");
+//     }
+
+//     if (user.isBlocked) {
+//       console.log("🚫 User is blocked, redirecting to login");
+//       return res.redirect("/login");
+//     }
+
+//     next();
+//   } catch (err) {
+//     console.error("Error in userAuth middleware:", err);
+//     res.status(500).send("Internal server error");
+//   }
+// };
 
 
 const adminAuth = (req,res,next)=>{

@@ -53,46 +53,47 @@ const loadSignup = async(req,res)=>{
   }
 }
 
-// const loadShopping = async (req,res)=>{
-//   try{
-//     res.set("Cache-Control", "no-store");  
-//     return res.render("shop");
 
-//   }catch(error){
-//     console.log("shopping page not loading:",error);
-//     res.status(500).send("Server Error")
-//   }
-// }
+
 const loadShopping = async (req, res) => {
   try {
-    const categories = await Category.find({ isListed: true });
+ 
+    const categories = await Category.find({ isListed: true }).lean();
 
-    // Base filter
     const filter = {
       isBlocked: false,
       quantity: { $gt: 0 },
       category: { $in: categories.map(cat => cat._id) },
     };
 
-    // Category filter
     if (req.query.category) {
       filter.category = req.query.category;
     }
 
-    // Price filter
     if (req.query.priceRange) {
-      if (req.query.priceRange === 'under5000') filter.salePrice = { $lt: 5000 };
-      else if (req.query.priceRange === '5000to10000') filter.salePrice = { $gte: 5000, $lte: 10000 };
-      else if (req.query.priceRange === 'above10000') filter.salePrice = { $gt: 10000 };
+      switch (req.query.priceRange) {
+        case 'under5000':
+          filter.salePrice = { $lt: 5000 };
+          break;
+        case '5000to10000':
+          filter.salePrice = { $gte: 5000, $lte: 10000 };
+          break;
+        case 'above10000':
+          filter.salePrice = { $gt: 10000 };
+          break;
+      }
     }
 
-    // Search filter
-    if (req.query.search && req.query.search.trim() !== '') {
-      filter.productName = { $regex: req.query.search.trim(), $options: 'i' };
+    // ---- Search filter (product name only – you can extend to description)
+    if (req.query.search && req.query.search.trim()) {
+      filter.productName = {
+        $regex: req.query.search.trim(),
+        $options: 'i',
+      };
     }
 
-    // Sort logic
-    let sort = {};
+  
+    let sort = { createdAt: -1 }; 
     switch (req.query.sort) {
       case 'priceLow':
         sort = { salePrice: 1 };
@@ -106,26 +107,54 @@ const loadShopping = async (req, res) => {
       case 'za':
         sort = { productName: -1 };
         break;
-      default:
-        sort = { createdAt: -1 }; 
+      case 'new':
+        sort = { createdAt: -1 };
+        break;
     }
 
-    // Fetch products
-    const products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } })
-                                  .sort({ productName: 1 }) // Sort A→Z
-                                  .lean();
-    res.render("shop", {
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+    const skip = (page - 1) * limit;
+    const totalProducts = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .collation({ locale: 'en', strength: 2 }) 
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const buildUrl = (newParams = {}) => {
+      const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
+      // keep existing params
+      for (const [k, v] of url.searchParams.entries()) {
+        if (!newParams[k]) newParams[k] = v;
+      }
+      Object.entries(newParams).forEach(([k, v]) => {
+        if (v) url.searchParams.set(k, v);
+        else url.searchParams.delete(k);
+      });
+      return url.pathname + url.search;
+    };
+
+    res.render('shop', {
       categories,
       products,
       selectedCategory: req.query.category || null,
       selectedPriceRange: req.query.priceRange || null,
       searchQuery: req.query.search || '',
-      sort: req.query.sort || ''
+      sort: req.query.sort || '',
+      user: req.session.user ? await User.findById(req.session.user).lean() : null,
+      page,
+      totalPages,
+      totalProducts,
+      buildUrl,               
     });
-
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error loading shop page");
+    console.error('loadShopping error:', error);
+    res.status(500).send('Server Error');
   }
 };
 

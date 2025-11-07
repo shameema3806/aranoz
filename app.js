@@ -10,23 +10,20 @@ const flash = require('connect-flash');
 const adminRouter = require("./routes/adminRouter")
 db();
 
-   app.use((req, res, next) => {
-          res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
-          next();
-        });
+
     
-// app.use("/public",express.static(path.join(__dirname, "uploads")));
 app.use(express.static(path.join(__dirname, "public")));
-
 app.use("/public", express.static(path.join(__dirname, "uploads")));
-// app.use(express.static(path.join(__dirname, "public")));
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use(flash());
+
 console.log(__dirname,"this is form dirname");
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
+app.use((req, res, next) => {
+          res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
+          next();
+        });
 
 app.use(session({
   secret:process.env.SESSION_SECRET,
@@ -39,6 +36,11 @@ app.use(session({
   }
 
 }))
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.msg1 = req.flash('error'); // Passport failureFlash stores messages in 'error'
+  next();
+});
 
 
 app.use(passport.initialize());

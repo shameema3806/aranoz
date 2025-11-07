@@ -1,73 +1,71 @@
 const User = require("../../models/userSchema");
 
+const userInfo = async (req, res) => {
+  try {
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
 
-const userInfo = async (req,res) =>{
-    try {
-        let search="";
-        if(req.query.search){
-            search = req.query.search;
-        }
-        let page=1;
-        if(req.query.page){
-            page = req.query.page;
+    const query = {
+      isAdmin: false,
+      $or: [
+        { name: { $regex: ".*" + search + ".*", $options: "i" } },
+        { email: { $regex: ".*" + search + ".*", $options: "i" } },
+      ],
+    };
 
-        }
-           const limit = 3
-           const userData = await User.find({
-            isAdmin:false,
-            $or: [
-                {name: {$regex : ".*" + search + ".*"}},
-                {email:{$regex : ".*" + search + ".*"}},
-            ],
+    const users = await User.find(query)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .exec();
 
+    const count = await User.countDocuments(query);
 
-           })
-           .limit(limit*1)
-           .skip((page-1)*limit)
-           .exec();
-
-           const count = await User.find({
-               isAdmin:false,
-            $or: [
-                {name: {$regex : ".*" + search + ".*"}},
-                {email:{$regex : ".*" + search + ".*"}},
-            ],
-
-           }).countDocuments();
-
-          res.render("users", {
-          data: userData,
-          totalPages: Math.ceil(count / limit),
-          currentPage: page
-        });
-
-
-    } catch (error) {
-      res.redirect("/pagerror");
+    if (req.xhr || req.headers.accept.indexOf("json") > -1) {
+      // Return JSON for AJAX requests
+      return res.json({
+        users,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+      });
     }
-}
 
-   const userBlocked = async (req,res) =>{
-    try {
-        let id= req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:true}});
-        res.redirect("/admin/users");
-    } catch (error) {
-         res.redirect("/pagerror");
-    }
-   };
+    res.render("users", {
+      data: users,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      search,
+    });
+  } catch (error) {
+    console.error(error);
+    res.redirect("/pagerror");
+  }
+};
 
-   const userunBlocked = async (req,res)=>{
-    try {
-        let id = req.query.id;
-        await User.updateOne({_id:id},{$set:{isBlocked:false}});
-        res.redirect("/admin/users");
+// Block user
+const userBlocked = async (req, res) => {
+  try {
+    const userId = req.query.id;
+    console.log("Blocking user ID:", userId); 
+    await User.findByIdAndUpdate(userId, { isBlocked: true });
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+};
 
-        
-    } catch (error) {
-          res.redirect("/pagerror");
-    }
-   }
+// Unblock user
+const userunBlocked = async (req, res) => {
+  try {
+    const userId = req.query.id;
+    await User.findByIdAndUpdate(userId, { isBlocked: false });
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+};
 
   module.exports = {
             userInfo,

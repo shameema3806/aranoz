@@ -1,356 +1,341 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            position: relative;
-        }
-        .btn-back {
-            background-color: #154b70;
-            color: white;
-            border: none;
-            padding: 6px 15px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            transition: background-color 0.3s;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-        .btn-back:hover {
-            background-color: #123a5a;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 60px auto;
-            width: 100%;
-        }
-        .card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            border: 1px solid #e0e0e0;
-        }
-        .content-header {
-            border-bottom: 2px solid #1A5D8C;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .content-title {
-            color: #1A5D8C;
-            font-weight: bold;
-            font-size: 24px;
-            margin: 0;
-        }
-        .card-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .input-group {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        .form-control {
-            border: 1px solid #ccc;
-            border-radius: 50px 0 0 50px;
-            padding: 10px 15px;
-            font-size: 16px;
-        }
-        .form-control:focus {
-            border-color: #1A5D8C;
-            outline: none;
-            box-shadow: 0 0 5px rgba(26, 93, 140, 0.3);
-        }
-        .input-group .btn {
-            border-radius: 0 50px 50px 0;
-            background-color: #1A5D8C;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-        }
-        .input-group .btn:hover {
-            background-color: #154b70;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-        }
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .table th {
-            background-color: #f8f9fa;
-            color: #1A5D8C;
-            font-weight: 600;
-        }
-        .table-striped tbody tr:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-        .btn {
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-            margin: 5px;
-            transition: background-color 0.3s;
-        }
-        .btn-info {
-            background-color: #1A5D8C;
-            color: white;
-        }
-        .btn-info:hover {
-            background-color: #1A5D8C;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-        .btn-success:hover {
-            background-color: #218838;
-        }
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            .input-group {
-                max-width: 100%;
-            }
-            .table {
-                font-size: 14px;
-            }
-            .btn {
-                width: 100%;
-                margin: 5px 0;
-            }
-            .btn-back {
-                position: static;
-                margin-bottom: 20px;
-                display: block;
-            }
-        }
-    </style>
-</head>
-<body>
-    <a href="/admin" class="btn-back">← Back</a>
-    <div class="container">
-        <div class="card">
-            <div class="content-header">
-                <h2 class="content-title">Products</h2>
-            </div>
-            <div class="card-header">
-                <form action="/admin/productlisting" method="POST">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search products or brands" name="search">
-                        <button class="btn" type="submit">Search</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-body">
-             <div style="max-height: 400px; overflow-y: auto;"> 
+<%- include("../../views/partials/admin/header") %>
 
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">Product Name</th>
-                            <!-- <th scope="col">Brand</th> -->
-                            <th scope="col">Category</th>
-                            <th scope="col">Sale Price</th>
-                            <th scope="col">Offer Price</th>
-                            <th scope="col">Offer</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Action</th>
-                            <th scope="col">Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% products.forEach(product => { %>
-                        <tr>
-                            <td><%= product.productName %></td>
-                            <!-- <td><%= product.brand || 'N/A' %></td> -->
-                            <td><%= product.category ? product.category.name : "Not available" %></td>
-                            <td>$<%= product.salePrice.toFixed(2) %></td>
-                            <td><%= product.offerPrice ? product.offerPrice.toFixed(2) : 'N/A' %> %</td>
-                            
-                            <td>
-                                <!-- <button class="btn btn-info btn-sm" onclick="addOffer('<%= product._id %>')">Add Offer</button>
-                                <button class="btn btn-info btn-sm" onclick="removeOffer('<%= product._id %>')">Remove</button> -->
+<div class="min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-5xl w-full bg-white rounded-xl shadow-lg p-6 space-y-6 ml-8 md:ml-16 lg:ml-24">
 
-                               <% if (!product.offerPrice) { %>
-                               <button class="btn btn-info btn-sm" onclick="addOffer('<%= product._id %>')">Add Offer</button>
-                               <% } else { %>
-                               <button class="btn btn-warning btn-sm" onclick="removeOffer('<%= product._id %>')">Remove Offer</button>
-                               <% } %>
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b-2 border-[#1A5D8C]">
+      <h1 class="text-[#154b70] text-2xl font-bold">Products</h1>
 
-                            </td>
-                            <td><%= product.quantity %></td>
-                            <td>
-                                <!-- <button class="btn <%= product.isBlocked ? 'btn-success' : 'btn-danger' %> btn-sm" onclick="blockProduct('<%= product._id %>')">
-                                    <%= product.isBlocked ? 'Unblock' : 'Block' %>
-                                </button> -->
-                                  <% if (product.isBlocked === false){ %>
-                                   <button class="btn btn-danger btn-sm me-1">
-                                  <a href="/admin/blockProduct?id=<%=product._id%>" class="text-white" style="text-decoration: none;">Block</a>
-                                  </button>
-                                  <%}else{%>
-                                   <button class="btn btn-success btn-sm">
-                                    <a href="/admin/unblockProduct?id=<%= product._id %>" class="text-white" style="text-decoration: none;">Unblock</a>
-                                  </button>
-                                    <%}%> 
-                            </td>
-                            <td>
-                                <button class="btn btn-info btn-sm">
-                                    <a href="/admin/editProduct?id=<%= product._id %>" class="text-white" style=" color: white; text-decoration: none;">Edit</a>
-                                </button>
-                            </td>
-                        </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-                 </div> 
-            </div>
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <form action="/admin/products" method="get"
+              class="flex items-center bg-[#1A5D8C] rounded-md overflow-hidden flex-1 sm:flex-initial">
+          <input type="text" name="search" placeholder="Search products..."
+                 value="<%= searchQuery || '' %>"
+                 class="w-full sm:w-64 px-3 py-2 bg-transparent text-white placeholder-white/70 outline-none text-sm" />
+          <button type="submit" class="px-3 py-2 text-sm font-semibold text-[#1A5D8C] bg-white hover:bg-gray-200 transition">
+            Search
+          </button>
+        </form>
+
+       <div class="flex items-center gap-3">
+        <% if (searchQuery) { %>
+          <a href="/admin/products"
+             class="text-[#1A5D8C] underline text-sm whitespace-nowrap hover:text-[#154b70] transition">Clear</a>
+        <% } %>
+
+
+        
+       <a href="/admin/addProducts"
+         class="bg-[#1A5D8C] hover:bg-[#154b70] text-white font-medium px-4 py-2 rounded-md transition flex items-center gap-2 text-sm whitespace-nowrap">
+        <i class="fas fa-plus"></i> Add
+      </a>
         </div>
+
+      </div>
     </div>
 
-         <div class="pagination-container" style="text-align: center; margin-top: 20px;">
-           <% if (totalPages > 1) { %>
-           <% if (currentPage > 1) { %>
-           <a href="?page=<%= currentPage - 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&lt;</a>
-           <% } else { %>
-           <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&lt;</span>
-           <% } %>
+    <!-- Table -->
+     <div id="tableWrapper">
+    <div class="flex justify-center">
+      <div class="w-full max-w-4xl overflow-x-auto rounded-lg border">
+        <table id="productTable" class="w-full text-sm text-left">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Product Name</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Category</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Sale Price</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Discount Price</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Offer %</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Add/remove Offer</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Quantity</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Action</th>
+              <th class="px-4 py-3 font-medium text-[#1A5D8C]">Edit</th>
+            </tr>
+          </thead>
 
-           <% for (let i = 1; i <= totalPages; i++) { %>
-           <% if (i === currentPage) { %>
-           <span style="padding: 8px 12px; background-color: #1A5D8C; color: white; margin: 0 3px; border-radius: 4px;"><%= i %></span>
-           <% } else { %>
-           <a href="?page=<%= i %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 3px; text-decoration: none; border-radius: 4px;"><%= i %></a>
-           <% } %>
-           <% } %>
+          <tbody class="divide-y divide-gray-200">
+             <% products.forEach(product => { %>
+             <tr class="hover:bg-gray-50 transition" data-id="<%= product._id %>">
+             <td class="px-4 py-3 font-medium"><%= product.productName %></td>
+             <td class="px-4 py-3 text-gray-600"><%= product.category ? product.category.name : "Not available" %></td>
+             <td class="px-4 py-3">$<%= product.salePrice.toFixed(2) %></td>
+             <td class="px-4 py-3">
+             <%= product.offerPrice ? `$${product.offerPrice.toFixed(2)}` : 'null' %>
+          </td>
+          <!-- Offer % -->
+               <td class="px-4 py-3 text-center">
+               <%= product.offer ? `${product.offer}%` : 'null' %>
+               </td>
 
-           <% if (currentPage < totalPages) { %>
-           <a href="?page=<%= currentPage + 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&gt;</a>
-           <% } else { %>
-          <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&gt;</span>
+          <!-- Add / Remove Offer button -->
+           <td class="px-4 py-3">
+           <% if (!product.offer) { %>
+          <button class="bg-[#1A5D8C] hover:bg-[#154b70] text-white px-3 py-1 rounded-md text-xs font-medium transition">
+            <a href="#" onclick="addOffer('<%= product._id %>'); return false;" class="text-white no-underline">Add Offer</a>
+          </button>
+          <% } else { %>
+          <button class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-md text-xs font-medium transition">
+            <a href="#" onclick="removeOffer('<%= product._id %>'); return false;" class="text-white no-underline">Remove Offer</a>
+          </button>
+           <% } %>
+          </td>
+
+           <td class="px-4 py-3"><%= product.quantity %></td>
+ 
+          <td class="px-4 py-3">
+            <% if (!product.isBlocked) { %>
+             <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs font-medium transition">
+             <a href="/admin/blockProduct?id=<%= product._id %>"
+             class="text-white no-underline"
+             data-action="block">Block</a>
+             </button>
+            <% } else { %>
+             <button class="bg-[#1A5D8C] hover:bg-[#154b70] text-white px-3 py-1 rounded-md text-xs font-medium transition">
+             <a href="/admin/unblockProduct?id=<%= product._id %>"
+             class="text-white no-underline"
+             data-action="unblock">Unblock</a>
+           </button>
           <% } %>
-          <% } %>
-        </div>
+         </td>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
-        function addOffer(productId) {
-            Swal.fire({
-                title: 'Add Offer',
-                input: 'number',
-                inputLabel: 'Enter offer price',
-                inputAttributes: {
-                    min: 0,
-                    step: 0.01
-                },
-                showCancelButton: true,
-                confirmButtonText: 'Add',
-                confirmButtonColor: '#1A5D8C',
-                cancelButtonColor: '#dc3545'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/admin/addProductOffer/${productId}/offer`,
-                        method: 'POST',
-                        data: { offerPrice: result.value },
-                        success: function(response) {
-                            Swal.fire('Success', `Offer added for product ${productId}`, 'success').then(() => {
-                                location.reload();
-                            });
-                        },
-                        error: function() {
-                            Swal.fire('Error', 'Failed to add offer', 'error');
-                        }
-                    });
-                }
-            });
-        }
+      <td class="px-4 py-3">
+        <button class="bg-[#1A5D8C] hover:bg-[#154b70] text-white px-3 py-1 rounded-md text-xs font-medium transition">
+          <a href="/admin/editProduct?id=<%= product._id %>" class="text-white no-underline">Edit</a>
+        </button>
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
+        
+        </table>
+      </div>
+    </div>
+    </div>
 
-        function removeOffer(productId) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: `Remove offer for product ${productId}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, remove it!',
-                confirmButtonColor: '#1A5D8C',
-                cancelButtonColor: '#dc3545'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/admin/removeProductOffer/${productId}/offer`,
-                        method: 'DELETE',
-                        success: function(response) {
-                            Swal.fire('Success', `Offer removed for product ${productId}`, 'success').then(() => {
-                                location.reload();
-                            });
-                        },
-                        error: function() {
-                            Swal.fire('Error', 'Failed to remove offer', 'error');
-                        }
-                    });
-                }
-            });
-        }
+    <!-- Pagination -->
+   <div id="pagination" class="flex justify-center items-center gap-1 py-3">
+  <% if (totalPages > 1) { %>
+    <% if (currentPage > 1) { %>
+      <a href="?page=<%= currentPage - 1 %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&lt;</a>
+    <% } else { %>
+      <span class="px-3 py-1.5 text-gray-400">&lt;</span>
+    <% } %>
 
-        function blockProduct(productId) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: `Toggle block status for product ${productId}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, toggle it!',
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/admin/productlisting/${productId}/block`,
-                        method: 'PATCH',
-                        success: function(response) {
-                            Swal.fire('Success', `Product ${productId} status updated`, 'success').then(() => {
-                                location.reload();
-                            });
-                        },
-                        error: function() {
-                            Swal.fire('Error', 'Failed to update product status', 'error');
-                        }
-                    });
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <% if (i === currentPage) { %>
+        <span class="px-3 py-1.5 bg-[#1A5D8C] text-white rounded text-sm"><%= i %></span>
+      <% } else { %>
+        <a href="?page=<%= i %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100"><%= i %></a>
+      <% } %>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+      <a href="?page=<%= currentPage + 1 %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&gt;</a>
+    <% } else { %>
+      <span class="px-3 py-1.5 text-gray-400">&gt;</span>
+    <% } %>
+  <% } %>
+</div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+const $tableWrapper = $('#tableWrapper');
+const $pagination   = $('#pagination');
+
+function replaceTableAndPagination(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const newTable = doc.querySelector('#tableWrapper');
+  const newPag   = doc.querySelector('#pagination');
+
+  if (newTable) $tableWrapper.replaceWith(newTable);
+  if (newPag)   $pagination.replaceWith(newPag);
+}
+
+ //PAGINATION 
+
+$(document).on('click', '#pagination a[href]', async function (e) {
+  e.preventDefault();
+  const url = new URL(this.href, location.origin);
+  try {
+    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const html = await res.text();
+    replaceTableAndPagination(html);
+    history.pushState({}, '', url);
+  } catch (err) {
+    Swal.fire('Error', 'Failed to load page', 'error');
+  }
+});
+
+//SEARCH 
+
+$('#productTable').closest('form').on('submit', async function (e) {
+  e.preventDefault();
+  const $form = $(this);
+  const $btn  = $form.find('button[type="submit"]');
+  const old   = $btn.html();
+  $btn.html('<span class="spinner"></span>').prop('disabled', true);
+
+  const url = new URL($form.attr('action'), location.origin);
+  url.searchParams.set('search', $form.find('input[name="search"]').val().trim());
+
+  try {
+    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const html = await res.text();
+    replaceTableAndPagination(html);
+    history.pushState({}, '', url);
+  } catch (err) {
+    Swal.fire('Error', 'Search failed', 'error');
+  } finally {
+    $btn.html(old).prop('disabled', false);
+  }
+});
+
+
+$(document).on('click', 'a[href="/admin/products"]:contains("Clear")', function (e) {
+  e.preventDefault();
+  location.href = '/admin/products'; 
+});
+
+function addOffer(productId) {
+  Swal.fire({
+    title: 'Add Offer',
+    input: 'number',
+    inputLabel: 'Offer %',
+    inputAttributes: { min: 0, max: 100, step: 1 },
+    showCancelButton: true,
+    confirmButtonText: 'Add',
+    confirmButtonColor: '#1A5D8C'
+  }).then(async (result) => {
+    if (!result.isConfirmed) return;
+    const offerPercent = parseFloat(result.value);
+
+    try {
+      const res = await fetch(`/admin/addProductOffer/${productId}/offer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerPercent })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+
+      const $row = $(`tr[data-id="${productId}"]`);
+
+      $row.find('td').eq(3).text(`$${data.discountedPrice.toFixed(2)}`);
+
+      $row.find('td').eq(4).text(`${data.offerPercent}%`);
+
+      $row.find('td').eq(5).html(`
+        <button class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-md text-xs font-medium transition">
+          <a href="#" onclick="removeOffer('${productId}'); return false;" class="text-white no-underline">Remove Offer</a>
+        </button>
+      `);
+
+      Swal.fire('Success', `Offer ${data.offerPercent}% applied`, 'success');
+    } catch (err) {
+      Swal.fire('Error', err.message, 'error');
+    }
+  });
+}
+
+function removeOffer(productId) {
+  Swal.fire({
+    title: 'Remove offer?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes',
+    confirmButtonColor: '#1A5D8C'
+  }).then(async (result) => {
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await fetch(`/admin/removeProductOffer/${productId}/offer`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+
+      const $row = $(`tr[data-id="${productId}"]`);
+
+      $row.find('td').eq(3).text('N/A');
+
+      $row.find('td').eq(4).text('null');
+
+      $row.find('td').eq(5).html(`
+        <button class="bg-[#1A5D8C] hover:bg-[#154b70] text-white px-3 py-1 rounded-md text-xs font-medium transition">
+          <a href="#" onclick="addOffer('${productId}'); return false;" class="text-white no-underline">Add Offer</a>
+        </button>
+      `);
+
+      Swal.fire('Success', 'Offer removed', 'success');
+    } catch (err) {
+      Swal.fire('Error', err.message, 'error');
+    }
+  });
+}
+
+
+$(document).on('click', 'a[data-action="block"], a[data-action="unblock"]', async function (e) {
+  e.preventDefault();
+
+  const $a        = $(this);
+  const href      = $a.attr('href');
+  const action    = $a.data('action');               // "block" or "unblock"
+  const productId = new URL(href, location.origin).searchParams.get('id');
+  const $button   = $a.closest('button');
+
+  const swalRes = await Swal.fire({
+    title: `Are you sure you want to ${action} this product?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes',
+    confirmButtonColor: action === 'block' ? '#e74c3c' : '#1A5D8C',
+  });
+  if (!swalRes.isConfirmed) return;
+
+  try {
+    const res  = await fetch(href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+
+    if (action === 'block') {
+      // Switch to **Unblock**
+      $button
+        .removeClass('bg-red-600 hover:bg-red-700')
+        .addClass('bg-[#1A5D8C] hover:bg-[#154b70]')
+        .find('a')
+        .text('Unblock')
+        .attr('href', `/admin/unblockProduct?id=${productId}`)
+        .data('action', 'unblock');
+    } else {
+      // Switch to **Block**
+      $button
+        .removeClass('bg-[#1A5D8C] hover:bg-[#154b70]')
+        .addClass('bg-red-600 hover:bg-red-700')
+        .find('a')
+        .text('Block')
+        .attr('href', `/admin/blockProduct?id=${productId}`)
+        .data('action', 'block');
+    }
+
+    Swal.fire('Success!', data.message || `${action === 'block' ? 'Blocked' : 'Unblocked'}`, 'success');
+  } catch (err) {
+    Swal.fire('Error', err.message, 'error');
+  }
+});
+
+const style = document.createElement('style');
+style.textContent = `
+  .spinner { display: inline-block; width: 1rem; height: 1rem; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+`;
+document.head.appendChild(style);
+
+window.addEventListener('popstate', () => location.reload());
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

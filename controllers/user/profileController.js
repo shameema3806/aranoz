@@ -217,33 +217,33 @@ res.redirect("/pageNotFound")
 }}
 
 
-const loadProductDetails = async (req, res) => {
-  try {
-    const productId = req.params.id;
+// const loadProductDetails = async (req, res) => {
+//   try {
+//     const productId = req.params.id;
 
-    const product = await Product.findOne({
-      _id: productId,
-      isBlocked: false,
-      quantity: { $gt: 0 }
-    }).populate("category").populate("reviews");
+//     const product = await Product.findOne({
+//       _id: productId,
+//       isBlocked: false,
+//       quantity: { $gt: 0 }
+//     }).populate("category").populate("reviews");
 
-    if (!product) {
-      return res.redirect("/shop"); // Redirect if blocked/unavailable
-    }
+//     if (!product) {
+//       return res.redirect("/shop"); // Redirect if blocked/unavailable
+//     }
 
-    const relatedProducts = await Product.find({
-      category: product.category,
-      _id: { $ne: product._id },
-      isBlocked: false,
-      quantity: { $gt: 0 }
-    }).limit(4);
+//     const relatedProducts = await Product.find({
+//       category: product.category,
+//       _id: { $ne: product._id },
+//       isBlocked: false,
+//       quantity: { $gt: 0 }
+//     }).limit(4);
 
-    res.render("user/productDetail", { product, relatedProducts });
-  } catch (error) {
-    console.log("Product details error:", error);
-    res.redirect("/shop");
-  }
-};
+//     res.render("user/productDetail", { product, relatedProducts });
+//   } catch (error) {
+//     console.log("Product details error:", error);
+//     res.redirect("/shop");
+//   }
+// };
 
 
 
@@ -255,7 +255,7 @@ module.exports={
     getResetPasspage,
     resetPassword,
     userProfile,
-    loadProductDetails
+    // loadProductDetails
     
 
 }

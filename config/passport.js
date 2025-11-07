@@ -11,26 +11,30 @@ passport.use(new GoogleStrategy({
 },
 
 async (accessToken, refreshToken,profile,done)=>{
-    try{
-       let user = await User.findOne({googleId:profile.id});
-       if(user){
-        return done(null,user);
-       }else{
-        user = new User({
-            name:profile.displayName,
-            email:profile.emails[0].value,
-            googleId:profile.id,
-        });
-        await user.save();
-        return done(null,user);
-       }
-    }catch(error){
-        console.error("Passport error:", error);
-      return done(error,null);
-    }
-}
+    try {
+        let user = await User.findOne({ googleId: profile.id });
 
-));
+        if (user) {
+            // BLOCK CHECK
+            if (user.isBlocked) {
+                return done(null, false, { message: "User is blocked by admin" });
+            }
+            return done(null, user);
+        } else {
+            user = new User({
+                name: profile.displayName,
+                email: profile.emails[0].value,
+                googleId: profile.id,
+                isBlocked: false // make sure new users start unblocked
+            });
+            await user.save();
+            return done(null, user);
+        }
+    } catch (error) {
+        console.error("Passport error:", error);
+        return done(error, null);
+    }
+}));
 
 passport.serializeUser((user,done)=>{
  

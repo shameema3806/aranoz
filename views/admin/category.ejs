@@ -1,473 +1,353 @@
+<%- include("../../views/partials/admin/header") %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Category</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-           
-        }
-        .text{
-          color: #154b70;
-        }
-        .text-white{
-          color: #ddd;
-          text-decoration: none;
+<div class="min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-5xl w-full bg-white rounded-xl shadow-lg p-6 space-y-6 ml-8 md:ml-16 lg:ml-24">
 
-        
-        }
-        .btn-back {
-            background-color: #154b70;
-            color: rgba(255, 255, 255, 0.906);
-            border: none;
-            padding: 5px 20px;
-            border-radius: 9px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-        .header {
-            border-bottom: 3px solid #1A5D8C;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .search-bar {
-            background-color: #1A5D8C;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            width: 300px;
-            display: flex;
-            align-items: center;
-        }
-        .search-bar input {
-            background: none;
-            border: none;
-            color: #fff;
-            width: 80%;
-            outline: none;
-        }
-        .search-bar input::placeholder {
-            color: #fff;
-            opacity: 0.7;
-        }
-        .search-bar button {
-            background: none;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            padding: 0 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .action button {
-            background: none;
-            border: 1px solid #ccc;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        .action .unlist {
-            color: #ff0000;
-            border-color: #ff0000;
-        }
-        .pagination {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .pagination a {
-            background: none;
-            border: 1px solid #ccc;
-            padding: 5px 10px;
-            margin: 0 5px;
-            cursor: pointer;
-            border-radius: 3px;
-            text-decoration: none;
-            color: #000;
-        }
-        .pagination .current-page {
-            background-color: #ddd;
-            padding: 5px 10px;
-            border-radius: 3px;
-            margin: 0 5px;
-        }
-        .col-md-3 {
-            padding: 20px;
-            border: 1px solid #1A5D8C;
-            border-radius: 30px;
-            margin: 50px;
-        }
-        .form-label {
-            margin-bottom: 8px;
-        }
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #1A5D8C;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        .d-grid {
-            margin-top: 20px;
-        }
-        .error-message {
-            color: red;
-        }
-        .container {
-            display: block; /* Changed from flex to block */
-        }
-        .category-table {
-            width: 100%;
-            min-width: 0;
-        }
-        .category-form {
-            width: 100%;
-            min-width: 300px;
-        }
-        strong {
-            color: #1A5D8C;
-        }
-        .btn-primary {
-            background-color: #1A5D8C;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .btn-primary:hover {
-            background-color: #1A5D8C; /* Removed black hover */
-        }
-        #deleteBox {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            border: 2px solid #1A5D8C;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-        #deleteBox button {
-            margin: 0 10px;
-            padding: 5px 15px;
-        }
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 900;
-        }
-        .btn-create {
-            color: #fff;
-        }
-     
-        /* Responsive Table Styles */
-        @media screen and (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            .category-form, .category-table {
-                flex: 100%;
-                margin-bottom: 20px;
-            }
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            th, td {
-                min-width: 120px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .search-bar {
-                width: 100%;
-                margin-top: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <a href="/admin" class="btn btn-back mt-3">
-        ← Back
-    </a>
-    <div class="header">
-        <h1 class="text">Category</h1>
-        <!-- <form action="/admin/users/" method="get" class="search-bar">
-            <input type="text" placeholder="Search categories..." name="search">
-            <button type="submit">Search</button>
-        </form> -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b-2 border-[#1A5D8C]">
+      <h1 class="text-[#154b70] text-2xl font-bold">Category</h1>
 
-        <form action="/admin/category" method="get" class="search-bar">
-  <input type="text" name="search" placeholder="Search categories..." value="<%= searchQuery || '' %>">
-  <button type="submit">Search</button>
-  <% if (searchQuery) { %>
-    <a href="/admin/category" style="margin-left: 10px; color: white; text-decoration: underline;">Clear</a>
-  <% } %>
-</form>
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <form action="/admin/category" method="get" class="flex items-center bg-[#1A5D8C] rounded-md overflow-hidden flex-1 sm:flex-initial">
+          <input 
+            type="text" 
+            name="search" 
+            placeholder="Search categories..."
+            value="<%= searchQuery || '' %>"
+            class="w-full sm:w-64 px-3 py-2 bg-transparent text-white placeholder-white/70 outline-none text-sm"
+          />
+          <button type="submit" class="px-3 text-white">
+            Search
+          </button>
+        </form>
 
+        <% if (searchQuery) { %>
+          <a href="/admin/category" class="text-[#1A5D8C] underline text-sm whitespace-nowrap">Clear</a>
+        <% } %>
+
+        <button 
+          id="showAddCategoryPopup" 
+          class="bg-[#1A5D8C] hover:bg-[#154b70] text-white font-medium px-4 py-2 rounded-md transition flex items-center gap-2 text-sm whitespace-nowrap">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
     </div>
-    <div class="container">
-        <div class="category-table">
-            <table id="categoryTable">
-                <thead>
-                    <tr>
-                        <th><strong>S.No.</strong></th>
-                        <th><strong>Category</strong></th>
-                        <th><strong>description</strong></th>
-                        <th><strong>Offer Price</strong></th>
-                        <th><strong>Offer</strong></th>
-                        <th><strong>Status</strong></th>
-                        <th><strong>Action</strong></th>
-                        <th><strong>Edit</strong></th>
-                    </tr>
-                </thead>
-                <tbody>
-                     <% cat.forEach((category, index) => { %>
 
-                    <tr>
-                       <td><%= (currentPage - 1) * itemsPerPage + index + 1 %></td>
-                        <td class="text-start"><%= category.name %></td>
-                        <td class="text-start"><%= category.description %></td>
-                        <td>$50</td>
-                        <td>10%</td>
-                        <td class="text-start">
-                          <% if(category.isListed) { %> 
-                          <span style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Active</span>
-                          <%} else {%>
-                            <span style="background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 3px;">inactive </span>
-                            <%}%>
+    <!-- Table -->
+    <div class="flex justify-center">
+      <table id="categoryTable" class="w-full text-sm max-w-4xl pl-12 pr-4 md:pl-20 md:pr-8 lg:pl-32 lg:pr-12">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">S.No.</th>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Category</th>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Description</th>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Offer Price</th>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Offer</th>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Status</th>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Action</th>
+            <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Edit</th>
+          </tr>
+        </thead>
+        <tbody id="categoryTableBody" class="divide-y divide-gray-200">
+          <% cat.forEach((category, index) => { %>
+            <tr class="hover:bg-gray-50 transition" data-id="<%= category._id %>">
+              <td class="px-4 py-3"><%= (currentPage - 1) * itemsPerPage + index + 1 %></td>
+              <td class="px-4 py-3 font-medium"><%= category.name %></td>
+              <td class="px-4 py-3 text-gray-600"><%= category.description %></td>
+              <td class="px-4 py-3">$50</td>
+              <td class="px-4 py-3">10%</td>
+              <td class="px-4 py-3">
+                <span class="inline-block px-3 py-1 text-xs font-medium rounded-full <%= category.isListed ? 'bg-[#1A5D8C] text-white' : 'bg-red-600 text-white' %>">
+                  <%= category.isListed ? 'Active' : 'Inactive' %>
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <a href="<%= category.isListed ? `/admin/ListCategory?id=${category._id}` : `/admin/unListCategory?id=${category._id}` %>"
+                   class="inline-block px-3 py-1 text-xs font-medium text-white rounded-md <%= category.isListed ? 'bg-red-600 hover:bg-red-700' : 'bg-[#1A5D8C] hover:bg-[#154b70]' %> transition">
+                  <%= category.isListed ? 'Unlist' : 'List' %>
+                </a>
+              </td>
+<td class="px-4 py-3">
+  <button class="inline-block px-3 py-1 text-xs font-medium text-white bg-[#1A5D8C] hover:bg-[#154b70] rounded-md transition"
+          data-edit-category
+          data-id="<%= category._id %>"
+          data-name="<%= category.name %>"
+          data-description="<%= category.description %>">
+    Edit
+  </button>
+</td>
 
-                          </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
 
-                        <td class="text-start">
-                          <%if(category.isListed){%>
-                             <button style="background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 3px;" >
-                              <a href="/admin/ListCategory?id=<%=category._id%>" class="text-white">UnList</a>
-                            </button>
-                             <%}else{%>
-                            <!-- <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">list</button> -->
-                        
-                           <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;" >
-                              <a href="/admin/unListCategory?id=<%=category._id%>" class="text-white">List</a>
-                            </button>
-                            <%}%>
-                          </td>
-                        <td class="text-start"> 
-                          <button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
-                          <a href="/admin/editCategory?id=<%=category._id%>" class="text-white">Edit</a> 
-                        </button>
-                      </td>
+    <!-- Pagination -->
+    <div class="flex justify-center items-center gap-1 py-3">
+      <% if (totalPages > 1) { %>
+        <% if (currentPage > 1) { %>
+          <a href="?page=<%= currentPage - 1 %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&lt;</a>
+        <% } else { %>
+          <span class="px-3 py-1.5 text-gray-400">&lt;</span>
+        <% } %>
 
-                    </tr>
-                    <!-- <tr> -->
-                        <!-- <td>2.</td>
-                        <td>chair</td>
-                        <td>its a chair</td>
-                        <td>$20</td>
-                        <td>5%</td>
-                        <td>Active</td>
-                        <td><button style="background-color: #1A5D8C; color: white; border: none; padding: 5px 10px; border-radius: 3px;">Edit</button></td>
-                        <td class="action">
-                        <button >List</button>
-                        <button class="unlist" onclick="showDeleteBox(this)">Unlist</button>
-                         </td>
-                    </tr> -->
-                
-                    <%})%>
-                </tbody>
-            </table>
-            
-               
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <% if (i === currentPage) { %>
+            <span class="px-3 py-1.5 bg-[#1A5D8C] text-white rounded text-sm"><%= i %></span>
+          <% } else { %>
+            <a href="?page=<%= i %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100"><%= i %></a>
+          <% } %>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <a href="?page=<%= currentPage + 1 %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&gt;</a>
+        <% } else { %>
+          <span class="px-3 py-1.5 text-gray-400">&gt;</span>
+        <% } %>
+      <% } %>
+    </div>
+
     
+  </div>
+</div>
 
-                  
-        <div class="pagination-container" style="text-align: center; margin-top: 20px;">
-           <% if (totalPages > 1) { %>
-           <% if (currentPage > 1) { %>
-           <a href="?page=<%= currentPage - 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&lt;</a>
-           <% } else { %>
-           <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&lt;</span>
-           <% } %>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-           <% for (let i = 1; i <= totalPages; i++) { %>
-           <% if (i === currentPage) { %>
-           <span style="padding: 8px 12px; background-color: #1A5D8C; color: white; margin: 0 3px; border-radius: 4px;"><%= i %></span>
-           <% } else { %>
-           <a href="?page=<%= i %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 3px; text-decoration: none; border-radius: 4px;"><%= i %></a>
-           <% } %>
-           <% } %>
+<script>
+  // Add Category Popup with Validation
+  document.getElementById('showAddCategoryPopup').addEventListener('click', () => {
+    Swal.fire({
+      title: 'Add New Category',
+      html: `
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input id="swal-name" class="swal2-input" placeholder="Enter category name" autocomplete="off">
+          <div id="swal-name-error" class="text-red-500 text-xs mt-1 min-h-[1.25rem]"></div>
 
-           <% if (currentPage < totalPages) { %>
-           <a href="?page=<%= currentPage + 1 %>" style="padding: 8px 12px; border: 1px solid #ccc; margin: 0 5px; border-radius: 4px; text-decoration: none;">&gt;</a>
-           <% } else { %>
-          <span style="padding: 8px 12px; color: #999; margin: 0 5px;">&gt;</span>
-          <% } %>
-          <% } %>
+          <label class="block text-sm font-medium text-gray-700 mb-1 mt-3">Description</label>
+          <textarea id="swal-description" class="swal2-textarea" placeholder="Enter description"></textarea>
+          <div id="swal-description-error" class="text-red-500 text-xs mt-1 min-h-[1.25rem]"></div>
         </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Create Category',
+      cancelButtonText: 'Cancel',
+      width: '32rem',
+      customClass: {
+        popup: 'rounded-xl',
+        confirmButton: 'bg-[#1A5D8C] hover:bg-[#154b70] text-white px-5 py-2 rounded-md',
+        cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 rounded-md'
+      },
+      preConfirm: () => {
+        const name = document.getElementById('swal-name').value.trim();
+        const description = document.getElementById('swal-description').value.trim();
 
+        // Reset errors
+        document.getElementById('swal-name-error').textContent = '';
+        document.getElementById('swal-description-error').textContent = '';
 
-        </div>
-        <div class="category-form">
-            <div class="col-md-3">
-                <!-- <form method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)"> -->
-                  <form onsubmit="return handleFormSubmit(event)">
-  
-                  <div class="mb-4">
-                        <label for="product_name" class="form-label"><strong>Name</strong></label>
-                        <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name" />
-                        <div id="name-error" class="error-message"></div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label"><strong>Description</strong></label>
-                        <textarea placeholder="Type here" name="description" class="form-control" id="descriptionId" ></textarea>
-                        <div id="description-error" class="error-message"></div>
-                    </div>
-                    <div class="d-grid">
-                        <button class="btn btn-primary btn-create" type="submit">
-                            Create category
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div id="deleteBox">
-        <p>Are you sure you want to delete this category?</p>
-        <button onclick="confirmDelete()">Yes</button>
-        <button onclick="hideDeleteBox()">No</button>
-    </div>
-    <div class="overlay" id="overlay" onclick="hideDeleteBox()"></div>
+        let valid = true;
 
-   
-
-       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-       <script>
-        
-
-        function handleFormSubmit(event) {
-    event.preventDefault();
-    if (!ValidateForm()){
-     return false;
-    } 
-
-    const name = document.getElementsByName("name")[0].value.trim();
-    const description = document.getElementById("descriptionId").value.trim();
-
-    fetch("/admin/addCategory", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, description })
-    })
-    .then(async (response) => {
-        const data = await response.json();
-        console.log("FETCH RESPONSE:", data);  //  Check exact response
-
-        if (!response.ok) {
-            throw new Error(data.error || "Unknown Error");
+        // Name validation
+        if (!name) {
+          document.getElementById('swal-name-error').textContent = 'Please enter a category name';
+          valid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+          document.getElementById('swal-name-error').textContent = 'Only letters and spaces allowed';
+          valid = false;
+        } else if (name.length < 2) {
+          document.getElementById('swal-name-error').textContent = 'Name too short';
+          valid = false;
         }
 
-       
-        Swal.fire({
-            icon: "success",
-            title: "Category Added",
-            text: data.message
-        }).then(() => location.reload());
-    })
-    .catch((error) => {
-        console.error("FETCH ERROR:", error.message);
+        // Description validation
+        if (!description) {
+          document.getElementById('swal-description-error').textContent = 'Please enter a description';
+          valid = false;
+        } else if (description.length < 10) {
+          document.getElementById('swal-description-error').textContent = 'Description too short (min 10 chars)';
+          valid = false;
+        }
 
+        if (!valid) return false;
+
+        return { name, description };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const { name, description } = result.value;
+
+        // Show loading
         Swal.fire({
-            icon: "error",
-            title: "Oops!",
-            text: error.message || "Something went wrong"
+          title: 'Adding...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
         });
+
+        fetch("/admin/addCategory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, description })
+        })
+        .then(async res => {
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to add category");
+
+          // Success: Add to top of table
+          const tbody = document.getElementById('categoryTableBody');
+          const newRow = document.createElement('tr');
+          newRow.className = 'hover:bg-gray-50 transition animate-fadeIn';
+          newRow.dataset.id = data.category._id;
+
+          newRow.innerHTML = `
+            <td class="px-4 py-3">1</td>
+            <td class="px-4 py-3 font-medium">${data.category.name}</td>
+            <td class="px-4 py-3 text-gray-600">${data.category.description}</td>
+            <td class="px-4 py-3">$50</td>
+            <td class="px-4 py-3">10%</td>
+            <td class="px-4 py-3">
+              <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-[#1A5D8C] text-white">Active</span>
+            </td>
+            <td class="px-4 py-3">
+              <a href="/admin/ListCategory?id=${data.category._id}"
+                 class="inline-block px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition">
+                Unlist
+              </a>
+            </td>
+            <td class="px-4 py-3">
+              <a href="/admin/editCategory?id=${data.category._id}"
+                 class="inline-block px-3 py-1 text-xs font-medium text-white bg-[#1A5D8C] hover:bg-[#154b70] rounded-md transition">
+                Edit
+              </a>
+            </td>
+          `;
+          //  EJS variable safely injected
+          const itemsPerPage = Number(<%= itemsPerPage %>);
+
+          // Insert new row at top
+          tbody.insertBefore(newRow, tbody.firstChild);
+
+          // If row count exceeds limit (e.g., 5 per page), remove the last one
+          const rows = tbody.querySelectorAll('tr');
+          if (rows.length > itemsPerPage) {
+            tbody.removeChild(rows[rows.length - 1]);
+          }
+
+          // Recalculate S.No.
+          tbody.querySelectorAll('tr').forEach((row, idx) => {
+            row.querySelector('td:first-child').textContent = idx + 1;
+          });
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Category added at the top!',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        })
+        .catch(err => {
+          Swal.fire('Error', err.message, 'error');
+        });
+      }
     });
-}
+  });
+</script>
 
+<script>
+  // --------------------------------------------------------------
+  //  EDIT CATEGORY – SweetAlert2 Popup
+  // --------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-edit-category]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id          = btn.dataset.id;
+        const currentName = btn.dataset.name;
+        const currentDesc = btn.dataset.description || '';
 
-        function ValidateForm() {
-            clearErrorMessage();
-            const name = document.getElementsByName("name")[0].value.trim();
-            const description = document.getElementById("descriptionId").value.trim();
-            let isValid = true;
+        const { value: formValues } = await Swal.fire({
+          title: '<strong>Update Category</strong>',
+          html: `
+            <div style="text-align:left;">
+              <label class="swal2-label">Name</label>
+              <input id="swal-name" class="swal2-input" value="${currentName}" placeholder="Category name">
 
-            console.log("Validating form...");
+              <label class="swal2-label" style="margin-top:12px;">Description</label>
+              <textarea id="swal-desc" class="swal2-textarea" rows="4" placeholder="Description">${currentDesc}</textarea>
+            </div>
+          `,
+          focusConfirm: false,
+          showCancelButton: true,
+          confirmButtonText: 'Update Category',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#1A5D8C',
+          preConfirm: () => {
+            const name = document.getElementById('swal-name').value.trim();
+            const desc = document.getElementById('swal-desc').value.trim();
 
-            if (name === "") {
-                displayErrorMessage("name-error", "Please enter a name");
-                isValid = false;
-            } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-                      console.log("Name format is wrong");
-
-                displayErrorMessage("name-error", "Category name should contain only alphabetic characters");
-                isValid = false;
+            if (!name) {
+              Swal.showValidationMessage('Please enter a category name');
+              return false;
             }
-            if (description === "") {
-                console.log("Description is empty");
-
-                displayErrorMessage("description-error", "Please enter a description");
-                isValid = false;
+            if (!desc) {
+              Swal.showValidationMessage('Please enter a description');
+              return false;
             }
-            return isValid;
-        }
+            return { name, description: desc };
+          }
+        });
 
-        function displayErrorMessage(elementId, message) {
-            var errorElement = document.getElementById(elementId);
-            errorElement.innerText = message;
-            errorElement.style.display = "block";
-        }
-
-        function clearErrorMessage() {
-            const errorElements = document.getElementsByClassName("error-message");
-            Array.from(errorElements).forEach((element) => {
-                element.innerText = "";
-                element.style.display = "none";
+        // ------------------------------------------------------------
+        //  USER CONFIRMED → POST to server
+        // ------------------------------------------------------------
+        if (formValues) {
+          try {
+            const res = await fetch(`/admin/editCategory/${id}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                categoryName: formValues.name,
+                description: formValues.description
+              })
             });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || 'Update failed');
+
+            // ---- SUCCESS → refresh row (AJAX style) ----
+            const $row = btn.closest('tr');
+            $row.querySelector('td:nth-child(2)').textContent = formValues.name;
+            $row.querySelector('td:nth-child(3)').textContent = formValues.description;
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Updated!',
+              text: 'Category updated successfully',
+              timer: 1500,
+              showConfirmButton: false
+            });
+
+          } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+          }
         }
-    </script>
+      });
+    });
+  });
+</script>
 
+<!-- Fade-in animation -->
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out;
+  }
+</style>
 
-</body>
-</html>
+<%- include("../../views/partials/admin/footer") %>

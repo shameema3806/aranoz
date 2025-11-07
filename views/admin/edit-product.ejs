@@ -267,6 +267,7 @@
                                             <input placeholder="$" name="salePrice" type="text" value="<%= product.salePrice %>" class="form-control border">
                                             <div id="salePrice-error" class="error-message"></div>
                                         </div>
+                                        
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="mb-4">
@@ -292,7 +293,7 @@
                                                 <label class="form-label">Category</label>
                                                 <select class="form-select border" name="category">
                                                     <% for(let i=0; i<cat.length; i++) { %>
-                                                    <option value="<%=cat[i]._id%>" <%= cat[i].name === product.category ? 'selected' : '' %>><%=cat[i].name%></option>
+                                                    <option value ="<%=cat[i]._id%>" <%= cat[i].name === product.category ? 'selected' : '' %>><%=cat[i].name%></option>
                                                     <% } %>
                                                 </select>
                                                 <div id="category-error" class="error-message"></div>
@@ -348,76 +349,69 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Load Cropper.js JS -->
     <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
-    <script>
-        let selectedProductImages = [];
-        let existingImages = JSON.parse('<%- JSON.stringify(product.images || []) %>');
-        let cropper = null;
-        let currentImageIndex = null;
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        document.addEventListener('DOMContentLoaded', function () {
-            selectedProductImages = existingImages.map(img => ({
-                name: img.filename || `existing-image-${img._id}`,
-                url: img.url || `/Uploads/${img.filename}`,
-                isExisting: true
-            }));
+ <script>
+    let selectedProductImages = [];
+    let existingImages = JSON.parse('<%- existingImagesJSON %>') || [];
+    let currentImageIndex = null;
+    let cropper = null;
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+    selectedProductImages = existingImages.map(img => ({
+    name: img.filename,
+    url: img.url,
+    isExisting: true
+    }));
+        renderPreviews();          
+        initializeCropper();
+    });
+
+function initializeCropper() {
+    const cropButton = document.getElementById('cropButton');
+    const cropModalEl = document.getElementById('imageCropModal');
+
+    cropButton.addEventListener('click', function () {
+        if (!cropper || currentImageIndex === null) return;
+
+        const canvas = cropper.getCroppedCanvas({ width: 800, height: 800 });
+        if (!canvas) return;
+
+        canvas.toBlob(blob => {
+            const croppedFile = new File([blob], selectedProductImages[currentImageIndex].name, { type: 'image/jpeg' });
+            selectedProductImages[currentImageIndex] = { file: croppedFile, isExisting: false };
             renderPreviews();
-            initializeCropper();
-        });
 
-        function initializeCropper() {
-            document.getElementById('cropButton').addEventListener('click', function () {
-                if (!cropper || currentImageIndex === null) {
-                    document.getElementById('cropError').textContent = 'Image cropper not initialized. Please select an image and try again.';
-                    return;
-                }
+            const cropModal = bootstrap.Modal.getInstance(cropModalEl);
+            if (cropModal) cropModal.hide();
 
-                const canvas = cropper.getCroppedCanvas({
-                    width: 800,
-                    height: 800,
-                    imageSmoothingEnabled: true,
-                    imageSmoothingQuality: 'high',
-                });
+            cropper.destroy();
+            cropper = null;
+            currentImageIndex = null;
+            document.getElementById('cropError').textContent = '';
+        }, 'image/jpeg', 0.9);
+    });
 
-                if (canvas) {
-                    canvas.toBlob(
-                        (blob) => {
-                            const croppedFile = new File([blob], selectedProductImages[currentImageIndex].name, {
-                                type: 'image/jpeg',
-                            });
-                            selectedProductImages[currentImageIndex] = { file: croppedFile, isExisting: false }; // CHANGED: Store cropped image as { file, isExisting: false } to ensure correct structure for rendering and submission
-                            renderPreviews();
-                            const cropModal = bootstrap.Modal.getInstance(document.getElementById('imageCropModal'));
-                            if (cropModal) {
-                                cropModal.hide();
-                            }
-                            if (cropper) {
-                                cropper.destroy();
-                                cropper = null;
-                            }
-                            currentImageIndex = null;
-                            document.getElementById('cropError').textContent = '';
-                        },
-                        'image/jpeg',
-                        0.9
-                    );
-                } else {
-                    document.getElementById('cropError').textContent = 'Failed to crop image. Please adjust the crop area and try again.';
-                }
-            });
+    // Cancel button
+    cropModalEl.querySelector('.btn-secondary').addEventListener('click', function () {
+        if (cropper) cropper.destroy();
+        cropper = null;
+        currentImageIndex = null;
+        const cropModal = bootstrap.Modal.getInstance(cropModalEl);
+        if (cropModal) cropModal.hide();
+        document.getElementById('cropError').textContent = '';
+    });
+}
 
-            document.querySelector('#imageCropModal .btn-secondary').addEventListener('click', function () {
-                if (cropper) {
-                    cropper.destroy();
-                    cropper = null;
-                }
-                currentImageIndex = null;
-                const cropModal = bootstrap.Modal.getInstance(document.getElementById('imageCropModal'));
-                if (cropModal) {
-                    cropModal.hide();
-                }
-                document.getElementById('cropError').textContent = '';
-            });
-        }
+
+
+
+
+
+
+
+
 
         function handleImageUpload(event) {
             const files = event.target.files;
@@ -430,6 +424,8 @@
             renderPreviews();
             event.target.value = '';
         }
+
+
 
         function renderPreviews() {
             const container = document.getElementById('imagesPreviewContainer');
@@ -474,27 +470,24 @@
                             function () {
                                 if (cropper) {
                                     cropper.destroy();
-                                }
-                                cropper = new Cropper(cropImage, {
-                                    aspectRatio: 1,
-                                    viewMode: 1,
-                                    dragMode: 'move',
-                                    autoCropArea: 0.8,
-                                    restore: false,
-                                    guides: true,
-                                    center: true,
-                                    highlight: false,
-                                    cropBoxMovable: true,
-                                    cropBoxResizable: true,
-                                    toggleDragModeOnDblclick: false,
-                                    responsive: true,
-                                    autoCrop: true,
-                                    minContainerWidth: 300,
-                                    minContainerHeight: 400,
-                                });
+                                }cropper = new Cropper(cropImage, {
+    aspectRatio: 1,
+    viewMode: 1,
+    dragMode: 'move',
+    autoCropArea: 0.8,
+    restore: true,
+    guides: true,
+    center: true,
+    highlight: true,
+    cropBoxMovable: true,
+    cropBoxResizable: true,
+    toggleDragModeOnDblclick: true,
+    responsive: true,
+    zoomOnWheel: true,  // <-- enable zoom
+});
+
                             },
-                            { once: true }
-                        );
+                            { once: true } );
                     };
                     cropImage.onerror = function () {
                         document.getElementById('cropError').textContent = 'Failed to load image for cropping. Please try another image.';
@@ -627,11 +620,21 @@
                     return response.json();
                 })
                 .then((data) => {
-                    if (data.success) {
-                        window.location.href = '/admin/products';
-                    } else {
-                        displayErrorMessage('images-error', data?.message || 'Failed to update product.');
-                    }
+                   if (data.success) {
+    Swal.fire({
+        title: 'Product Updated!',
+        text: 'The product has been successfully updated.',
+        icon: 'success',
+        timer: 2000, // 2 seconds
+        showConfirmButton: false,
+        didClose: () => {
+            window.location.href = '/admin/products';
+        }
+    });
+} else {
+    displayErrorMessage('images-error', data?.message || 'Failed to update product.');
+}
+
                 })
                 .catch((error) => {
                     // console.error('Error:', error);

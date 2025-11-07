@@ -1,6 +1,9 @@
-<%- include("../partials/user/header") %>
+
 
 <style>
+  
+  
+
   .main-content {
     margin-top: 5rem !important; /* 448px */
   }
@@ -60,17 +63,26 @@
   transition: all 0.2s ease;
 }
 
+.ml-custom {
+  margin-left: 190px;
+}
 
-</style>    
+
+
+</style>   
+
+
+<%- include("../partials/user/header") %>
+
         <main class="main-content mt-112 md:mt-96 lg:mt-80">
 
-       <div class="breadcrumb text-sm">
-        <a href="/" class="text-blue-500 hover:underline" rel="nofollow">Home</a>
+       <div class="text-sm ml-custom">
+        <a href="/" class="text-blue-500 hover:underline" rel="nofollow"> Home</a>
         <span class="mx-2">/</span>
         <a href="/shop" class="text-blue-500 hover:underline">Shop</a>
         <span class="mx-2">/</span>
         <%= product?.productName || 'Product' %>
-      </div>
+      </div><br>
     </div>
   </div>
 
@@ -140,6 +152,7 @@
                     <span class="font-small ml-5 text-muted">(<%= product?.reviews?.length || 0 %> reviews)</span>
                   </div>
 
+                  
                <div class="clearfix product-price-cover">
                 <div class="product-price primary-color float-left">
                 <ins>
@@ -156,17 +169,73 @@
                 </span>
                 </ins><br>
                 <span class="save-price font-md color3 ml-15" 
-                   style="color:#e63946; font-weight:600; font-size:16px;">
+                   style="color:#e63946; font-weight:600; font-size:14px;">
                    Save ₹<%= product.regularPrice - product.salePrice %>
                 </span>
                   <% } %>
                 </div>
-                </div>
+                
+                </div><br>
+
+
+           <div class="product-details mb-3">
+            <!-- Color Row -->
+             <div class="detail-row mb-3" style="display: flex; align-items: center; gap: 1px;">
+           <span style="font-size: 15px; font-weight: 600; color: #555; min-width: 60px;">Color:</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+      <% 
+        // Map color names to hex codes
+        let colorCode = product?.colorCode;
+        if (!colorCode && product?.color) {
+          const colorMap = {
+            'blue': '#4a90e2',
+            'red': '#e74c3c',
+            'green': '#27ae60',
+            'yellow': '#f39c12',
+            'black': '#2c3e50',
+            'white': '#ecf0f1',
+            'grey': '#95a5a6',
+            'gray': '#95a5a6',
+            'purple': '#9b59b6',
+            'pink': '#fd79a8',
+            'orange': '#e67e22',
+            'brown': '#8b4513'
+          };
+          colorCode = colorMap[product.color.toLowerCase()] || '#4a90e2';
+        }
+      %>
+      <span style="display: inline-block; width: 20px; height: 20px; background-color: <%= colorCode %>; border-radius: 50%; border: 3px solid <%= colorCode %>; outline: 2px solid #ddd; outline-offset: 2px;"></span>
+      <span style="font-size: 15px; color: #1a1a1a;"><%= product?.color || 'N/A' %></span>
+    </div>
+  </div>
+
+  <!-- Purchase Quantity Row with +/- buttons -->
+<div class="detail-row mb-3" style="display: flex; align-items: center; gap: 16px;">
+  <span style="font-size: 15px; font-weight: 600; color: #555; min-width: 50px;">Quantity:</span>
+  <div class="quantity-selector" style="display: flex; align-items: center; gap: 12px;">
+    <button class="qty-btn" onclick="changeQuantity(-1)" type="button" style="width: 26px; height: 26px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">−</button>
+    <span id="qty-display" class="qty-display" style="font-size: 18px; font-weight: 600; min-width: 30px; text-align: center;">1</span>
+    <button class="qty-btn" onclick="changeQuantity(1)" type="button" style="width: 26px; height: 26px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">+</button>
+  </div>
+</div>
+
+<!-- Show Available Stock - Simple In Stock / Out of Stock -->
+<div class="detail-row mb-3" style="display: flex; align-items: center; gap: 16px;">
+  <span style="font-size: 15px; font-weight: 600; color: #555; min-width: 80px;">Availability:</span>
+  <span style="font-size: 15px; color: <%= product.quantity > 0 ? '#4caf50' : '#ff4757' %>; font-weight: 600;">
+    <%= product.quantity > 0 ? 'In stock' : 'Out of stock' %>
+  </span>
+</div>
+
+<!-- Hidden input to store purchase quantity for cart -->
+<input type="hidden" id="purchase-quantity" name="quantity" value="1">
+
 
 
                   <div class="short-desc mb-30">
                     <p><%= product?.description || 'No description available.' %></p>
                   </div>
+
 
                  <div class="product_sort_info font-xs mb-30">
                    <ul>
@@ -197,7 +266,7 @@
 
                   <ul class="product-meta font-xs color-grey mt-50">
                     <li>Stock Code: <%= product?._id || '' %></li>
-                    <li>Availability:<span class="in-stock text-success ml-5"><%= (product?.quantity || 0) > 0 ? 'In stock' : 'Sold out' %></span></li>
+                    <!-- <li>Availability:<span class="in-stock text-success ml-5"><%= (product?.quantity || 0) > 0 ? 'In stock' : 'Sold out' %></span></li> -->
                   </ul>
                 </div>
               </div>
@@ -283,6 +352,8 @@
   </section>
 </main>
 
+
+
 <script>
   // Change main image when thumbnail is clicked
   function changeMainImage(src) {
@@ -298,6 +369,53 @@
   }
 </script>
 
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Stock available from database
+const maxStock = <%= product.quantity %>;
+let purchaseQty = 1; // Start with 1 item to purchase
+
+function changeQuantity(change) {
+  purchaseQty += change;
+  
+  // Can't buy less than 1
+  if (purchaseQty < 1) {
+    purchaseQty = 1;
+  }
+  
+  // Can't buy more than available stock - Show SweetAlert2
+  if (purchaseQty > maxStock) {
+    purchaseQty = maxStock;
+    
+    // SweetAlert2 notification
+    Swal.fire({
+      icon: 'warning',
+      title: 'Stock Limit Reached',
+      text: `Only ${maxStock} items available in stock!`,
+      confirmButtonColor: '#ff4757',
+      confirmButtonText: 'OK'
+    });
+  }
+  
+  // Update the display
+  document.getElementById('qty-display').textContent = purchaseQty;
+  
+  // Update hidden input (this value will be sent when adding to cart)
+  document.getElementById('purchase-quantity').value = purchaseQty;
+}
+
+// Hover effects
+document.querySelectorAll('.qty-btn').forEach(btn => {
+  btn.addEventListener('mouseenter', function() {
+    this.style.background = '#f5f5f5';
+  });
+  btn.addEventListener('mouseleave', function() {
+    this.style.background = 'white';
+  });
+});
+</script>
 
 
 

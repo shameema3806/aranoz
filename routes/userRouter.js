@@ -20,7 +20,7 @@ router.get('/verify-otp', (req, res) => {
 router.post("/signup/resend-otp",userController.resendOtp);
 router.get('/auth/google',passport.authenticate('google',{scope:["profile","email"]}));
 router.get("/auth/google/callback", 
-  passport.authenticate("google", { failureRedirect: "/signup" }),
+  passport.authenticate("google", { failureRedirect: "/login" ,failureFlash: true}),
   async (req, res) => {
     if (req.user) {
       req.session.user = req.user._id;
@@ -29,11 +29,10 @@ router.get("/auth/google/callback",
 });
 
 //shop page
-router.get("/shop", userController.loadShopping);
-
+router.get("/shop", userAuth, userController.loadShopping);
 
 //product management
-router.get("/productDetail",productController.productDetail);
+router.get("/productDetail",userAuth,productController.productDetail);
 // POST review
 router.post("/product/:id/review", async (req, res) => {
   try {
@@ -74,7 +73,7 @@ router.post("/verify-passForgot-otp",profileController.verifyForgotPassOtp);
 router.get("/reset-password", profileController.getResetPasspage);
 router.post('/reset-password', profileController.resetPassword);
 router.get("/userProfile",userAuth,profileController.userProfile);
-router.get("/product/:id", profileController.loadProductDetails);
+// router.get("/product/:id", profileController.loadProductDetails);
 
 router.post("/forgot-password/resend-otp", profileController.resendsOtp);
 
