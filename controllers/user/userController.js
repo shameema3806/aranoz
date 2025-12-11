@@ -394,10 +394,8 @@ const login = async(req,res)=>{
             req.flash('err1', 'User is blocked by admin');
             return res.redirect('/login');
         }
-    // console.log(findUser);
 
     const passwordMatch = await bcrypt.compare(password,findUser.password);
-    // console.log('Password Match:', passwordMatch);
 
     if (!passwordMatch) {
             req.flash('err1', 'Incorrect password');
@@ -405,11 +403,9 @@ const login = async(req,res)=>{
         }
 
         req.session.user = findUser._id;
-        // console.log('Redirecting to home');
         res.redirect('/');
 
     } catch (error) {
-        // console.error('Login error:', error);
         req.flash('err1', 'Login failed. Invalid credentials');
         res.redirect('/login');
     }
@@ -417,16 +413,6 @@ const login = async(req,res)=>{
 
 
 const logout = async (req,res)=>{
-  // try {
-  //   req.session.destroy((err)=>{
-  //     if(err){
-  //      console.log("session destruction error",err.message);
-  //      return res.redirect("/pageNotFound");
-  //     }
-  //     return res.redirect("/login")
-  //   })
-  // } 
-  
   try{
     req.session.user = null;
     return res.redirect("/login");
