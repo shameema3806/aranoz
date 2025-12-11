@@ -1,0 +1,182 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Forgot Password - OTP Verification</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: "Nunito Sans", sans-serif;
+        }
+        .container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card {
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .otp-timer {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            line-height: 60px;
+            text-align: center;
+            font-size: 20px;
+            background: #f2f2f2;
+            border: 2px solid #ddd;
+        }
+        .expired {
+            color: red;
+            font-size: 14px;
+        }
+        /* .btn-back {
+            background-color: #154b70;
+            color: rgba(255, 255, 255, 0.906);
+            border: none;
+            padding: 5px 20px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin-bottom: 20px;
+            position: absolute; /* Position absolutely for left top */
+            /* top: 20px;
+            left: 20px; */
+        /* } */ 
+    </style>
+</head>
+<body>
+    <!-- <a href="/user/forgot-password.ejs" class="btn btn-back mt-3">
+        ← Back
+    </a> -->
+<div class="container">
+    <div class="card">
+        <h4 class="text-center mb-4">Verify Your Email</h4>
+        <!-- <p class="text-center text-muted mb-4">We've sent a 6-digit OTP to your email. Enter it below to reset your password.</p> -->
+        <form id="otpForm" method="POST" onsubmit="return validateOTPForm()">
+            <div class="form-group mb-3">
+                <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter OTP" required maxlength="6" pattern="\d*" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Verify OTP</button>
+            <div class="d-flex justify-content-center align-items-center mt-3">
+                <div class="otp-timer" id="otpTimer"><span id="timerValue">60</span></div>
+            </div>
+            <button type="button" class="btn btn-secondary w-100 mt-2" onclick="resendOTP()">Resend OTP</button>
+            <% if (locals.message && message.length > 0) { %>
+                <div class="alert alert-danger text-center mt-3"><%= message %></div>
+            <% } %>
+        </form>
+        <p class="text-center mt-4"><a href="/login">Back to Login</a></p>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById("otp").focus();
+
+    let timer = 60;
+    let timerInterval;
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timer--;
+            const timerElem = document.getElementById("timerValue");
+            timerElem.textContent = timer;
+            if (timer <= 0) {
+                clearInterval(timerInterval);
+                timerElem.classList.add("expired");
+                timerElem.textContent = "Expired";
+                document.getElementById("otp").disabled = true;
+            }
+        }, 1000);
+    }
+    startTimer();
+
+    function validateOTPForm() {
+        const otpInput = document.getElementById("otp").value;
+
+        $.ajax({
+            type: "POST",
+            url: "/verify-passForgot-otp",  // Use your existing route here
+            data: { otp: otpInput },
+            contentType: "application/x-www-form-urlencoded",
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "OTP Verified",
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = response.redirectUrl || "/reset-password";
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Invalid OTP",
+                        text: response.message || "Please try again"
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Something went wrong. Please try again."
+                });
+            }
+        });
+
+        return false;
+    }
+
+    function resendOTP() {
+        clearInterval(timerInterval);
+        timer = 60;
+        document.getElementById("otp").disabled = false;
+        document.getElementById("timerValue").classList.remove("expired");
+        document.getElementById("timerValue").textContent = timer;
+        startTimer();
+
+        $.ajax({
+            type: "POST",
+            url: "/forgot-password/resend-otp",
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "OTP Resent",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Failed to resend OTP. Try again."
+                    });
+                }
+            }
+        });
+
+        return false;
+    }
+</script>
+</body>
+</html>

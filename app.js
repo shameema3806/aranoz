@@ -11,16 +11,22 @@ const adminRouter = require("./routes/adminRouter")
 db();
 
 
-app.use(flash());
+    
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/public", express.static(path.join(__dirname, "uploads")));
 
 
-const publicPath = path.join(__dirname, 'public');
-app.use(express.static(publicPath));
-console.log("Public folder path:", publicPath);
 
-
+console.log(__dirname,"this is form dirname");
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+
+app.use((req, res, next) => {
+          res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
+          next();
+        });
+
 app.use(session({
   secret:process.env.SESSION_SECRET,
   resave:false,
@@ -32,18 +38,26 @@ app.use(session({
   }
 
 }))
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.msg1 = req.flash('error'); // Passport failureFlash stores messages in 'error'
+  next();
+});
 
 
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/profile-images', express.static('D:/FIRST PROJECT/aranoz/public/profile-images'));
 
 app.set("view engine","ejs");
 app.set("views", [
   path.join(__dirname, "views/user"),
   path.join(__dirname, "views/admin"),
-  
+  path.join(__dirname, "views/index"),
+
 ]);
+
 console.log("Using views path:", app.get("views"));
 // app.use(express.static(path.join(__dirname,"public")));
 
@@ -55,13 +69,11 @@ app.use((req, res, next) => {
 
 
 
-
-
 app.use("/",userRouter);
 app.use('/admin',adminRouter);
 
 
-const PORT=3000 || process.env.PORT ;
+const PORT=3000|| process.env.PORT ;
 app.listen(PORT,() =>{
     console.log("server is running");
 })

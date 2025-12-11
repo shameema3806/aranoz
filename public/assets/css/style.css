@@ -1,0 +1,70 @@
+/* Sidebar */
+#sidebar {
+  width: 16rem;
+  position: fixed;
+  top: 3rem;
+  left: 0;
+  height: calc(100vh - 3rem);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 1199.98px) {
+  .content-wrapper {
+    margin-left: 0;
+  }
+}
+
+/* Card styling */
+.card-custom {
+  border: 1px solid #e0eef6;
+  border-radius: 10px;
+}
+
+/* Table customization */
+.customer-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.customer-table th,
+.customer-table td {
+  padding: 0.75rem 1rem;
+}
+
+.customer-table thead {
+  background-color: #1A5D8C;
+  color: #fff;
+}
+
+/* Buttons */
+.btn-block, .btn-unblock {
+  font-size: 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+/* Pagination */
+.pagination a.active {
+  background-color: #1A5D8C;
+  color: #fff;
+}
+
+
+/* Custom Colors */
+.text { color: #154b70; }
+.text-white { color: #ddd; text-decoration: none; }
+strong { color: #1A5D8C; }
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+  th, td { min-width: 120px; }
+  .header { flex-direction: column; align-items: flex-start; }
+  .search-bar { width: 100%; margin-top: 10px; }
+}

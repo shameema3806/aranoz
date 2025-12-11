@@ -1,0 +1,517 @@
+
+
+<style>
+  
+  .btn-custom-cart {
+  background-color: #ff3368 !important;
+  border: none !important;
+  font-weight: 600;
+  padding: 10px 0;
+  border-radius: 6px;
+}
+
+.btn-custom-cart:hover {
+  background-color: #e62b5d !important;
+}
+
+
+  .main-content {
+    margin-top: 5rem !important; /* 448px */
+  }
+  @media (min-width: 768px) {
+    .main-content {
+      margin-top: 5rem !important; /* 384px */
+    }
+  }
+  @media (min-width: 1024px) {
+    .main-content {
+      margin-top: 5rem !important; /* 320px */
+    }
+  }
+  .bt-1 {
+  border-top: 1px solid #000 !important;
+}
+
+
+.detail-gallery {
+  position: relative;
+}
+
+.zoom-wrapper {
+  position: relative;
+  overflow: hidden; /* Keeps zoom inside box */
+  border-radius: 10px;
+}
+
+.zoom-wrapper img {
+  width: 100%;
+  transition: transform 0.4s ease, transform-origin 0.4s ease;
+  cursor: zoom-in;
+}
+
+.zoom-wrapper.zoomed img {
+  transform: scale(2); /* Zoom inside box */
+  cursor: zoom-out;
+  object-fit: cover; /* Keeps image edges cropped neatly */
+}
+
+.zoom-icon {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  border-radius: 50%;
+  padding: 5px; /* smaller size */
+  font-size: 11px; /* smaller icon */
+  color: #000;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+
+.thumbnail-gallery img:hover {
+  border: 2px solid #000;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+.ml-custom {
+  margin-left: 190px;
+}
+
+.btn-custom-cart {
+  background-color: #ff3368 !important;
+  border: none !important;
+  font-weight: 600;
+  padding: 8px 0;
+  border-radius: 6px;
+}
+
+.btn-custom-cart:hover {
+  background-color: #e62b5d !important;
+}
+
+
+</style>   
+
+
+<%- include("../partials/user/header") %>
+
+        <main class="main-content mt-112 md:mt-96 lg:mt-80">
+
+       <div class="text-sm ml-custom">
+        <a href="/" class="text-blue-500 hover:underline" rel="nofollow"> Home</a>
+        <span class="mx-2">/</span>
+        <a href="/shop" class="text-blue-500 hover:underline">Shop</a>
+        <span class="mx-2">/</span>
+        <%= product?.productName || 'Product' %>
+      </div><br>
+    </div>
+  </div>
+
+  <section class="mt-50 mb-50">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-9">
+          <div class="product-detail accordion-detail">
+            <div class="row mb-50">
+              
+
+
+              <!-- Product Gallery Section -->
+<!-- Product Gallery Section -->
+<div class="col-md-6">
+  <div class="detail-gallery position-relative">
+    
+    <!-- Main Image -->
+    <div class="main-image mb-3 position-relative">
+      <div class="zoom-wrapper">
+        <img
+          id="mainProductImage"
+          src="<%= product?.productImage?.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>"
+          alt="Main Product Image"
+          class="img-fluid border rounded shadow-sm"
+          onclick="toggleZoom(event)"
+        />
+        <!-- Zoom Icon inside image -->
+        <span class="zoom-icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+      </div>
+    </div>
+
+    <!-- Thumbnails -->
+    <div class="thumbnail-gallery d-flex justify-content-between flex-wrap">
+      <% if (product?.productImage && product.productImage.length > 0) { %>
+        <% product.productImage.forEach((image, index) => { %>
+          <div class="thumb me-2 mb-2">
+            <img
+              src="/public/product-images/<%= image %>"
+              alt="Thumbnail <%= index + 1 %>"
+              class="img-thumbnail border rounded shadow-sm"
+              style="width: 90px; height: 90px; object-fit: cover; cursor: pointer;"
+              onclick="changeMainImage('/public/product-images/<%= image %>')"
+            />
+          </div>
+        <% }) %>
+      <% } else { %>
+        <img src="/img/product/placeholder.jpg" alt="No image" class="img-thumbnail" style="width: 80px; height: 80px;">
+      <% } %>
+    </div>
+  </div>
+</div>
+
+
+
+              <!-- Product Info -->
+              <div class="col-md-6">
+                <div class="detail-info">
+                  <h2 class="title-detail"><%= product?.productName || 'Product' %></h2>
+
+                  <div class="product-detail-rating">
+                    <div class="product-rate d-inline-block">
+                      <div class="product-rating" style="width: %<%= (product?.rating || 0) * 20 %>%"></div>
+                    </div>
+                    <span class="font-small ml-5 text-muted">(<%= product?.reviews?.length || 0 %> reviews)</span>
+                  </div>
+
+                  
+               <div class="clearfix product-price-cover">
+                <div class="product-price primary-color float-left">
+                <ins>
+                <span class="text-brand fw-bold text-dark" 
+                   style="font-weight:700; color:#000; font-size:24px;">
+                   ₹<%= product?.salePrice || 0 %>
+                </span>
+                </ins>
+                  <% if ((product?.regularPrice || 0) > (product?.salePrice || 0)) { %>
+                <ins>
+                <span class="old-price font-md ml-15 text-muted" 
+                  style="text-decoration: line-through; color:#888; font-weight:500; font-size:16px;">
+                  ₹<%= product.regularPrice %>
+                </span>
+                </ins><br>
+                <span class="save-price font-md color3 ml-15" 
+                   style="color:#e63946; font-weight:600; font-size:14px;">
+                   Save ₹<%= product.regularPrice - product.salePrice %>
+                </span>
+                  <% } %>
+                </div>
+                
+                </div><br>
+
+
+           <div class="product-details mb-3">
+            <!-- Color Row -->
+             <div class="detail-row mb-3" style="display: flex; align-items: center; gap: 1px;">
+           <span style="font-size: 15px; font-weight: 600; color: #555; min-width: 60px;">Color:</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+      <% 
+        // Map color names to hex codes
+        let colorCode = product?.colorCode;
+        if (!colorCode && product?.color) {
+          const colorMap = {
+            'blue': '#4a90e2',
+            'red': '#e74c3c',
+            'green': '#27ae60',
+            'yellow': '#f39c12',
+            'black': '#2c3e50',
+            'white': '#ecf0f1',
+            'grey': '#95a5a6',
+            'gray': '#95a5a6',
+            'purple': '#9b59b6',
+            'pink': '#fd79a8',
+            'orange': '#e67e22',
+            'brown': '#8b4513'
+          };
+          colorCode = colorMap[product.color.toLowerCase()] || '#4a90e2';
+        }
+      %>
+      <span style="display: inline-block; width: 20px; height: 20px; background-color: <%= colorCode %>; border-radius: 50%; border: 3px solid <%= colorCode %>; outline: 2px solid #ddd; outline-offset: 2px;"></span>
+      <span style="font-size: 15px; color: #1a1a1a;"><%= product?.color || 'N/A' %></span>
+    </div>
+  </div>
+
+  <!-- Purchase Quantity Row with +/- buttons -->
+<div class="detail-row mb-3" style="display: flex; align-items: center; gap: 16px;">
+  <span style="font-size: 15px; font-weight: 600; color: #555; min-width: 50px;">Quantity:</span>
+  <div class="quantity-selector" style="display: flex; align-items: center; gap: 12px;">
+    <button class="qty-btn" onclick="changeQuantity(-1)" type="button" style="width: 26px; height: 26px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">−</button>
+    <span id="qty-display" class="qty-display" style="font-size: 18px; font-weight: 600; min-width: 30px; text-align: center;">1</span>
+    <button class="qty-btn" onclick="changeQuantity(1)" type="button" style="width: 26px; height: 26px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">+</button>
+  </div>
+</div>
+
+<!-- Show Available Stock - Simple In Stock / Out of Stock -->
+<div class="detail-row mb-3" style="display: flex; align-items: center; gap: 16px;">
+  <span style="font-size: 15px; font-weight: 600; color: #555; min-width: 80px;">Availability:</span>
+  <span style="font-size: 15px; color: <%= product.quantity > 0 ? '#4caf50' : '#ff4757' %>; font-weight: 600;">
+    <%= product.quantity > 0 ? 'In stock' : 'Out of stock' %>
+  </span>
+</div>
+
+<!-- Hidden input to store purchase quantity for cart -->
+<input type="hidden" id="purchase-quantity" name="quantity" value="1">
+
+
+
+                  <div class="short-desc mb-30">
+                    <p><%= product?.description || 'No description available.' %></p>
+                  </div>
+
+
+                 <div class="product_sort_info font-xs mb-30">
+                   <ul>
+                   <li><i class="fa-solid fa-crown mr-2"></i> 1 Year Brand Warranty</li>
+                   <li><i class="fa-solid fa-rotate-right mr-2"></i> 30 Day Return Policy</li>
+                   <li><i class="fa-solid fa-credit-card mr-2"></i> Cash on Delivery available</li>
+                   </ul>
+                  </div>
+
+
+                  <!-- <% if ((product?.quantity || 0) > 0) { %> -->
+                    <!-- <div class="detail-extralink">
+                      <div class="detail-qty border radius">
+                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                        <span class="qty-val" id="quantity">1</span>
+                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                      </div> -->
+
+                      <!-- <div class="product-extra-link2">
+                        <button class="button button-add-to-cart">Add to cart</button>
+                        <a class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>
+                      </div> -->
+                      <div class="mt-3">
+  <% if (product.quantity > 0) { %>
+    <button class="btn btn-custom-cart w-100 text-white"
+            onclick="addToCart('<%= product._id %>', purchaseQty)">
+      Add to Cart
+    </button>
+  <% } else { %>
+    <button class="btn btn-secondary w-100" disabled>
+      Out of Stock
+    </button>
+  <% } %>
+</div>
+
+
+                    </div>
+
+                  <!-- <% } else { %> -->
+                    <!-- <div class="alert alert-danger mt-3">Out of Stock</div>
+                  <% } %> -->
+
+                  <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+
+                  <ul class="product-meta font-xs color-grey mt-50">
+                    <li>Stock Code: <%= product?._id || '' %></li>
+
+                    <!-- <li>Availability:<span class="in-stock text-success ml-5"><%= (product?.quantity || 0) > 0 ? 'In stock' : 'Sold out' %></span></li> -->
+                
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+<!-- Product Review Rating Bar -->
+<div class="mb-4">
+  <h5 class="mb-2">Customer Ratings</h5>
+  
+  <div class="d-flex align-items-center mb-2">
+    <!-- Average rating stars -->
+    <% let avgRating = product?.rating || 0; %>
+    <% let fullStars = Math.floor(avgRating); %>
+    <% let halfStar = avgRating - fullStars >= 0.5; %>
+    <% let emptyStars = 5 - fullStars - (halfStar ? 1 : 0); %>
+
+    <% for(let i=0; i<fullStars; i++) { %>
+      <i class="bi bi-star-fill text-warning"></i>
+    <% } %>
+    <% if(halfStar) { %>
+      <i class="bi bi-star-half text-warning"></i>
+    <% } %>
+    <% for(let i=0; i<emptyStars; i++) { %>
+      <i class="bi bi-star text-warning"></i>
+    <% } %>
+
+    <span class="ms-2 text-muted">(<%= product?.reviews?.length || 0 %> reviews)</span>
+  </div>
+
+  <!-- Optional: rating progress bar -->
+  <div class="progress" style="height: 10px;">
+    <div 
+      class="progress-bar bg-warning" 
+      role="progressbar" 
+      style="width: <%= (avgRating / 5) * 100 %>%"
+      aria-valuenow="<%= avgRating %>" 
+      aria-valuemin="0" 
+      aria-valuemax="5">
+    </div>
+  </div>
+
+  <small class="text-muted">Average Rating: <%= avgRating.toFixed(1) %> / 5</small>
+</div>
+<!-- Related Products -->
+<% if (relatedProducts && relatedProducts.length > 0) { %>
+  <h3 class="mt-5 mb-3">Related Products</h3>
+  <div class="row">
+    <% relatedProducts.forEach(p => { %>
+      <div class="col-sm-6 col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          
+          <a href="/productDetail?id=<%= p._id %>">
+            <% if (p.productImage && p.productImage.length > 0) { %>
+              <img 
+                src="/public/product-images/<%= p.productImage[0] %>" 
+                class="card-img-top" 
+                style="object-fit: contain; height: 180px;" 
+                alt="<%= p.productName %>"
+              >
+            <% } else { %>
+              <img 
+                src="/img/product/placeholder.jpg" 
+                class="card-img-top" 
+                style="object-fit: contain; height: 180px;" 
+                alt="<%= p.productName %>"
+              >
+            <% } %>
+          </a>
+
+          <div class="card-body text-center">
+            <h6 class="card-title mb-2"><%= p.productName %></h6>
+            <p class="mb-2 fw-bold">₹<%= p.salePrice %></p>
+
+            <% if (p.quantity > 0) { %>
+              <button 
+                class="btn btn-custom-cart w-100 text-white" 
+                onclick="addToCart('<%= p._id %>', 1)">
+                Add to Cart
+              </button>
+            <% } else { %>
+              <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
+            <% } %>
+
+          </div>
+
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+
+<script>
+  // Change main image when thumbnail is clicked
+  function changeMainImage(src) {
+    const mainImage = document.getElementById('mainProductImage');
+    mainImage.src = src;
+    document.querySelector('.zoom-wrapper').classList.remove('zoomed');
+  }
+
+  // Toggle zoom inside the same image box
+  function toggleZoom(e) {
+    const wrapper = e.target.closest('.zoom-wrapper');
+    wrapper.classList.toggle('zoomed');
+  }
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Stock available from database
+const maxStock = <%= product.quantity %>;
+let purchaseQty = 1; // Start with 1 item to purchase
+
+function changeQuantity(change) {
+  purchaseQty += change;
+  
+  // Can't buy less than 1
+  if (purchaseQty < 1) {
+    purchaseQty = 1;
+  }
+  
+  // Can't buy more than available stock - Show SweetAlert2
+  if (purchaseQty > maxStock) {
+    purchaseQty = maxStock;
+    
+    // SweetAlert2 notification
+    Swal.fire({
+      icon: 'warning',
+      title: 'Stock Limit Reached',
+      text: `Only ${maxStock} items available in stock!`,
+      confirmButtonColor: '#ff4757',
+      confirmButtonText: 'OK'
+    });
+  }
+  
+  // Update the display
+  document.getElementById('qty-display').textContent = purchaseQty;
+  
+  // Update hidden input (this value will be sent when adding to cart)
+  document.getElementById('purchase-quantity').value = purchaseQty;
+}
+
+// Hover effects
+document.querySelectorAll('.qty-btn').forEach(btn => {
+  btn.addEventListener('mouseenter', function() {
+    this.style.background = '#f5f5f5';
+  });
+  btn.addEventListener('mouseleave', function() {
+    this.style.background = 'white';
+  });
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+async function addToCart(productId, quantity) {
+  try {
+    const res = await fetch('/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, quantity })
+    });
+
+    if (res.ok) {
+      // Success SweetAlert
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Cart!',
+        text: `You added ${quantity} item(s) to your cart.`,
+        showConfirmButton: true,
+        confirmButtonColor: '#1a5d8c',
+      });
+    } else {
+      // Failure SweetAlert
+      const data = await res.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops!',
+        text: data.message || 'Failed to add product to cart.',
+        confirmButtonColor: '#ff4757',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'There was an error adding the product to your cart.',
+      confirmButtonColor: '#ff4757',
+    });
+  }
+}
+</script>
+
+
+
+<%- include("../partials/user/footer") %>

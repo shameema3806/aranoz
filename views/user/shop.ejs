@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("../partials/user/header") %>
+  <title>Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    background-color: #f9fdff;
+    padding-top: 90px !important;
+  }
+
+  .product-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+
+  .product-img {
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: contain;
+  }
+
+  .list-group-item {
+    background-color: #f3f8f8a6;
+    border: none;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  .list-group-item:hover,
+  .list-group-item.active {
+    background-color: #e0f2f1 !important;
+  }
+  .list-group-item a {
+    color: #000;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+  }
+
+  .filter-toggle { display: none; }
+
+  @media (max-width: 768px) {
+    .filter-toggle { display: block; }
+    .sidebar {
+      position: fixed;
+      top: 0; left: -100%;
+      width: 280px; height: 100vh;
+      background: white; z-index: 1050;
+      transition: left 0.3s ease;
+      padding: 20px; overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 1040;
+    }
+    .sidebar-overlay.show { display: block; }
+  }
+
+  .btn-custom-cart {
+    background-color:  #ff3368;;
+    border-color:  #ff3368;;
+    transition: all 0.3s ease;
+    height: 50px;
+    
+  }
+  .btn-custom-cart:hover {
+    background-color: #145078 !important;
+    border-color: #145078 !important;
+    transform: translateY(-1px);
+  }
+
+  .search-sort-form .form-control,
+  .search-sort-form .form-select {
+    height: 40px;
+    font-size: 0.9rem;
+    border-radius: 50px !important;
+    border: 1px solid #ced4da;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    appearance: none;
+    background-image: none !important;
+  }
+
+  .search-sort-form .form-control {
+    width: 200px;
+  }
+
+  .search-sort-form .form-select {
+    min-width: 150px;
+    padding-left: 16px;
+    cursor: pointer;
+  }
+
+  .search-sort-form .bi-search,
+  .search-sort-form .bi-chevron-down {
+    font-size: 0.8rem;
+    pointer-events: none;
+  }
+
+  .search-sort-form .bi-search {
+    left: 16px;
+  }
+
+  .search-sort-form .bi-chevron-down {
+    right: 16px;
+  }
+
+  .search-sort-form .form-control:focus,
+  .search-sort-form .form-select:focus {
+    border-color:  #ff3368;;
+    box-shadow: 0 0 0 0.2rem rgba(26,93,140,.25) !important;
+  }
+
+  .search-sort-form .form-select:hover {
+    border-color: #ff3368;;
+  }
+
+  .search-sort-form .btn-apply {
+    height: 40px;
+    background: #ff3368;;
+    border: none;
+    color: white;
+    padding: 0 20px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .search-sort-container {
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 12px;
+    }
+    .search-sort-form {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .search-sort-form .form-control,
+    .search-sort-form .form-select,
+    .search-sort-form .btn {
+      width: 100% !important;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+
+.dropdown .bi-chevron-down {
+  font-size: 0.9rem;
+  transition: transform .2s;
+}
+.dropdown.show .bi-chevron-down {
+  transform: rotate(180deg);
+}
+.dropdown-menu {
+  min-width: 160px;
+  font-size: 0.9rem;
+}
+.dropdown-item {
+  padding: 6px 16px;
+}
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+  .d-flex.gap-3 { flex-wrap: wrap; justify-content: flex-start; }
+  .form-control { width: 100%; max-width: 300px; }
+  .dropdown { margin-top: 8px; }
+}
+#sort-dropdown .dropdown-menu {
+  min-width: 160px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+#sort-dropdown .dropdown-item {
+  font-size: 0.9rem;
+  padding: 8px 16px;
+}
+#sort-dropdown .dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+</style>
+</head>
+<body>
+
+  <!-- Filter Toggle Button (Mobile Only) -->
+  <div class="container mt-4 d-md-none">
+    <button class="btn btn-outline-primary filter-toggle w-100" type="button" onclick="toggleSidebar()">
+      <i class="bi bi-funnel"></i> Filters & Categories
+    </button>
+  </div>
+
+  <div class="container mt-4">
+    <div class="row">
+
+      <!-- Sidebar: Categories + Filters (Collapsible on Mobile) -->
+      <div class="col-md-3 sidebar <%= typeof isMobile !== 'undefined' && isMobile ? 'open' : '' %>" id="sidebar">
+        <div class="d-flex justify-content-between align-items-center mb-3 d-md-none">
+          <h5>Filters</h5>
+          <button class="btn-close" onclick="toggleSidebar()"></button>
+        </div>
+
+        <h5>Categories</h5>
+        <ul class="list-group mb-4">
+          <li class="list-group-item <%= !selectedCategory ? 'active' : '' %>">
+            <a href="/shop">All</a>
+          </li>
+          <% categories.forEach(cat => { %>
+            <li class="list-group-item <%= selectedCategory == cat._id ? 'active' : '' %>">
+              <a href="/shop?category=<%= cat._id %>">
+                <%= cat.name %>
+              </a>
+            </li>
+          <% }) %>
+        </ul>
+
+        <h5>Filter by Price</h5>
+        <ul class="list-group">
+          <li class="list-group-item <%= selectedPriceRange === 'under5000' ? 'active' : '' %>">
+            <a href="/shop?priceRange=under5000">Under $5,000</a>
+          </li>
+          <li class="list-group-item <%= selectedPriceRange === '5000to10000' ? 'active' : '' %>">
+            <a href="/shop?priceRange=5000to10000">$5,000 – $10,000</a>
+          </li>
+          <li class="list-group-item <%= selectedPriceRange === 'above10000' ? 'active' : '' %>">
+            <a href="/shop?priceRange=above10000">Above $10,000</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+      <!-- Main Content -->
+      <div class="col-md-9">
+   <div class="d-flex align-items-center justify-content-between mb-4 gap-4 flex-wrap">
+
+  <!-- LEFT: PRODUCTS -->
+  <h4 class="mb-0 text-dark fw-bold text-uppercase">PRODUCTS</h4>
+
+  <!-- RIGHT: Search + Sort + Apply -->
+  <form method="GET" action="/shop" class="d-flex align-items-center gap-3">
+
+    <!-- Hidden Filters -->
+    <% if (selectedCategory) { %>
+      <input type="hidden" name="category" value="<%= selectedCategory %>">
+    <% } %>
+    <% if (selectedPriceRange) { %>
+      <input type="hidden" name="priceRange" value="<%= selectedPriceRange %>">
+    <% } %>
+
+    <!-- SEARCH -->
+    <div class="position-relative">
+      <input type="text" name="search"
+             class="form-control rounded-pill border"
+             placeholder="Search..."
+             value="<%= searchQuery || '' %>"
+             style="height:42px; width:220px; padding-left:40px; font-size:0.9rem;">
+    </div>
+
+<!-- ======================  SORT BY – WORKING DROPDOWN  ====================== -->
+<div id="sort-dropdown" style="float:right; margin-right:70px;">
+  <div class="dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+            data-bs-toggle="dropdown" aria-expanded="false">
+      Sort By
+    </button>
+
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="<%= buildUrl({ sort: 'priceLow' }) %>">Low to High</a></li>
+      <li><a class="dropdown-item" href="<%= buildUrl({ sort: 'priceHigh' }) %>">High to Low</a></li>
+      <li><a class="dropdown-item" href="<%= buildUrl({ sort: 'az' }) %>">A to Z</a></li>
+      <li><a class="dropdown-item" href="<%= buildUrl({ sort: 'za' }) %>">Z to A</a></li>
+      <li><a class="dropdown-item" href="<%= buildUrl({ sort: 'new' }) %>">New Arrivals</a></li>
+    </ul>
+  </div>
+</div>
+
+    <!-- APPLY -->
+    <button type="submit"
+            class="btn rounded-pill text-white d-flex align-items-center gap-1"
+            style="height:42px; background: #ff3368;; border:none; padding:0 24px; font-size:0.9rem;">
+      <i class="bi bi-check-lg"></i> Apply
+    </button>
+
+    <!-- CANCEL -->
+    <% if (searchQuery && searchQuery.trim()!=='') { %>
+      <a href="/shop" class="btn btn-outline-danger rounded-pill d-flex align-items-center gap-1" style="height:42px;">
+        <i class="bi bi-x-lg"></i> Cancel
+      </a>
+    <% } %>
+  </form>
+</div>
+
+
+        <!-- Results Info -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <p class="text-muted mb-0">
+            Showing <%= (page - 1) * 6 + 1 %>–<%= Math.min(page * 6, totalProducts) %> of <%= totalProducts %> products
+          </p>
+        </div>
+
+        <!-- Product Grid: 3 per row (md), 2 (sm), 1 (xs) -->
+        <div class="row">
+          <% if (products.length === 0) { %>
+            <div class="col-12 text-center py-5">
+              <p class="text-muted">No products found.</p>
+            </div>
+          <% } else { %>
+<% products.forEach(product => { %>
+  <div class="col-6 col-md-4 mb-4">
+    <div class="card product-card h-100 border-0 shadow-sm">
+      <!-- <div class="d-flex justify-content-center align-items-center p-3 bg-white">
+        <a href="/productDetail?id=<%= product._id %>">
+          <img 
+            src="<%= product.productImage && product.productImage.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>" 
+            class="card-img-top product-img" 
+            alt="<%= product.productName %>"
+          >
+        </a>
+      </div> -->
+      
+      <div class="position-relative overflow-hidden">
+        <!-- Wishlist Icon: Top-right overlay, simple hover-up style -->
+        <a aria-label="Add to Wishlist" class="action-btn hover-up position-absolute top-2 end-2 z-3" 
+           style="background: rgba(255,255,255,0.9); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; opacity: 0.8;" 
+           href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>'); return false;">
+          <i class="ti-heart" style="font-size: 1.2rem; color: #ff3368;"></i>
+        </a>
+        <div class="d-flex justify-content-center align-items-center p-3 bg-white">
+          <a href="/productDetail?id=<%= product._id %>">
+            <img 
+              src="<%= product.productImage && product.productImage.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>" 
+              class="product-img" 
+              alt="<%= product.productName %>"
+              style="transition: transform 0.3s ease; max-width: 150px; max-height: 150px; object-fit: contain;"
+            >
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body text-center p-3">
+  <h6 class="card-title mb-2 text-dark"><%= product.productName %></h6>
+
+  <p class="card-text mb-3">
+    <s class="text-dark">$<%= product.regularPrice %></s>
+    <strong class="text-dark ms-2">$<%= product.salePrice %></strong>
+  </p>
+
+  <!-- Availability -->
+  <p class="mb-1">
+    <% if (product.quantity > 0) { %>
+      <span style="color:#4caf50; font-weight:600;">In Stock</span>
+    <% } else { %>
+      <span style="color:#ff4757; font-weight:600;">Out of Stock</span>
+    <% } %>
+  </p>
+
+  <!-- Add to Cart Button -->
+  <% if (product.quantity > 0) { %>
+    <button class="btn btn-sm w-100 text-white btn-custom-cart"
+            onclick="addToCart('<%= product._id %>', 1)">
+      Add to Cart
+    </button>
+  <% } else { %>
+    <button class="btn btn-sm w-100 btn-secondary" disabled>
+      Out of Stock
+    </button>
+  <% } %>
+</div>
+
+   
+
+    </div>
+  </div>
+<% }) %>
+          <% } %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <nav aria-label="Page navigation" class="mt-4 ">
+            <ul class="pagination justify-content-center ">
+              <!-- Previous -->
+              <li class="page-item <%= page <= 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= buildUrl({ page: page - 1 }) %>"><</a>
+              </li>
+
+              <!-- Page Numbers -->
+              <% for(let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i === page ? 'active' : '' %>">
+                  <a class="page-link" href="<%= buildUrl({ page: i }) %>"><%= i %></a>
+                </li>
+              <% } %>
+
+              <!-- Next -->
+              <li class="page-item <%= page >= totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= buildUrl({ page: page + 1 }) %>">></a>
+              </li>
+            </ul>
+          </nav>
+        <% } %>
+
+      </div>
+    </div>
+  </div>
+
+  <%- include("../partials/user/footer") %>
+
+  <!-- Bootstrap Icons (for filter icon) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function addToWishlist(productId) {
+  try {
+    const res = await fetch('/wishlist/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ productId })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Success SweetAlert (similar to addToCart)
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Wishlist!',
+        text: 'This product has been added to your wishlist.',
+        showConfirmButton: true,
+        confirmButtonColor: '#1a5d8c',
+      });
+    } else {
+      // Failure SweetAlert
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops!',
+        text: data.message || 'Failed to add to wishlist.',
+        confirmButtonColor: '#ff4757',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'There was an error adding the product to your wishlist.',
+      confirmButtonColor: '#ff4757',
+    });
+  }
+}
+
+
+
+async function addToCart(productId, quantity) {
+  try {
+    const res = await fetch('/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, quantity })
+    });
+
+    if (res.ok) {
+      // Success SweetAlert
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Cart!',
+        text: `You added ${quantity} item(s) to your cart.`,
+        showConfirmButton: true,
+        confirmButtonColor: '#1a5d8c',
+      });
+    } else {
+      // Failure SweetAlert
+      const data = await res.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops!',
+        text: data.message || 'Failed to add product to cart.',
+        confirmButtonColor: '#ff4757',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'There was an error adding the product to your cart.',
+      confirmButtonColor: '#ff4757',
+    });
+  }
+}
+</script>
+
+
+</body>
+</html>

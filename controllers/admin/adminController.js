@@ -15,34 +15,38 @@ const loadLogin = (req,res)=>{
 }
 
 
-const login = async (req,res)=>{
-    try {
-        const {email,password}=req.body;
-        const admin = await User.findOne({email,isAdmin:true });
-        if(admin){
-             const passwordMatch = bcrypt.compare(password,admin.password);
-             if(passwordMatch){
-                req.session.admin = true;
-                return res.redirect("/admin")
-             }else{
-                return res.redirect("/login");
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await User.findOne({ email, isAdmin: true });
 
-             }
-        }
-
-
-    } catch (error) {
-        console.log("login error",error);
-        return res.redirect("/pagerror")
-
+    if (!admin) {
+      return res.render("admin-login", { message: "Invalid email or admin account not found" });
     }
-}
+
+    const passwordMatch = await bcrypt.compare(password, admin.password);
+    if (!passwordMatch) {
+      return res.render("admin-login", { message: "Incorrect password" });
+    }
+
+   
+    req.session.admin = true;
+    return res.redirect("/admin");
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.redirect("/pagerror");
+  }
+};
 
 
 const loadDashboard = async (req,res)=>{
      if(req.session.admin){
         try{
-            res.render("dashboard");
+           const data = {
+            isAdmin: true,
+           };
+            res.render("dashboard",data);
+            
 
         }catch(error){
             res.redirect("/pagerror")
@@ -53,15 +57,19 @@ const loadDashboard = async (req,res)=>{
 
 const logout = async (req,res)=>{
      
-        try{
-            req.session.destroy(err =>{
-                if(err){
-                 console.log("Error destroying sessioin",err);
-                 return res.redirect("/pagerror")
-                }
-                res.redirect("/admin/login")
-            })
+        // try{
+        //     req.session.destroy(err =>{
+        //         if(err){
+        //          console.log("Error destroying sessioin",err);
+        //          return res.redirect("/pagerror")
+        //         }
+        //         res.redirect("/admin/login")
+        //     })
            
+        try{
+          req.session.admin = null;
+           res.redirect("/admin/login")
+        
 
         }catch(error){
            console.log("Error destroying error during logout",error);

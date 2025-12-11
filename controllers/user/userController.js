@@ -1,35 +1,34 @@
 
 const User = require("../../models/userSchema");
+const Category = require("../../models/categorySchema");
+const Product = require("../../models/productSchema");
+const Cart = require('../../models/cartSchema');
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
-
-
-// const loadHomepage = async (req,res)=>{
-//   try{
-//     const user = req.session.user;
-//     if(user){
-//        const userData = await User.findOne({_id:user._id});
-//        res.render("home",{user:userData});
-//     }else{
-//       return res.render("home");
-//     }
-
-//   }catch (error){
-//     console.log("Home page not found");
-//     res.status(500).send("server error");
-//   }
-// }
-
+const { render } = require("ejs");
 
 const loadHomepage = async (req, res) => {
   try {
     const userId = req.session.user;  
+    const categories = await Category.find({ isListed: true });
+
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categories.map(category => category._id) },
+      quantity: { $gt: 0 }
+    });
+
+    productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+    // productData = productData.slice(0,4);
+
+    res.set("Cache-Control", "no-store");
+
     if (userId) {
       const userData = await User.findById(userId);
-      res.render("home", { user: userData });
+      res.render("home", { user: userData, products: productData });
     } else {
-      res.render("home", { user: null });  
+      res.render("home", { products: productData }); 
     }
   } catch (error) {
     console.log("Home page not found:", error); 
@@ -38,13 +37,10 @@ const loadHomepage = async (req, res) => {
 };
 
 
-
-
-
 const loadSignup = async(req,res)=>{
   try{
-    // return res.render("signup",{msg1:req.flash('err1'),msg2:req.flash('err2'),msg3:req.flash('err3'),msg4:req.flash('err4'),msg5:req.flash('err5')});
-return res.render("signup", {
+   res.set('Cache-Control', 'no-store');
+    return res.render("signup", {
   msg1: req.flash("err1")[0] || "",
   msg2: req.flash("err2")[0] || "", 
   msg3: req.flash("err3")[0] || "",
@@ -57,15 +53,130 @@ return res.render("signup", {
   }
 }
 
-const loadShopping = async (req,res)=>{
-  try{
-    return res.render("shop");
 
-  }catch(error){
-    console.log("shopping page not loading:",error);
-    res.status(500).send("Server Error")
+
+const loadShopping = async (req, res) => {
+  try {
+ 
+    const categories = await Category.find({ isListed: true }).lean();
+
+let selectedCategory = null;
+if (req.query.category) {
+  const category = await Category.findById(req.query.category).lean();
+  if (!category || !category.isListed) {
+    return res.redirect('/shop'); 
   }
+  selectedCategory = req.query.category;
 }
+
+    const filter = {
+      isBlocked: false,
+      quantity: { $gt: 0 },
+      category: { $in: categories.map(cat => cat._id) },
+    };
+
+    if (selectedCategory) {  
+  filter.category = selectedCategory;
+}
+
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+
+    if (req.query.priceRange) {
+      switch (req.query.priceRange) {
+        case 'under5000':
+          filter.salePrice = { $lt: 5000 };
+          break;
+        case '5000to10000':
+          filter.salePrice = { $gte: 5000, $lte: 10000 };
+          break;
+        case 'above10000':
+          filter.salePrice = { $gt: 10000 };
+          break;
+      }
+    }
+
+    if (req.query.search && req.query.search.trim()) {
+      filter.productName = {
+        $regex: req.query.search.trim(),
+        $options: 'i',
+      };
+    }
+
+  
+    let sort = { createdAt: -1 }; 
+    switch (req.query.sort) {
+      case 'priceLow':
+        sort = { salePrice: 1 };
+        break;
+      case 'priceHigh':
+        sort = { salePrice: -1 };
+        break;
+      case 'az':
+        sort = { productName: 1 };
+        break;
+      case 'za':
+        sort = { productName: -1 };
+        break;
+      case 'new':
+        sort = { createdAt: -1 };
+        break;
+    }
+
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+    const skip = (page - 1) * limit;
+    const totalProducts = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .collation({ locale: 'en', strength: 2 }) 
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const buildUrl = (newParams = {}) => {
+      const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
+      for (const [k, v] of url.searchParams.entries()) {
+        if (!newParams[k]) newParams[k] = v;
+      }
+      Object.entries(newParams).forEach(([k, v]) => {
+        if (v) url.searchParams.set(k, v);
+        else url.searchParams.delete(k);
+      });
+      return url.pathname + url.search;
+    };
+
+    let cartCount = 0;
+    if (req.user) {
+      const cart = await Cart.findOne({ userId: req.user._id });
+      cartCount = cart ? cart.items.length : 0;
+    }
+
+    res.render('shop', {
+      categories,
+      products,
+      // selectedCategory: req.query.category || null,
+      selectedCategory,
+      selectedPriceRange: req.query.priceRange || null,
+      searchQuery: req.query.search || '',
+      sort: req.query.sort || '',
+      user: req.session.user ? await User.findById(req.session.user).lean() : null,
+      page,
+      totalPages,
+      totalProducts,
+      buildUrl,  
+      cartCount             
+    });
+  } catch (error) {
+    console.error('loadShopping error:', error);
+    res.status(500).send('Server Error');
+  }
+};
+
 
 const pageNotFound = async (req, res) => {
   try {
@@ -184,6 +295,9 @@ const securePasswrod = async (password)=>{
   }
 }
 
+const showVerifyOtpPage = (req, res) => {
+    res.render('verify-otp'); 
+};
 
 
 const verifyOtp = async (req,res)=>{
@@ -191,6 +305,10 @@ const verifyOtp = async (req,res)=>{
    const {otp} = req.body;
    console.log(otp);
 
+   if (!otp || otp.length !== 6) {
+      return res.status(400).json({ success: false, message: "OTP must be exactly 6 characters" });
+    }
+    
    if(otp === req.session.userOtp){
     const user = req.session.userData
     const passwordHash = await securePasswrod(user.password);
@@ -247,7 +365,8 @@ const loadLogin = async (req,res)=>{
   try {
     if(!req.session.user){
       // return res.render("login")
-          return res.render("login",{msg1:req.flash('err1')});
+      res.set('Cache-Control', 'no-store');
+       return res.render("login",{msg1:req.flash('err1')});
 
     }else{
       res.redirect("/")
@@ -262,7 +381,7 @@ const loadLogin = async (req,res)=>{
 const login = async(req,res)=>{
   try {
     const {email,password} = req.body;
-    console.log(req.body)
+    console.log(req.body);
 
     const findUser = await User.findOne({isAdmin:0,email:email});
 
@@ -275,7 +394,6 @@ const login = async(req,res)=>{
             req.flash('err1', 'User is blocked by admin');
             return res.redirect('/login');
         }
-    console.log(findUser);
 
     const passwordMatch = await bcrypt.compare(password,findUser.password);
 
@@ -285,31 +403,29 @@ const login = async(req,res)=>{
         }
 
         req.session.user = findUser._id;
-        console.log('Redirecting to home');
         res.redirect('/');
 
     } catch (error) {
-        console.error('Login error:', error);
-        req.flash('err1', 'Login failed. Please try again later');
+        req.flash('err1', 'Login failed. Invalid credentials');
         res.redirect('/login');
     }
 }
 
 
 const logout = async (req,res)=>{
-  try {
-    req.session.destroy((err)=>{
-      if(err){
-       console.log("session destruction error",err.message);
-       return res.redirect("/pageNotFound");
-      }
-      return res.redirect("/login")
-    })
-  } catch (error) {
+  try{
+    req.session.user = null;
+    return res.redirect("/login");
+  }
+  catch (error) {
     console.log("logout error",error);
     res.redirect("/pageNotFound")
   }
 }
+
+
+
+
 
 module.exports ={
     loadHomepage,
@@ -321,6 +437,6 @@ module.exports ={
     loadLogin,
     login,
     logout,
-    loadShopping
+    loadShopping,
   
 };

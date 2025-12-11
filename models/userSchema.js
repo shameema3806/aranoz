@@ -23,6 +23,7 @@ const userSchema = new Schema({
      unique: true,
     sparse: true
     },
+    
 
    password : {
        type:String,
@@ -50,6 +51,45 @@ const userSchema = new Schema({
    orderHistory:[{
        type:Schema.Types.ObjectId,
        ref:"Order"
+   }],
+   addresses: [{
+       addressType: {
+           type: String,
+           enum: ['home', 'work', 'other'],
+           required: true
+       },
+       name: {
+           type: String,
+           required: true
+       },
+       city: {
+           type: String,
+           required: true
+       },
+       state: {
+           type: String,
+           required: true
+       },
+       landMark: {
+           type: String,
+           required: true
+       },
+       pincode: {
+           type: Number,
+           required: true
+       },
+       phone: {
+           type: String,
+           required: true
+       },
+       allPhone: {
+           type: String,
+           required: true
+       },
+       default: {
+           type: Boolean,
+           default: false
+       }
    }],
    createdOn : {
        type:Date,
@@ -88,4 +128,3 @@ const User = mongoose.model("User",userSchema);
 
 
 module.exports = User;
-
