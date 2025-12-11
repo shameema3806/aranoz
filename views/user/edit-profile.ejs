@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("../partials/user/header") %>
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #f9fdff;
+      overflow-y: auto;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .edit-profile-wrapper {
+      background-color: #f9fdff;
+      min-height: 100vh;
+      padding: 40px 0;
+      margin-top: 10rem;
+    }
+
+    .page-title {
+      color: #2d3436;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 700px;
+      margin-bottom: 20px;
+    }
+
+    .edit-profile-container {
+      max-width: 700px;
+      margin-bottom: 30px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .edit-profile-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+    }
+    .edit-profile-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .section-header {
+      color: #2d3436;
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+      justify-content: center;
+    }
+    .section-header i {
+      color: #ff3368;
+      font-size: 28px;
+    }
+
+    /* Profile Image */
+    .profile-img-container {
+      position: relative;
+      display: inline-block;
+    }
+    .profile-img-container img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0 8px 25px rgba(255, 51, 104, 0.3);
+      transition: all 0.3s ease;
+    }
+   
+
+    .profile-img-container input[type="file"] {
+      display: none;
+    }
+
+    .change-pic-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, #ff3368);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(255, 51, 104, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .change-pic-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 51, 104, 0.6);
+    }
+    .change-pic-btn i {
+      font-size: 12px;
+    }
+
+    /* Form Styling */
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-label i {
+      color: #ff3368;
+      font-size: 16px;
+    }
+
+    .form-control {
+      border-radius: 12px;
+      border: 2px solid #dee2e6;
+      padding: 0.85rem 1.1rem;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    .form-control:focus {
+      border-color: #ff3368;
+      box-shadow: 0 0 0 0.25rem rgba(255, 51, 104, 0.15);
+      outline: none;
+      background: white;
+    }
+    .form-control:hover {
+      border-color: #ff3368;
+      background: white;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #ff3368);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.85rem 2rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 5px 20px rgba(255, 51, 104, 0.4);
+      font-size: 0.95rem;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 51, 104, 0.6);
+      color: white;
+      background: linear-gradient(135deg, #ff6b9d, #ff3368);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #636e72;
+      border: 2px solid #dee2e6;
+      border-radius: 12px;
+      padding: 0.85rem 2rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+    }
+    .btn-secondary:hover {
+      background: #636e72;
+      color: white;
+      border-color: #636e72;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(99, 110, 114, 0.3);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 767px) {
+      .edit-profile-wrapper {
+        margin-top: 6rem;
+      }
+      .edit-profile-container {
+        padding: 30px 20px;
+      }
+      .container {
+        padding: 20px;
+      }
+      .profile-img-container img {
+        width: 140px !important;
+        height: 140px !important;
+      }
+      .btn-primary,
+      .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .text-end {
+        text-align: center !important;
+      }
+    }
+
+    .error {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: block;
+      min-height: 1rem;  
+    }
+    .form-control.error {
+      border-color: #dc3545;
+      background: #fff5f5;
+    }
+    .form-control.valid {
+      border-color: #28a745;
+      background: #f8fff8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="edit-profile-wrapper">
+    <div class="container edit-profile-container">
+      <h2 class="section-header">
+        <i class="fas fa-user-edit"></i>
+        Edit Profile
+      </h2>
+
+      <form action="/updateprofile" method="POST" enctype="multipart/form-data" id="profileForm" novalidate>
+        <!-- Profile Section -->
+        <div class="row align-items-center mb-4">
+          <div class="col-md-4 d-flex justify-content-center mb-3 mb-md-0">
+            <div class="profile-img-container">
+              <!-- Profile Image Preview -->
+              <img 
+                id="profilePreview"
+                src="<%= user.profileImage ? user.profileImage : '/img/profilepic.png' %>"
+                alt="Profile Image"
+              >
+
+              <!-- Upload Button Overlay -->
+              <label for="profileImageInput" class="change-pic-btn">
+                <i class="fas fa-camera"></i> Edit
+              </label>
+              <input type="file" id="profileImageInput" name="profileImage" accept="image/*" onchange="previewImage(event)">
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="mb-3">
+              <label for="name" class="form-label">
+                <i class="fas fa-user"></i> Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                value="<%= user?.name || '' %>"
+                class="form-control"
+                required
+              />
+              <div id="nameError" class="error"></div>
+            </div>
+
+            <div class="mb-3">
+              <label for="phone" class="form-label">
+                <i class="fas fa-phone"></i> Phone
+              </label>
+              <input
+                type="text"
+                name="phone"
+                id="phone"
+                value="<%= user?.phone || '' %>" 
+                class="form-control"
+                required
+              />
+              <div id="phoneError" class="error"></div>
+            </div>
+
+            <div class="text-end mt-4">
+              <a href="/userProfile" class="btn btn-secondary me-2">
+                <i class="fas fa-times"></i> Cancel
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include("../../views/partials/user/footer") %>  
+
+  <script>
+    // Live preview for new profile image
+    function previewImage(event) {
+      const reader = new FileReader();
+      reader.onload = function() {
+        document.getElementById('profilePreview').src = reader.result;
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    /* CHANGE: Added separate validation functions for name and phone fields */
+    // Separate validation function for Name field
+    function validateName() {
+      const nameInput = document.getElementById('name');
+      const nameError = document.getElementById('nameError');
+      const nameValue = nameInput.value.trim();
+
+      // Clear previous error and styling
+      nameError.textContent = '';
+      nameInput.classList.remove('error', 'valid');
+
+      if (nameValue === '') {
+        nameError.textContent = 'Name is required.';
+        nameInput.classList.add('error');
+        return false;
+      }
+
+      if (!/^[a-zA-Z\s]{2,}$/.test(nameValue)) {
+        nameError.textContent = 'Name must be at least 2 characters and contain only letters/spaces.';
+        nameInput.classList.add('error');
+        return false;
+      }
+
+      nameInput.classList.add('valid');  // Success styling
+      return true;
+    }
+
+    // Separate validation function for Phone field
+    function validatePhone() {
+      const phoneInput = document.getElementById('phone');
+      const phoneError = document.getElementById('phoneError');
+      const phoneValue = phoneInput.value.replace(/[\s\-\(\)\+]/g, '');  // Strip non-digits (including +)
+
+      // Clear previous error and styling
+      phoneError.textContent = '';
+      phoneInput.classList.remove('error', 'valid');
+
+      if (phoneValue === '') {
+        phoneError.textContent = 'Phone number is required.';
+        phoneInput.classList.add('error');
+        return false;
+      }
+
+      // Check for 10-digit phone (after stripping)
+      if (!/^\d{10}$/.test(phoneValue)) {
+        phoneError.textContent = 'Enter a valid 10-digit phone number (e.g.,9876543234).';
+        phoneInput.classList.add('error');
+        return false;
+      }
+
+      phoneInput.classList.add('valid'); 
+      return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('name').addEventListener('blur', validateName);
+      document.getElementById('phone').addEventListener('blur', validatePhone);
+
+      document.getElementById('profileForm').addEventListener('submit', function(event) {
+        const isNameValid = validateName();
+        const isPhoneValid = validatePhone();
+
+        if (!isNameValid || !isPhoneValid) {
+          event.preventDefault(); 
+      
+        }
+      });
+    });
+  </script>
+  
+</body>
+</html>

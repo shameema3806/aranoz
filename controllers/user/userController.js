@@ -2,6 +2,7 @@
 const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
+const Cart = require('../../models/cartSchema');
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
@@ -38,7 +39,6 @@ const loadHomepage = async (req, res) => {
 
 const loadSignup = async(req,res)=>{
   try{
-    // return res.render("signup",{msg1:req.flash('err1'),msg2:req.flash('err2'),msg3:req.flash('err3'),msg4:req.flash('err4'),msg5:req.flash('err5')});
    res.set('Cache-Control', 'no-store');
     return res.render("signup", {
   msg1: req.flash("err1")[0] || "",
@@ -60,11 +60,24 @@ const loadShopping = async (req, res) => {
  
     const categories = await Category.find({ isListed: true }).lean();
 
+let selectedCategory = null;
+if (req.query.category) {
+  const category = await Category.findById(req.query.category).lean();
+  if (!category || !category.isListed) {
+    return res.redirect('/shop'); 
+  }
+  selectedCategory = req.query.category;
+}
+
     const filter = {
       isBlocked: false,
       quantity: { $gt: 0 },
       category: { $in: categories.map(cat => cat._id) },
     };
+
+    if (selectedCategory) {  
+  filter.category = selectedCategory;
+}
 
     if (req.query.category) {
       filter.category = req.query.category;
@@ -84,7 +97,6 @@ const loadShopping = async (req, res) => {
       }
     }
 
-    // ---- Search filter (product name only – you can extend to description)
     if (req.query.search && req.query.search.trim()) {
       filter.productName = {
         $regex: req.query.search.trim(),
@@ -128,7 +140,6 @@ const loadShopping = async (req, res) => {
 
     const buildUrl = (newParams = {}) => {
       const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-      // keep existing params
       for (const [k, v] of url.searchParams.entries()) {
         if (!newParams[k]) newParams[k] = v;
       }
@@ -139,10 +150,17 @@ const loadShopping = async (req, res) => {
       return url.pathname + url.search;
     };
 
+    let cartCount = 0;
+    if (req.user) {
+      const cart = await Cart.findOne({ userId: req.user._id });
+      cartCount = cart ? cart.items.length : 0;
+    }
+
     res.render('shop', {
       categories,
       products,
-      selectedCategory: req.query.category || null,
+      // selectedCategory: req.query.category || null,
+      selectedCategory,
       selectedPriceRange: req.query.priceRange || null,
       searchQuery: req.query.search || '',
       sort: req.query.sort || '',
@@ -150,7 +168,8 @@ const loadShopping = async (req, res) => {
       page,
       totalPages,
       totalProducts,
-      buildUrl,               
+      buildUrl,  
+      cartCount             
     });
   } catch (error) {
     console.error('loadShopping error:', error);
@@ -286,6 +305,10 @@ const verifyOtp = async (req,res)=>{
    const {otp} = req.body;
    console.log(otp);
 
+   if (!otp || otp.length !== 6) {
+      return res.status(400).json({ success: false, message: "OTP must be exactly 6 characters" });
+    }
+    
    if(otp === req.session.userOtp){
     const user = req.session.userData
     const passwordHash = await securePasswrod(user.password);
@@ -371,10 +394,10 @@ const login = async(req,res)=>{
             req.flash('err1', 'User is blocked by admin');
             return res.redirect('/login');
         }
-    console.log(findUser);
+    // console.log(findUser);
 
     const passwordMatch = await bcrypt.compare(password,findUser.password);
-    console.log('Password Match:', passwordMatch);
+    // console.log('Password Match:', passwordMatch);
 
     if (!passwordMatch) {
             req.flash('err1', 'Incorrect password');
@@ -382,11 +405,11 @@ const login = async(req,res)=>{
         }
 
         req.session.user = findUser._id;
-        console.log('Redirecting to home');
+        // console.log('Redirecting to home');
         res.redirect('/');
 
     } catch (error) {
-        console.error('Login error:', error);
+        // console.error('Login error:', error);
         req.flash('err1', 'Login failed. Invalid credentials');
         res.redirect('/login');
     }
@@ -394,15 +417,21 @@ const login = async(req,res)=>{
 
 
 const logout = async (req,res)=>{
-  try {
-    req.session.destroy((err)=>{
-      if(err){
-       console.log("session destruction error",err.message);
-       return res.redirect("/pageNotFound");
-      }
-      return res.redirect("/login")
-    })
-  } catch (error) {
+  // try {
+  //   req.session.destroy((err)=>{
+  //     if(err){
+  //      console.log("session destruction error",err.message);
+  //      return res.redirect("/pageNotFound");
+  //     }
+  //     return res.redirect("/login")
+  //   })
+  // } 
+  
+  try{
+    req.session.user = null;
+    return res.redirect("/login");
+  }
+  catch (error) {
     console.log("logout error",error);
     res.redirect("/pageNotFound")
   }

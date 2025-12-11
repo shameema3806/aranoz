@@ -405,6 +405,7 @@
     </div>
 
     <script>
+        
         // class LoginValidator {
         //     constructor() {
         //         this.form = document.getElementById('loginForm');
@@ -554,6 +555,23 @@
         //         });
         //     });
         // });
-    </script>
+     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const blocked = urlParams.get("blocked");
+
+  if (blocked === "true") {
+    Swal.fire({
+      icon: "error",
+      title: "Access Denied",
+      text: "This user has been blocked by the admin.",
+      confirmButtonColor: "#3085d6",
+    });
+  }
+</script>
+
 </body>
 </html>

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Addresses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f9fdff;
+            margin: 0;
+            padding: 0;
+            padding-top: 80px;
+        }
+        main.container-fluid {
+            padding-top: 0;
+        }
+        
+        .addresses-wrapper {
+            background-color: #f9fdff;
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+        
+        .page-title {
+            color: #2d3436;
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        
+        .breadcrumb {
+            background: none !important;
+            padding: 0;
+            margin-bottom: 20px;
+            margin-left: 80px;
+            margin-top: 100px;
+        }
+        .breadcrumb-item a {
+            color: #2d3436;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .breadcrumb-item a:hover {
+            color: #ff3368;
+        }
+        .breadcrumb-item.active {
+            color: #d50909;
+        }
+        
+        /* Section Cards */
+        .address-section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .address-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 25px 30px;
+            border-bottom: 3px solid #ff3368;
+        }
+        .section-header h3, .section-header h5 {
+            margin: 0;
+            color: #2d3436;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+        }
+        .section-header h5 {
+            font-size: 1.2rem;
+        }
+        .section-header i {
+            color: #ff3368;
+            font-size: 28px;
+        }
+        
+        .section-content {
+            padding: 35px;
+        }
+        
+        /* Form Styling */
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-label i {
+            color: #ff3368;
+            font-size: 16px;
+        }
+        .required {
+            color: #ff3368;
+            margin-left: 3px;
+        }
+        
+        .form-control, .form-select, .btn.dropdown-toggle {
+            border-radius: 12px;
+            border: 2px solid #dee2e6;
+            padding: 0.85rem 1.1rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .form-control:focus, .form-select:focus, .btn.dropdown-toggle:focus {
+            border-color: #ff3368;
+            box-shadow: 0 0 0 0.25rem rgba(255, 51, 104, 0.15);
+            outline: none;
+            background: white;
+        }
+        .form-control:hover, .form-select:hover, .btn.dropdown-toggle:hover {
+            border-color: #ff3368;
+            background: white;
+        }
+        
+        .dropdown-toggle {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+            border: 2px solid #dee2e6 !important;
+            color: #495057 !important;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dropdown-toggle::after {
+            margin-left: auto;
+        }
+        
+        .dropdown-menu {
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            border: 2px solid #ff3368;
+            padding: 0.5rem 0;
+        }
+        .dropdown-item {
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s ease;
+            color: #2d3436;
+            font-weight: 500;
+        }
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%);
+            color: #ff3368;
+            padding-left: 1.5rem;
+        }
+        
+        /* Buttons */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #ff3368, #ff6b9d);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.85rem 2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(255, 51, 104, 0.4);
+            font-size: 0.95rem;
+        }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 51, 104, 0.6);
+            color: white !important;
+        }
+        
+        .btn-secondary-custom {
+            background: white;
+            color: #636e72;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 0.85rem 2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+        .btn-secondary-custom:hover {
+            background: #636e72;
+            color: white !important;
+            border-color: #636e72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 110, 114, 0.3);
+        }
+        
+        .btn-danger-custom {
+            background: white;
+            color: #dc3545;
+            border: 2px solid #dc3545;
+            border-radius: 12px;
+            padding: 0.85rem 2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+        .btn-danger-custom:hover {
+            background: #dc3545;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+        
+        /* Address Cards */
+        .profile-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid #dee2e6;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff3368, #ff6b9d);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-color: #ff3368;
+        }
+        .profile-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .profile-card h6 {
+            color: #2d3436;
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-card h6 i {
+            color: #ff3368;
+        }
+        .profile-card p {
+            color: #636e72;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .profile-card .badge {
+            background: linear-gradient(135deg, #ff3368, #ff6b9d) !important;
+            padding: 6px 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+        
+        .alert-info {
+            border-radius: 15px;
+            border: none;
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%);
+            color: #2d3436;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(255, 51, 104, 0.1);
+        }
+        .alert-info h5 {
+            color: #ff3368;
+            font-weight: 700;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        /* CHANGE: Added styles for error messages and form control states for validation feedback */
+        .error {
+          color: #dc3545;
+          font-size: 0.875rem;
+          margin-top: 0.25rem;
+          display: block;
+          min-height: 1rem;  /* Prevents layout jump when errors appear */
+        }
+        .form-control.error {
+          border-color: #dc3545;
+          background: #fff5f5;
+        }
+        .form-control.valid {
+          border-color: #28a745;
+          background: #f8fff8;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .breadcrumb {
+                margin-left: 15px;
+                margin-top: 20px;
+            }
+            .section-content {
+                padding: 25px 20px;
+            }
+            .button-group {
+                width: 100%;
+            }
+            .button-group .btn-primary-custom,
+            .button-group .btn-secondary-custom,
+            .button-group .btn-danger-custom {
+                flex: 1;
+                justify-content: center;
+            }
+            .profile-card {
+                flex-direction: column;
+            }
+        }
+        .btn.dropdown-toggle.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        .btn.dropdown-toggle.valid {
+            border-color: #28a745;
+            background: #f8fff8;
+        }
+    </style>
+</head>
+<body>
+
+<%- include("../../views/partials/user/header") %>
+
+<main class="container-fluid">
+    <div class="addresses-wrapper">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/" rel="nofollow">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/userProfile">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <i class="fas fa-map-marker-alt"></i> Manage Addresses
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Page Title -->
+            <h1 class="page-title">
+                <i class="fas fa-<%= address ? 'edit' : 'map-marked-alt' %>"></i>
+                <%= address ? "Edit Address" : "Manage Your Addresses" %>
+            </h1>
+
+            <!-- Add Form (only show when not editing) -->
+            <% if (!address) { %>
+            <div class="address-section">
+                <div class="section-header">
+                    <h5>
+                        <i class="fas fa-plus-circle"></i>
+                        Add New Address
+                    </h5>
+                </div>
+                <div class="section-content">
+                    <form action="/addresses/add" method="POST" novalidate>
+                        <input type="hidden" name="addressType" id="addressTypeHidden" value="">
+
+                        <div class="dropdown mb-4">
+                            <div id="addressTypeError" class="error"></div>
+                            <label class="form-label">
+                                <i class="fas fa-tag"></i> Address Type <span class="required">*</span>
+                            </label>
+                            <button class="btn dropdown-toggle w-100" type="button" id="addressTypeDropdown" data-bs-toggle="dropdown">
+                                <span id="addressTypeSelected">Select Address Type</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                <li><a class="dropdown-item" href="#" data-value="home"><i class="fas fa-home"></i> Home</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="work"><i class="fas fa-briefcase"></i> Work</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="other"><i class="fas fa-map-pin"></i> Other</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i> Full Name <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="name" required placeholder="Enter full name">
+                            <div id="nameError" class="error"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-city"></i> City <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="city" required placeholder="Enter city">
+                                <div id="cityError" class="error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-map"></i> State <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="state" required placeholder="Enter state">
+                                <div id="stateError" class="error"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-landmark"></i> Landmark <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="landMark" required placeholder="Enter landmark">
+                                <div id="landMarkError" class="error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-mailbox"></i> PIN Code <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-control" name="pincode" required placeholder="Enter PIN code">
+                                <div id="pincodeError" class="error"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-phone"></i> Phone <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="phone" required placeholder="Enter phone number">
+                                <div id="phoneError" class="error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-phone-alt"></i> Alternate Phone <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="allPhone" required placeholder="Enter alternate phone">
+                                <div id="allPhoneError" class="error"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-plus"></i> Add Address
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Edit Form (only if editing an address) -->
+            <% if (address) { %>
+            <div class="address-section">
+                <div class="section-header">
+                    <h5>
+                        <i class="fas fa-edit"></i>
+                        Edit Your Address
+                    </h5>
+                </div>
+                <div class="section-content">
+                    <form action="/addresses/edit/<%= index %>" method="POST" novalidate>
+                        <input type="hidden" name="addressType" id="addressTypeHidden" value="<%= address.addressType %>">
+
+                        <div class="dropdown mb-4">
+                            <!-- CHANGE: Added missing error div for edit form -->
+                            <div id="addressTypeError" class="error"></div>
+                            <label class="form-label">
+                                <i class="fas fa-tag"></i> Address Type <span class="required">*</span>
+                            </label>
+                            <button class="btn dropdown-toggle w-100" type="button" id="addressTypeDropdown" data-bs-toggle="dropdown">
+                                <span id="addressTypeSelected"><%= address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1) %></span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                <li><a class="dropdown-item" href="#" data-value="home"><i class="fas fa-home"></i> Home</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="work"><i class="fas fa-briefcase"></i> Work</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="other"><i class="fas fa-map-pin"></i> Other</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i> Full Name <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="name" required value="<%= address.name %>" placeholder="Enter full name">
+                            <div id="nameError" class="error"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-city"></i> City <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="city" required value="<%= address.city %>" placeholder="Enter city">
+                                <div id="cityError" class="error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-map"></i> State <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="state" required value="<%= address.state %>" placeholder="Enter state">
+                                <div id="stateError" class="error"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-landmark"></i> Landmark <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="landMark" required value="<%= address.landMark %>" placeholder="Enter landmark">
+                                <div id="landMarkError" class="error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-mailbox"></i> PIN Code <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-control" name="pincode" required value="<%= address.pincode %>" placeholder="Enter PIN code">
+                                <div id="pincodeError" class="error"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-phone"></i> Phone <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="phone" required value="<%= address.phone %>" placeholder="Enter phone number">
+                                <div id="phoneError" class="error"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-phone-alt"></i> Alternate Phone <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" name="allPhone" required value="<%= address.allPhone %>" placeholder="Enter alternate phone">
+                                <div id="allPhoneError" class="error"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/addresses" class="btn-secondary-custom">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-save"></i> Update Address
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Saved Address List -->
+            <div class="address-section">
+                <div class="section-header">
+                    <h3>
+                        <i class="fas fa-address-book"></i>
+                        Your Saved Addresses
+                    </h3>
+                </div>
+                <div class="section-content">
+                    <% if (addresses && addresses.length > 0) { %>
+                        <% addresses.forEach((address, i) => { %>
+                            <div class="profile-card d-flex justify-content-between align-items-start flex-wrap">
+                                <div class="flex-grow-1 me-3">
+                                    <h6>
+                                        <i class="fas fa-user-circle"></i>
+                                        <%= address.name %>
+                                    </h6>
+                                    <p class="mb-1">
+                                        <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                                        <%= address.city %>, <%= address.landMark %>
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-map text-muted me-2"></i>
+                                        <%= address.state %> - <%= address.pincode %>
+                                    </p>
+                                    <p class="mb-2">
+                                        <i class="fas fa-phone text-muted me-2"></i>
+                                        <span class="fw-medium"><%= address.phone %></span>
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-phone-alt text-muted me-2"></i>
+                                        <span class="fw-medium"><%= address.allPhone %></span>
+                                    </p>
+                                    <span class="badge">
+                                        <i class="fas fa-tag me-1"></i>
+                                        <%= address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1) %> Address
+                                    </span>
+                                </div>
+
+                                <div class="button-group mt-2 mt-md-0">
+                                    <a href="/addresses/edit/<%= i %>" class="btn-primary-custom">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <form id="deleteForm<%= i %>" action="/addresses/delete/<%= i %>" method="POST" style="display: inline-block;">
+                                        <button type="button" onclick="confirmDelete(<%= i %>)" class="btn-danger-custom">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle fa-2x mb-3" style="color: #ff3368;"></i>
+                            <h5 class="mb-2">No Addresses Yet!</h5>
+                            <p class="mb-0">Add your first address to get started with deliveries.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include("../../views/partials/user/footer") %>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedSpan = document.getElementById('addressTypeSelected');
+    const hiddenInput = document.getElementById('addressTypeHidden');
+    // CHANGE: Updated selector to '.dropdown .dropdown-item' for reliability (targets only address dropdown items)
+    const dropdownItems = document.querySelectorAll('.dropdown .dropdown-item');
+
+    // Dropdown selection
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const value = this.getAttribute('data-value');
+            const text = value.charAt(0).toUpperCase() + value.slice(1);
+            
+            selectedSpan.textContent = text;
+            hiddenInput.value = value;
+
+            // Close dropdown
+            const dropdownElement = document.getElementById('addressTypeDropdown');
+            const dropdown = bootstrap.Dropdown.getInstance(dropdownElement);
+            if (dropdown) dropdown.hide();
+        });
+    });
+
+    // CHANGE: Add validation on dropdown close (after selection)
+    const dropdownElement = document.getElementById('addressTypeDropdown');
+    if (dropdownElement) {
+        dropdownElement.addEventListener('hidden.bs.dropdown', function () {
+            validateAddressType();
+        });
+    }
+
+    // Validate Address Type
+    function validateAddressType() {
+        const button = document.getElementById('addressTypeDropdown');
+        const error = document.getElementById('addressTypeError');
+        const value = hiddenInput.value.trim();
+        if (error) error.textContent = '';  // Safe check for null
+        if (button) button.classList.remove('error', 'valid');
+        if (!value) {
+            if (error) error.textContent = 'Please select an address type.';
+            if (button) button.classList.add('error');
+            return false;
+        }
+        if (button) button.classList.add('valid');
+        return true;
+    }
+
+    // Validate Name
+    function validateName() {
+      const input = document.querySelector('[name="name"]');
+      const error = document.getElementById('nameError');
+      const value = input.value.trim();
+      if (error) error.textContent = '';
+      input.classList.remove('error', 'valid');
+      if (!value) {
+        if (error) error.textContent = 'Full name is required.';
+        input.classList.add('error');
+        return false;
+      }
+      if (!/^[a-zA-Z\s]{2,}$/.test(value)) {
+        if (error) error.textContent = 'Name must be at least 2 characters and contain only letters/spaces.';
+        input.classList.add('error');
+        return false;
+      }
+      input.classList.add('valid');
+      return true;
+    }
+
+    // Validate City
+    function validateCity() {
+      const input = document.querySelector('[name="city"]');
+      const error = document.getElementById('cityError');
+      const value = input.value.trim();
+      if (error) error.textContent = '';
+      input.classList.remove('error', 'valid');
+      if (!value) {
+        if (error) error.textContent = 'City is required.';
+        input.classList.add('error');
+        return false;
+      }
+      if (!/^[a-zA-Z\s]+$/.test(value)) {
+        if (error) error.textContent = 'City must contain only letters and spaces.';
+        input.classList.add('error');
+        return false;
+      }
+      input.classList.add('valid');
+      return true;
+    }
+
+    // Validate State
+    function validateState() {
+      const input = document.querySelector('[name="state"]');
+      const error = document.getElementById('stateError');
+      const value = input.value.trim();
+      if (error) error.textContent = '';
+      input.classList.remove('error', 'valid');
+      if (!value) {
+        if (error) error.textContent = 'State is required.';
+        input.classList.add('error');
+        return false;
+      }
+      if (!/^[a-zA-Z\s]+$/.test(value)) {
+        if (error) error.textContent = 'State must contain only letters and spaces.';
+        input.classList.add('error');
+        return false;
+      }
+      input.classList.add('valid');
+      return true;
+    }
+
+    // Validate Landmark
+    function validateLandMark() {
+      const input = document.querySelector('[name="landMark"]');
+      const error = document.getElementById('landMarkError');
+      const value = input.value.trim();
+      if (error) error.textContent = '';
+      input.classList.remove('error', 'valid');
+      if (!value) {
+        if (error) error.textContent = 'Landmark is required.';
+        input.classList.add('error');
+        return false;
+      }
+      if (value.length < 2) {
+        if (error) error.textContent = 'Landmark must be at least 2 characters.';
+        input.classList.add('error');
+        return false;
+      }
+      input.classList.add('valid');
+      return true;
+    }
+
+    // Validate Pincode
+    function validatePincode() {
+      const input = document.querySelector('[name="pincode"]');
+      const error = document.getElementById('pincodeError');
+      const value = input.value.trim();
+      if (error) error.textContent = '';
+      input.classList.remove('error', 'valid');
+      if (!value) {
+        if (error) error.textContent = 'PIN code is required.';
+        input.classList.add('error');
+        return false;
+      }
+      const num = Number(value);
+      if (isNaN(num) || value.length !== 6) {
+        if (error) error.textContent = 'PIN code must be a valid 6-digit number.';
+        input.classList.add('error');
+        return false;
+      }
+      input.classList.add('valid');
+      return true;
+    }
+
+    // Validate Phone
+    function validatePhone() {
+      const input = document.querySelector('[name="phone"]');
+      const error = document.getElementById('phoneError');
+      const value = input.value.replace(/[\s\-\(\)\+]/g, '');
+      if (error) error.textContent = '';
+      input.classList.remove('error', 'valid');
+      if (!value) {
+        if (error) error.textContent = 'Phone is required.';
+        input.classList.add('error');
+        return false;
+      }
+      if (!/^\d{10}$/.test(value)) {
+        if (error) error.textContent = 'Phone must be a valid 10-digit number.';
+        input.classList.add('error');
+        return false;
+      }
+      input.classList.add('valid');
+      return true;
+    }
+
+    // Validate All Phone
+    function validateAllPhone() {
+      const input = document.querySelector('[name="allPhone"]');
+      const error = document.getElementById('allPhoneError');
+      const value = input.value.replace(/[\s\-\(\)\+]/g, '');
+      if (error) error.textContent = '';
+      input.classList.remove('error', 'valid');
+      if (!value) {
+        if (error) error.textContent = 'Alternate phone is required.';
+        input.classList.add('error');
+        return false;
+      }
+      if (!/^\d{10}$/.test(value)) {
+        if (error) error.textContent = 'Alternate phone must be a valid 10-digit number.';
+        input.classList.add('error');
+        return false;
+      }
+      input.classList.add('valid');
+      return true;
+    }
+
+    /* CHANGE: Added event listeners for real-time validation on blur for all address inputs */
+    const nameInput = document.querySelector('[name="name"]');
+    if (nameInput) nameInput.addEventListener('blur', validateName);
+    const cityInput = document.querySelector('[name="city"]');
+    if (cityInput) cityInput.addEventListener('blur', validateCity);
+    const stateInput = document.querySelector('[name="state"]');
+    if (stateInput) stateInput.addEventListener('blur', validateState);
+    const landMarkInput = document.querySelector('[name="landMark"]');
+    if (landMarkInput) landMarkInput.addEventListener('blur', validateLandMark);
+    const pincodeInput = document.querySelector('[name="pincode"]');
+    if (pincodeInput) pincodeInput.addEventListener('blur', validatePincode);
+    const phoneInput = document.querySelector('[name="phone"]');
+    if (phoneInput) phoneInput.addEventListener('blur', validatePhone);
+    const allPhoneInput = document.querySelector('[name="allPhone"]');
+    if (allPhoneInput) allPhoneInput.addEventListener('blur', validateAllPhone);
+
+    // CHANGE: Added handling for server-side errors via URL query params (e.g., ?error=nameRequired)
+    const urlParams = new URLSearchParams(window.location.search);
+    const serverError = urlParams.get('error');
+    if (serverError) {
+        let errorMsg = '';
+        const buttonOrInput = null;
+        switch (serverError) {
+            case 'addressTypeRequired': errorMsg = 'Please select an address type.'; validateAddressType(); break;
+            case 'nameRequired': errorMsg = 'Full name is required.'; validateName(); break;
+            case 'invalidName': errorMsg = 'Name must be at least 2 characters and contain only letters/spaces.'; validateName(); break;
+            case 'cityRequired': errorMsg = 'City is required.'; validateCity(); break;
+            case 'invalidCity': errorMsg = 'City must contain only letters and spaces.'; validateCity(); break;
+            case 'stateRequired': errorMsg = 'State is required.'; validateState(); break;
+            case 'invalidState': errorMsg = 'State must contain only letters and spaces.'; validateState(); break;
+            case 'landMarkRequired': errorMsg = 'Landmark is required.'; validateLandMark(); break;
+            case 'invalidLandMark': errorMsg = 'Landmark must be at least 2 characters.'; validateLandMark(); break;
+            case 'invalidPincode': errorMsg = 'PIN code must be a valid 6-digit number.'; validatePincode(); break;
+            case 'phoneRequired': errorMsg = 'Phone is required.'; validatePhone(); break;
+            case 'invalidPhone': errorMsg = 'Phone must be a valid 10-digit number.'; validatePhone(); break;
+            case 'allPhoneRequired': errorMsg = 'Alternate phone is required.'; validateAllPhone(); break;
+            case 'invalidAllPhone': errorMsg = 'Alternate phone must be a valid 10-digit number.'; validateAllPhone(); break;
+        }
+        if (errorMsg) {
+            Swal.fire({
+                title: 'Validation Error',
+                text: errorMsg,
+                icon: 'error',
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        }
+        // Clear the query param after showing
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+
+    // Form validation before submit
+    const form = document.querySelector('form[action*="/add"], form[action*="/edit"]');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            /* CHANGE: Now calls validateAddressType() for full feedback; includes all validations */
+            const isValid = validateAddressType() && validateName() && validateCity() && validateState() && validateLandMark() && validatePincode() && validatePhone() && validateAllPhone();
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+
+// CHANGE: Removed unused initDropdown function and related if-checks (leftover code)
+
+window.confirmDelete = function(index) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This address will be permanently deleted!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff3368',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById(`deleteForm${index}`).submit();
+        }
+    });
+};
+
+// Success Message on Page Load
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('deleted') === 'true') {
+    Swal.fire({
+        title: 'Deleted!',
+        text: 'Your address has been removed successfully.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end',
+        background: '#fff5f8',
+        color: '#2d3436',
+        iconColor: '#ff3368'
+    }).then(() => {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    });
+}
+</script>
+</body>
+</html>

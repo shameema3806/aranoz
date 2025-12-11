@@ -15,6 +15,7 @@ const userInfo = async (req, res) => {
     };
 
     const users = await User.find(query)
+      .sort({ _id: -1 })
       .limit(limit)
       .skip((page - 1) * limit)
       .exec();
@@ -22,7 +23,6 @@ const userInfo = async (req, res) => {
     const count = await User.countDocuments(query);
 
     if (req.xhr || req.headers.accept.indexOf("json") > -1) {
-      // Return JSON for AJAX requests
       return res.json({
         users,
         totalPages: Math.ceil(count / limit),

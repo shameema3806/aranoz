@@ -57,15 +57,19 @@ const loadDashboard = async (req,res)=>{
 
 const logout = async (req,res)=>{
      
-        try{
-            req.session.destroy(err =>{
-                if(err){
-                 console.log("Error destroying sessioin",err);
-                 return res.redirect("/pagerror")
-                }
-                res.redirect("/admin/login")
-            })
+        // try{
+        //     req.session.destroy(err =>{
+        //         if(err){
+        //          console.log("Error destroying sessioin",err);
+        //          return res.redirect("/pagerror")
+        //         }
+        //         res.redirect("/admin/login")
+        //     })
            
+        try{
+          req.session.admin = null;
+           res.redirect("/admin/login")
+        
 
         }catch(error){
            console.log("Error destroying error during logout",error);

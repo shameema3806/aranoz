@@ -1,52 +1,52 @@
 const User = require("../models/userSchema");
 
-const userAuth = (req,res,next)=>{
+// const userAuth = (req,res,next)=>{
 
-    if(req.session.user){
+//     if(req.session.user){
 
-    User.findById(req.session.user)
-    .then(data =>{
-        if(data && !data.isBlocked){
-            next();
-        }else{
-            res.redirect("/login")
+//     User.findById(req.session.user)
+//     .then(data =>{
+//         if(data && !data.isBlocked){
+//             next();
+//         }else{
+//             res.redirect("/login?blocked=true")
+//             console.log("Auth middleware running, req.user:", req.user);
+//         }
+//     })
+//     .catch(error =>{
+//         console.log("Error in user Auth middleware",error);
+//         res.status(500).send("Internal server error")
+//     })
+// }else{
+//     res.redirect("/login")
+// }
+// }
+
+
+
+const userAuth = (req, res, next) => {
+  if (req.session && req.session.user) {  // Ensure session exists
+    User.findById(req.session.user)  // Assuming req.session.user is the _id string
+      .then(data => {
+        if (data && !data.isBlocked) {
+          req.user = data;  // ATTACH FULL USER OBJECT TO REQ (critical fix!)
+        //   console.log("Auth successful: User attached", data._id);  // Debug log
+          next();
+        } else {
+          console.log("User blocked or not found - redirecting");
+          req.session.destroy();  // Clear invalid session
+          res.redirect("/login?blocked=true");
         }
-    })
-    .catch(error =>{
-        console.log("Error in user Auth middleware",error);
-        res.status(500).send("Internal server error")
-    })
-}else{
-    res.redirect("/login")
-}
-}
-
-
-// const userAuth = async (req, res, next) => {
-//   try {
-//     if (!req.session.user) {
-//       console.log("❌ No session user found, redirecting to login");
-//       return res.redirect("/login");
-//     }
-
-//     const user = await User.findById(req.session.user);
-//     if (!user) {
-//       console.log("❌ User not found, redirecting to login");
-//       return res.redirect("/login");
-//     }
-
-//     if (user.isBlocked) {
-//       console.log("🚫 User is blocked, redirecting to login");
-//       return res.redirect("/login");
-//     }
-
-//     next();
-//   } catch (err) {
-//     console.error("Error in userAuth middleware:", err);
-//     res.status(500).send("Internal server error");
-//   }
-// };
-
+      })
+      .catch(error => {
+        console.log("Error in user Auth middleware:", error);
+        res.status(500).send("Internal server error");
+      });
+  } else {
+    console.log("No session.user - redirecting to login");
+    res.redirect("/login");
+  }
+};
 
 const adminAuth = (req,res,next)=>{
     User.findOne({isAdmin:true})

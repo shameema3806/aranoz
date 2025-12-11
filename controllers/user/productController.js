@@ -5,10 +5,9 @@ const User = require("../../models/userSchema");
 
 const productDetail = async (req, res) => {
   try {
-      const userId = req.session.user; // Get user from session
+      const userId = req.session.user; 
       const productId = req.query.id;
 
-      // If no productId, redirect to shop
     if (!productId) {
       return res.redirect('/shop');
     }
@@ -24,10 +23,9 @@ const productDetail = async (req, res) => {
       quantity: { $gt: 0 }
     })
     .limit(4)
-    .sort({ productName: 1 }) // sort A→Z
+    .sort({ productName: 1 }) 
     .lean();
 
-    // Get user data if logged in
     let user = null;
     if (userId) {
       user = await User.findById(userId).lean();
@@ -39,6 +37,7 @@ const productDetail = async (req, res) => {
     res.redirect('/shop');
   }
 };
+
 
 
 module.exports = {

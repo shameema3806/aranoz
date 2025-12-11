@@ -265,6 +265,7 @@
              value="<%= searchQuery || '' %>"
              style="height:42px; width:220px; padding-left:40px; font-size:0.9rem;">
     </div>
+
 <!-- ======================  SORT BY – WORKING DROPDOWN  ====================== -->
 <div id="sort-dropdown" style="float:right; margin-right:70px;">
   <div class="dropdown">
@@ -317,7 +318,7 @@
 <% products.forEach(product => { %>
   <div class="col-6 col-md-4 mb-4">
     <div class="card product-card h-100 border-0 shadow-sm">
-      <div class="d-flex justify-content-center align-items-center p-3 bg-white">
+      <!-- <div class="d-flex justify-content-center align-items-center p-3 bg-white">
         <a href="/productDetail?id=<%= product._id %>">
           <img 
             src="<%= product.productImage && product.productImage.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>" 
@@ -325,20 +326,59 @@
             alt="<%= product.productName %>"
           >
         </a>
+      </div> -->
+      
+      <div class="position-relative overflow-hidden">
+        <!-- Wishlist Icon: Top-right overlay, simple hover-up style -->
+        <a aria-label="Add to Wishlist" class="action-btn hover-up position-absolute top-2 end-2 z-3" 
+           style="background: rgba(255,255,255,0.9); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; opacity: 0.8;" 
+           href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>'); return false;">
+          <i class="ti-heart" style="font-size: 1.2rem; color: #ff3368;"></i>
+        </a>
+        <div class="d-flex justify-content-center align-items-center p-3 bg-white">
+          <a href="/productDetail?id=<%= product._id %>">
+            <img 
+              src="<%= product.productImage && product.productImage.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>" 
+              class="product-img" 
+              alt="<%= product.productName %>"
+              style="transition: transform 0.3s ease; max-width: 150px; max-height: 150px; object-fit: contain;"
+            >
+          </a>
+        </div>
       </div>
+
       <div class="card-body text-center p-3">
-        <h6 class="card-title mb-2 text-dark"><%= product.productName %></h6>
-        <p class="card-text mb-3">
-          <!-- Regular price (strikethrough) in BLACK -->
-          <s class="text-dark">$<%= product.regularPrice %></s>
-          <!-- Sale price in BLACK -->
-          <strong class="text-dark ms-2">$<%= product.salePrice %></strong>
-        </p>
-        <!-- Add to Cart Button – Custom Color #1A5D8C -->
-        <a href="/product/<%= product._id %>" class="btn btn-sm w-100 text-white btn-custom-cart d-flex align-items-center justify-content-center">
-  Add to Cart
-</a>
-      </div>
+  <h6 class="card-title mb-2 text-dark"><%= product.productName %></h6>
+
+  <p class="card-text mb-3">
+    <s class="text-dark">$<%= product.regularPrice %></s>
+    <strong class="text-dark ms-2">$<%= product.salePrice %></strong>
+  </p>
+
+  <!-- Availability -->
+  <p class="mb-1">
+    <% if (product.quantity > 0) { %>
+      <span style="color:#4caf50; font-weight:600;">In Stock</span>
+    <% } else { %>
+      <span style="color:#ff4757; font-weight:600;">Out of Stock</span>
+    <% } %>
+  </p>
+
+  <!-- Add to Cart Button -->
+  <% if (product.quantity > 0) { %>
+    <button class="btn btn-sm w-100 text-white btn-custom-cart"
+            onclick="addToCart('<%= product._id %>', 1)">
+      Add to Cart
+    </button>
+  <% } else { %>
+    <button class="btn btn-sm w-100 btn-secondary" disabled>
+      Out of Stock
+    </button>
+  <% } %>
+</div>
+
+   
+
     </div>
   </div>
 <% }) %>
@@ -377,6 +417,87 @@
 
   <!-- Bootstrap Icons (for filter icon) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function addToWishlist(productId) {
+  try {
+    const res = await fetch('/wishlist/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ productId })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Success SweetAlert (similar to addToCart)
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Wishlist!',
+        text: 'This product has been added to your wishlist.',
+        showConfirmButton: true,
+        confirmButtonColor: '#1a5d8c',
+      });
+    } else {
+      // Failure SweetAlert
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops!',
+        text: data.message || 'Failed to add to wishlist.',
+        confirmButtonColor: '#ff4757',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'There was an error adding the product to your wishlist.',
+      confirmButtonColor: '#ff4757',
+    });
+  }
+}
+
+
+
+async function addToCart(productId, quantity) {
+  try {
+    const res = await fetch('/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, quantity })
+    });
+
+    if (res.ok) {
+      // Success SweetAlert
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Cart!',
+        text: `You added ${quantity} item(s) to your cart.`,
+        showConfirmButton: true,
+        confirmButtonColor: '#1a5d8c',
+      });
+    } else {
+      // Failure SweetAlert
+      const data = await res.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops!',
+        text: data.message || 'Failed to add product to cart.',
+        confirmButtonColor: '#ff4757',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'There was an error adding the product to your cart.',
+      confirmButtonColor: '#ff4757',
+    });
+  }
+}
+</script>
 
 
 </body>

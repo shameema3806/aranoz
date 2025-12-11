@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("../../views/partials/user/header") %>  
+  <title>Your Wishlist</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    .wishlist_area { background-color: #f9fdff; min-height: 10px; }
+    .wishlist-item { padding:15px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 8px; background: white; }
+    .add-cart-btn { background-color: #ff3368; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+    .add-cart-btn:hover { background-color: #e6295b; }
+    .remove-btn { background-color: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+    .remove-btn:hover { background-color: #c82333; }
+  </style>
+</head>
+<body>
+
+  <section class="wishlist_area padding_top">
+    <div class="container">
+      <h2 class="mb-4">Your Wishlist</h2>
+      <% if (wishlistItems && wishlistItems.length > 0) { %>
+        <div class="row">
+          <% wishlistItems.forEach(item => { %>
+            <div class="col-md-4 col-lg-3 mb-4">
+              <div class="wishlist-item">
+                <img src="<%= (item.productImage && item.productImage.length > 0) ? '/public/product-images/' + item.productImage[0] : '/img/product/placeholder.jpg' %>" 
+                     alt="<%= item.productName || 'Product' %>" width="100%" height="200" class="img-fluid rounded mb-2" />
+                <h5><%= item.productName || 'Unnamed Product' %></h5>
+                <p class="text-muted">Added On: <%= new Date(item.addedOn).toLocaleDateString() %></p>
+                <p><strong>$<%= (item.salePrice || item.price || 0).toFixed(2) %></strong></p>
+                <div>
+                  <button class="add-cart-btn" onclick="addToCart('<%= item._id %>', 1)">Add to Cart</button>
+                  <button class="remove-btn" onclick="removeFromWishlist('<%= item._id %>')">Remove</button>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="text-center">
+          <h4>Your wishlist is empty.</h4>
+          <a href="/shop" class="btn btn-primary mt-2">Start Shopping</a>
+        </div>
+      <% } %>
+     
+    </div>
+  </section>
+
+  <%- include("../../views/partials/user/footer") %>  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function addToCart(productId, quantity = 1) {
+    fetch('/cart/add', {  
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ productId, quantity })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Added to Cart!',
+          text: 'Product added successfully.',
+          showConfirmButton: true,
+          confirmButtonColor: '#ff3368'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            location.reload();  // Reload wishlist page after user confirms/closes alert
+          }
+        });
+      } else {
+        Swal.fire('Error', data.message || 'Failed to add to cart', 'error');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire('Error', 'Server error', 'error');
+    });
+  }
+
+  // Remove from Wishlist (AJAX) - Unchanged
+  function removeFromWishlist(productId) {
+    Swal.fire({
+      title: 'Remove this item?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No'
+    }).then(result => {
+      if (result.isConfirmed) {
+        fetch('/wishlist/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: JSON.stringify({ productId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();  // Reload to update list
+            Swal.fire('Removed', data.message, 'success');
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          Swal.fire('Error', 'Server error', 'error');
+        });
+      }
+    });
+  }
+</script>
+</body>
+</html>

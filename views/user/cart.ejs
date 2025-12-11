@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("../../views/partials/user/header") %>  
+  <title>Your Cart</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    .cart_area {
+      background-color: #f9fdff; 
+      min-height: 100vh; 
+    }
+    .input-number { 
+      width: 50px; 
+      text-align: center; 
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    /* Hide up/down arrows in number input */
+    .input-number[type=number]::-webkit-outer-spin-button,
+    .input-number[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .input-number[type=number] {
+      -moz-appearance: textfield;
+    }
+    
+    .qty-btn { 
+      cursor: pointer; 
+      padding: 5px 10px; 
+      margin: 0 5px; 
+      color: white !important;
+      background-color: #ff3368 !important;
+      border: 1px solid #ff3368 !important;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    
+    .qty-btn:hover:not(:disabled) {
+      background-color: #e6295b !important;
+    }
+    
+    .qty-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .checkout_btn_inner .btn {
+      padding: 12px 24px !important;
+      font-size: 1rem !important;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .checkout_btn_inner .btn-secondary {
+      background-color: #6c757d !important;
+      border-color: #6c757d !important;
+    }
+    .checkout_btn_inner .btn-secondary:hover {
+      background-color: #5a6268 !important;
+      transform: translateY(-1px);
+    }
+    .checkout_btn_inner .btn-primary {
+      background-color: #ff3368 !important;
+      border-color: #ff3368 !important;
+    }
+    .checkout_btn_inner .btn-primary:hover {
+      background-color: #e6295b !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 51, 104, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <%- include("../../views/partials/user/header") %>
+
+  <section class="cart_area padding_top">
+    <div class="container">
+      <div class="cart_inner">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cart-items">
+              <% if (cartItems && cartItems.length > 0) { %>
+                <% cartItems.forEach(item => { %>
+                  <tr data-product-id="<%= item._id || '' %>" data-stock="<%= item.stock || 100 %>">
+                    <td>
+                      <img src="<%= (item.productImage && item.productImage.length > 0) ? '/public/product-images/' + item.productImage[0] : '/img/product/placeholder.jpg' %>" 
+                           alt="<%= item.productName || 'Product' %>" width="80" height="80" class="img-fluid rounded" />
+                    </td>
+                    <td>
+                      <div class="media-body">
+                        <p class="mb-0"><%= item.productName || 'Unnamed Product' %></p>
+                      </div>
+                    </td>
+                    <td>₹<%= (item.price || 0).toFixed(2) %></td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <button type="button" class="qty-btn decrement">-</button>
+                        <input type="number" class="input-number" value="<%= item.quantity || 1 %>" min="1" max="<%= item.stock || 100 %>" readonly />
+                        <button type="button" class="qty-btn increment">+</button>
+                      </div>
+                    </td>
+                    <td class="item-total">₹<%= (item.total || 0).toFixed(2) %></td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-sm remove-item">Remove</button>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" class="text-center">
+                    <h4>Your cart is empty.</h4>
+                    <a href="/shop" class="btn btn-primary mt-2">Continue Shopping</a>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+            <% if (cartItems && cartItems.length > 0) { %>
+              <tfoot>
+                <tr>
+                  <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
+                  <td id="cart-subtotal">₹<%= (subtotal || 0).toFixed(2) %></td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            <% } %>
+          </table>
+        </div>
+
+        <% if (cartItems && cartItems.length > 0) { %>
+          <div class="checkout_btn_inner float-end mt-3">
+            <a class="btn btn-secondary me-2" href="/shop">Continue Shopping</a>
+            <a class="btn btn-primary" href="/checkout">Proceed to Checkout</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <%- include("../../views/partials/user/footer") %>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    // BULLETPROOF CART SCRIPT - Prevents ALL duplicate events
+(function() {
+  'use strict';
+  
+  const cartContainer = document.getElementById('cart-items');
+  if (!cartContainer) {
+    console.log('Not cart page');
+    return;
+  }
+
+  console.log('🟢 Cart script loading...');
+
+  // Debounce mechanism - prevents rapid clicks
+  let isProcessing = false;
+  let lastClickTime = 0;
+  const DEBOUNCE_TIME = 300; // 300ms between clicks
+
+  function updateSubtotal() {
+    let subtotal = 0;
+    document.querySelectorAll('#cart-items tr[data-product-id]').forEach(row => {
+      const totalCell = row.querySelector('.item-total');
+      if (totalCell) {
+        const totalText = totalCell.textContent.replace('₹', '').trim();
+        const total = parseFloat(totalText) || 0;
+        subtotal += total;
+      }
+    });
+    const subtotalEl = document.getElementById('cart-subtotal');
+    if (subtotalEl) {
+      subtotalEl.textContent = '₹' + subtotal.toFixed(2);
+    }
+  }
+
+  // Single click handler for cart
+  cartContainer.addEventListener('click', function(e) {
+    const now = Date.now();
+    
+    // Global debounce - ignore clicks within 300ms
+    if (now - lastClickTime < DEBOUNCE_TIME) {
+      console.log('⏸️ Click ignored (debounce)');
+      return;
+    }
+    
+    const target = e.target;
+
+    // === QUANTITY BUTTONS ===
+    if (target.classList.contains('increment') || target.classList.contains('decrement')) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      // Check if already processing ANY update
+      if (isProcessing) {
+        console.log('⏸️ System busy, please wait');
+        return;
+      }
+
+      lastClickTime = now;
+      isProcessing = true;
+
+      const row = target.closest('tr[data-product-id]');
+      if (!row) {
+        isProcessing = false;
+        return;
+      }
+
+      const productId = row.getAttribute('data-product-id');
+      const maxStock = parseInt(row.getAttribute('data-stock')) || 100;
+      const input = row.querySelector('.input-number');
+      let currentQty = parseInt(input.value) || 1;
+      let newQty = currentQty;
+
+      console.log(`🖱️ ${target.classList.contains('increment') ? '➕' : '➖'} Product: ${productId}, Current: ${currentQty}`);
+
+      // Calculate new quantity
+      if (target.classList.contains('increment')) {
+        newQty = currentQty + 1;
+        if (newQty > maxStock) {
+          isProcessing = false;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Out of Limit',
+            text: `Only ${maxStock} items can added to cart`,
+            confirmButtonColor: '#ff3368',
+            timer: 2000
+          });
+          return;
+        }
+      } else {
+        if (currentQty <= 1) {
+          isProcessing = false;
+          Swal.fire({
+            icon: 'info',
+            title: 'Minimum Quantity',
+            text: 'Use Remove button to delete',
+            confirmButtonColor: '#ff3368',
+            timer: 2000
+          });
+          return;
+        }
+        newQty = currentQty - 1;
+      }
+
+      // Disable ALL buttons in cart during update
+      const allButtons = document.querySelectorAll('.qty-btn');
+      allButtons.forEach(btn => btn.disabled = true);
+
+      const originalQty = currentQty;
+      input.value = newQty;
+
+      console.log(`📤 API Call: ${productId} | ${currentQty} → ${newQty}`);
+
+      fetch('/cart/update', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ productId, quantity: newQty })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Network error');
+        return res.json();
+      })
+      .then(data => {
+        console.log(' Response:', data.success ? ' Success' : ' Failed');
+
+        if (data.success) {
+          const totalCell = row.querySelector('.item-total');
+          if (totalCell && data.updatedItem) {
+            totalCell.textContent = '₹' + data.updatedItem.totalPrice.toFixed(2);
+          }
+          
+          if (data.subtotal !== undefined) {
+            const subtotalEl = document.getElementById('cart-subtotal');
+            if (subtotalEl) {
+              subtotalEl.textContent = '₹' + data.subtotal.toFixed(2);
+            }
+          }
+        } else {
+          input.value = originalQty;
+          Swal.fire({
+            icon: 'error',
+            title: 'Update Failed',
+            text: data.message,
+            confirmButtonColor: '#ff3368'
+          });
+        }
+      })
+      .catch(err => {
+        input.value = originalQty;
+        console.error(' Error:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Please try again',
+          confirmButtonColor: '#ff3368'
+        });
+      })
+      .finally(() => {
+        // Re-enable buttons after 500ms
+        setTimeout(() => {
+          allButtons.forEach(btn => btn.disabled = false);
+          isProcessing = false;
+          console.log('🔓 System ready');
+        }, 500);
+      });
+    }
+
+    // === REMOVE BUTTON ===
+    if (target.classList.contains('remove-item')) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const row = target.closest('tr[data-product-id]');
+      if (!row) return;
+      
+      const productId = row.getAttribute('data-product-id');
+      if (!productId) return;
+
+      Swal.fire({
+        title: 'Remove Item?',
+        text: 'Are you sure?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff3368',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, remove',
+        cancelButtonText: 'Cancel'
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch('/cart/remove', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ productId })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              row.remove();
+              
+              if (data.subtotal !== undefined) {
+                const subtotalEl = document.getElementById('cart-subtotal');
+                if (subtotalEl) {
+                  subtotalEl.textContent = '₹' + data.subtotal.toFixed(2);
+                }
+              }
+              
+              if (document.querySelectorAll('#cart-items tr[data-product-id]').length === 0) {
+                location.reload();
+              }
+              
+              Swal.fire({
+                icon: 'success',
+                title: 'Removed',
+                timer: 1500,
+                showConfirmButton: false
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                confirmButtonColor: '#ff3368'
+              });
+            }
+          })
+          .catch(err => {
+            console.error('Remove error:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Could not remove item',
+              confirmButtonColor: '#ff3368'
+            });
+          });
+        }
+      });
+    }
+  }, { once: false, capture: true }); 
+
+  updateSubtotal();
+  console.log(' Cart ready');
+})();
+  </script>
+</body>
+</html>

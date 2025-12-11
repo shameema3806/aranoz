@@ -1,40 +1,4 @@
-// const { parse } = require("dotenv");
 const Category = require("../../models/categorySchema");
-
-// const categoryInfo = async (req, res) => {
-//   try {
-//     const page = Math.max(1, parseInt(req.query.page) || 1); 
-//     const limit = 5;
-//     const skip = (page - 1) * limit;
-
-//     const totalCategories = await Category.countDocuments();
-//     const totalPages = Math.ceil(totalCategories / limit);
-
-//     if (page > totalPages && totalCategories > 0) {
-//       return res.redirect(`/admin/category?page=${totalPages}`);
-//     }
-
-//     const categoryData = await Category.find({})
-//       .sort({ createdAt: -1 })
-//       .skip(skip)
-//       .limit(limit);
-
-//      res.render("category", {
-//      cat: categoryData,
-//      currentPage: page,
-//      totalPages,
-//      totalCategories,
-//      itemsPerPage: limit, 
-//      start: skip + 1,
-//      end: Math.min(skip + limit, totalCategories)
-//        });
-            
-
-//   } catch (error) {
-//     console.error(error);
-//     res.redirect("/pagerror");
-//   }
-// };
 
 
 const categoryInfo = async (req, res) => {
@@ -81,32 +45,6 @@ const categoryInfo = async (req, res) => {
 
 
 
-// const addCategory = async (req,res) =>{
-//     console.log("REQ BODY:", req.body);
-//     const {name,description} = req.body;
-//     try {
-
-//         let trimmedName = name.trim(); // ← Correct
-//         const existingCategory = await Category.findOne({
-//         name: { $regex: new RegExp(`^${name}$`, "i") },
-//          });
-//          if(existingCategory){
-//             return res.status(400).json({error:"Category already exists"})
-//         }
-//         const newCategory = new Category({
-//             name: trimmedName,
-//             description,
-
-//         })
-//         await  newCategory.save();
-//         return res.json({message:"Category added successfully",category: newCategory})
-//     }
-//      catch (error) {
-//          console.error(error);
-//         return res.status(500).json({error:"Internal Server Error"})
-//     }
-// }
-  
 
 const addCategory = async (req, res) => {
     console.log("REQ BODY:", req.body);
@@ -173,44 +111,6 @@ const addCategory = async (req, res) => {
    }
 
 
-//     const getEditCategory = async(req,res)=>{
-//     try {
-//         let id= req.query.id;
-//         const category = await Category.findOne({_id:id});
-//         res.render("edit-category",{category:category});
-         
-//     } catch (error) {
-//         res.redirect("/pagerror");
-//     }
-//    }
-
-//        const editCategory = async(req,res)=>{
-//        try {
-//         let id= req.params.id;
-//         const {categoryName,description} = req.body;
-//         const existingCategory = await Category.findOne({name:categoryName});
-        
-//         if(existingCategory){
-//             return  res.status(400).json({error:"Category exists, please choose another name "})
-//         }
-
-//         const updateCategory = await Category.findByIdAndUpdate(id,{
-//             name:categoryName,
-//             description:description,
-
-//         },{new:true});
-        
-//         if(updateCategory){
-//             res.redirect("/admin/category");
-
-//         }else{
-//             res.status(404).json({error:"Category not found"})
-//         }
-
-//     } catch (error) {
-//         res.status(500).json({error:"Internal server error"})
-//     }
-//    }
 
 
 // GET – show the old edit page (keep it, it’s a fallback)
@@ -225,46 +125,40 @@ const getEditCategory = async (req, res) => {
   }
 };
 
-// POST – edit via AJAX (SweetAlert)
-const editCategory = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const { categoryName, description } = req.body;
+// const editCategory = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const { categoryName, description } = req.body;
 
-    // ---- 1. TRIM EVERYTHING ----
-    const name = (categoryName || "").trim();
-    const desc = (description || "").trim();
+//     const name = (categoryName || "").trim();
+//     const desc = (description || "").trim();
 
-    // ---- 2. VALIDATE ----
-    if (!name) return res.status(400).json({ error: "Category name is required" });
-    if (!desc) return res.status(400).json({ error: "Description is required" });
+//     if (!name) return res.status(400).json({ error: "Category name is required" });
+//     if (!desc) return res.status(400).json({ error: "Description is required" });
 
-    // ---- 3. DUPLICATE CHECK (skip current category) ----
-    const existing = await Category.findOne({
-      name: name,
-      _id: { $ne: id }               // <-- important!
-    });
-    if (existing) {
-      return res.status(400).json({ error: "Category with this name already exists" });
-    }
+//     const existing = await Category.findOne({
+//       name: name,
+//       _id: { $ne: id }              
+//     });
+//     if (existing) {
+//       return res.status(400).json({ error: "Category with this name already exists" });
+//     }
 
-    // ---- 4. UPDATE ----
-    const updated = await Category.findByIdAndUpdate(
-      id,
-      { name, description: desc },
-      { new: true }
-    );
+//     const updated = await Category.findByIdAndUpdate(
+//       id,
+//       { name, description: desc },
+//       { new: true }
+//     );
 
-    if (!updated) return res.status(404).json({ error: "Category not found" });
+//     if (!updated) return res.status(404).json({ error: "Category not found" });
 
-    // ---- 5. RETURN JSON (frontend needs it) ----
-    res.json({ success: true, category: updated });
+//     res.json({ success: true, category: updated });
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 
 
@@ -275,6 +169,6 @@ module.exports = {
     getListCategory,
     getUnListCategory,
     getEditCategory,
-    editCategory
+    // editCategory
 
 }

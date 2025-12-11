@@ -1,127 +1,731 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>User profile</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <%- include("../partials/user/header") %>
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+      rel="stylesheet">
 
-  <style>
-    /* Header styles
-    .custom-user-header {
-      background-color: #1A5D8C;
-      color: white;
-      width: 100%;
-      padding: 15px 0;
-      position: relative;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    } */
+    <style>
+      * {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-    
-    .dashboard-wrapper {
-      margin-top: 120px;
-      display: flex;
-      gap: 80px;
-      justify-content: center;
-      align-items: flex-start;
-    }
-    
+      body {
+        background-color: #f9fdff;
+        margin: 0;
+        padding: 0;
+      }
 
-    .dashboard-container {
-      background-color: #d0f0ff; /* light blue */
-      padding: 20px 25px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      min-width: 220px;
-    }
+      .main-content {
+        margin-top: 120px;
+        padding: 40px 0;
+        min-height: 100vh;
+      }
 
-    .dashboard-container ul {
-      padding: 0;
-      list-style: none;
-    }
+      .page-title {
+        color: #2d3436;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: center;
+      }
 
-    .dashboard-container ul li {
-      padding: 10px 0;
-      border-bottom: 1px solid #c0e4f7;
-    }
+      .profile-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
 
-    .dashboard-container ul li a {
-      text-decoration: none;
-      font-weight: 600;
-      color: #175b73;
-    }
+      .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
 
-    .dashboard-container ul li a:hover {
-      text-decoration: underline;
-    }
-    
-    .container-section {
-      display: flex;
-      gap: 30px;
-      margin-top: 120px; /* Push down from header */
-      justify-content: center;
-    }
-    /* User profile card */
-    .user-profile-container {
-      background-color: #ffffff; /* white */
-      padding: 50px 30px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      min-width: 400px;
-    }
+      .profile-card:hover {
+        transform: translateY(-5px);
+      }
 
-    .user-profile-container h5 {
-      margin-bottom: 30px;
-    }
+      .profile-card:hover::before {
+        transform: scaleX(1);
+      }
 
-    .user-profile-container p {
-      margin: 8px 0;
-    }
-  </style>
+      .profile-image-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .profile-image-container img {
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+
+      .profile-info {
+        margin-left: 50px;
+      }
+
+      .profile-info h4 {
+        color: #2d3436;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .profile-info h4 i {
+        color: #ff3368;
+        ;
+      }
+
+      .profile-info p {
+        color: #636e72;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .profile-info p i {
+        color: #ff3368;
+        width: 20px;
+      }
+
+      .profile-btn {
+        background: linear-gradient(#ff3368);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 0.85rem 1.5rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        width: 200px;
+        text-decoration: none;
+      }
+
+      .profile-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(255, 51, 104, 0.6);
+        color: white;
+      }
+
+      .profile-btn i {
+        font-size: 16px;
+      }
+
+
+      .section-header {
+        color: #2d3436;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .section-header i {
+        color: #ff3368;
+        font-size: 28px;
+      }
+
+
+      .address-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        border: 2px solid #dee2e6;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .address-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #ff3368);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .address-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-color: #ff3368;
+      }
+
+      .address-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .address-card h3 {
+        color: #2d3436;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .address-card h3 i {
+        color: #ff3368;
+      }
+
+      .address-card p {
+        color: #636e72;
+        margin-bottom: 8px;
+        line-height: 1.6;
+      }
+
+      .address-card .badge {
+        background: linear-gradient(135deg, #ff3368) !important;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 8px;
+      }
+
+
+      .wallet-balance {
+        font-size: 1.8rem;
+        color: #2d3436;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .wallet-balance i {
+        color: #ff3368;
+      }
+
+      .table {
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .table thead {
+        background: linear-gradient(135deg, #ff3368, #ff6b9d);
+        color: white;
+      }
+
+      .table thead th {
+        border: none;
+        padding: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+      }
+
+      .table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        color: #636e72;
+      }
+
+      .table tbody tr {
+        transition: all 0.2s ease;
+      }
+
+      .table tbody tr:hover {
+        background: linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%);
+      }
+
+      .badge {
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      .badge.bg-success {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+      }
+
+      .badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107, #ffb300) !important;
+      }
+
+      .btn-sm {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-outline-danger {
+        border: 2px solid #dc3545;
+        color: #dc3545;
+      }
+
+      .btn-outline-danger:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+      }
+
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #636e72;
+      }
+
+      .empty-state i {
+        font-size: 3rem;
+        color: #ff3368;
+        margin-bottom: 20px;
+      }
+
+      .btn-primary {
+        background-color: #145078;
+      }
+
+
+      @media (max-width: 768px) {
+        .main-content {
+          margin-top: 80px;
+        }
+
+        .profile-info {
+          margin-left: 0;
+          margin-top: 20px;
+        }
+
+        .profile-btn {
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .address-card,
+        .wallet-card {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .address-card>div:last-child {
+          margin-top: 20px;
+        }
+      }
+    </style>
 </head>
+
 <body>
 
-  <!-- Include your header partial -->
-  <%- include("../../views/partials/user/header") %>
+  <!--  Main Content -->
+  <main class="main-content container mb-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
 
-  <!-- Custom header -->
-  <header class="custom-user-header text-center">
-    <!-- <h1 class="fs-3 fw-bold mb-0">User Dashboard</h1> -->
-  </header>
+        <h1 class="page-title">
+          <i class="fas fa-user-circle"></i> My Profile
+        </h1>
 
-  <!-- Dashboard and Profile Section -->
-  <div class="container dashboard-wrapper">
+        <!-- User Profile Card -->
+        <div class="profile-card">
+          <h2 class="section-header">
+            <i class="fas fa-id-card"></i>
+            Personal Information
+          </h2>
 
-      <!-- User profile content -->
-    <div class="user-profile-container">
-      <h5 class="fw-bold">User Profile</h5>
-      <p><strong>Name:</strong> <%= user?.name || '' %></p>
-      <p><strong>Phone:</strong> <%= user?.phone || '' %></p>
-      <p><strong>Email:</strong> <%= user?.email || '' %></p>
-      <div class="mt-3">
-        <button class="btn btn-primary me-2">Change Email</button>
-        <button class="btn btn-primary">Change Password</button>
+          <div class="row align-items-center">
+            <!-- Left Side: Image + Info -->
+            <div class="col-md-7 d-flex align-items-center mb-4 mb-md-0 flex-column flex-md-row">
+              <div class="profile-image-container">
+                <img 
+  id="profilePreviewDisplay"
+  src="<%= user.profileImage ? user.profileImage + '?t=' + Date.now() : '/img/profilepic.png' %>"
+  alt="Profile Image">
+
+              </div>
+              <div class="profile-info">
+                <h4>
+                  <i class="fas fa-user"></i>
+                  <%= user?.name || '' %>
+                </h4>
+                <p>
+                  <i class="fas fa-envelope"></i>
+                  <%= user?.email || '' %>
+                </p>
+                <p>
+                  <i class="fas fa-phone"></i>
+                  <%= user?.phone || '' %>
+                </p>
+              </div>
+            </div>
+
+            <!-- Right Side: Buttons -->
+            <div class="col-md-5 d-flex flex-column align-items-md-end">
+              <button onclick="showEditProfile()" class="profile-btn mb-2">
+                <i class="fas fa-edit"></i> Edit Profile
+              </button>
+              <a href="/change-email" class="profile-btn mb-2">
+                <i class="fas fa-at"></i> Change Email
+              </a>
+              <a href="/change-password" class="profile-btn mb-2">
+                <i class="fas fa-lock"></i> Change Password
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Addresses Section -->
+        <div class="profile-card">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-header mb-0">
+              <i class="fas fa-map-marked-alt"></i>
+              Your Saved Addresses
+            </h2>
+            <a href="/addresses" class="profile-btn" style="width: auto;">
+              <i class="fas fa-cog"></i> Manage Addresses
+            </a>
+          </div>
+
+          <% if (addresses.length===0) { %>
+            <div class="empty-state">
+              <i class="fas fa-map-marker-alt"></i>
+              <p class="mb-0">No addresses added yet. Add your first address to get started!</p>
+            </div>
+            <% } else { %>
+              <% addresses.forEach((addr, index)=> { %>
+                <div class="address-card d-flex justify-content-between align-items-start flex-wrap">
+                  <div class="flex-grow-1">
+                    <h3>
+                      <i class="fas fa-user-circle"></i>
+                      <%= addr.name %>
+                    </h3>
+                    <p class="mb-1">
+                      <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                      <%= addr.city %>
+                    </p>
+                    <p class="mb-1">
+                      <i class="fas fa-map text-muted me-2"></i>
+                      <%= addr.state %> - <%= addr.pincode %>
+                    </p>
+                    <span class="badge">
+                      <i class="fas fa-tag me-1"></i>
+                      <%= addr.addressType.charAt(0).toUpperCase() + addr.addressType.slice(1) %>
+                    </span>
+                  </div>
+                </div>
+                <% }) %>
+                  <% } %>
+        </div>
+
+        <!-- Wallet Section -->
+        <div class="profile-card wallet-card">
+          <div class="row align-items-center">
+            <div class="col-md-7">
+              <h2 class="section-header">
+                <i class="fas fa-wallet"></i>
+                My Wallet
+              </h2>
+              <div class="wallet-balance">
+                <i class="fas fa-coins"></i>
+                Balance: <span id="walletBalance">₹1,250.00</span>
+              </div>
+              <p class="text-muted mb-0">Use wallet balance for faster checkout</p>
+            </div>
+
+            <div class="col-md-5 d-flex flex-column align-items-md-end mt-3 mt-md-0">
+              <button class="profile-btn mb-2" onclick="addMoney()" style="width: auto;">
+                <i class="fas fa-plus-circle"></i> Add Money
+              </button>
+              <button class="profile-btn" onclick="viewTransactions()"
+                style="width: auto; background: white; color: #ff3368; border: 2px solid #ff3368;">
+                <i class="fas fa-history"></i> View Transactions
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="profile-card">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-header mb-0">
+              <i class="fas fa-shopping-bag"></i>
+              Recent Orders
+            </h2>
+            <a href="/orders" class="profile-btn">
+              <i class="fas fa-cog"></i>my Orders
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col"><i class="fas fa-hashtag me-2"></i>Order ID</th>
+                  <th scope="col"><i class="fas fa-calendar me-2"></i>Date</th>
+                  <th scope="col"><i class="fas fa-info-circle me-2"></i>Status</th>
+                  <th scope="col"><i class="fas fa-dollar-sign me-2"></i>Total</th>
+                  <th scope="col"><i class="fas fa-cog me-2"></i>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (orders && orders.length> 0) { %>
+                  <% orders.forEach(order=> { %>
+                    <tr>
+                      <td><strong>
+                          <%= order.orderId %>
+                        </strong></td>
+                      <td>
+                        <%= new Date(order.createdOn).toLocaleDateString('en-IN') %>
+                      </td> <!-- e.g., 26/11/2025 -->
+                      <td>
+                        <span
+                          class="badge <%= order.status === 'Delivered' ? 'bg-success' : order.status === 'Pending' || order.status === 'Processing' ? 'bg-warning text-dark' : 'bg-secondary' %>">
+                          <%= order.status %>
+                        </span>
+                      </td>
+                      <td><strong>₹<%= order.finalAmount.toFixed(2) %></strong></td>
+                      <td>
+                        <a href="/orders/<%= order._id %>" class="btn btn-sm btn-primary me-1">
+                          <i class="fas fa-eye"></i> View
+                        </a>
+                        <% if (order.status==='Pending' || order.status==='Processing' ) { %>
+                          <button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('<%= order._id %>')">
+                            <i class="fas fa-times"></i> Cancel
+                          </button>
+                          <% } else { %>
+                            <button class="btn btn-sm btn-danger" disabled>
+                              <i class="fas fa-check"></i> Completed
+                            </button>
+                            <% } %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="5" class="text-center py-4">
+                            <div class="empty-state">
+                              <i class="fas fa-shopping-bag"></i>
+                              <p class="mb-0">No recent orders yet. <a href="/">Start shopping!</a></p>
+                            </div>
+                          </td>
+                        </tr>
+                        <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
+  </main>
 
-    <!-- Sidebar menu -->
-    <div class="dashboard-container">
-      <ul>
-        <li><a href="#">Dashboard</a></li>
-        <li><a href="#">My Address</a></li>
-        <li><a href="#">Orders</a></li>
-        <li><a href="#">Wallet Status</a></li>
-        <li><a href="#">Wallet History</a></li>
-        <li><a href="#">Referrals</a></li>
-        <li><a href="/user/logout">Logout</a></li>
-      </ul>
-    </div>
+  <!-- 
+   Footer -->
+  <%- include("../partials/user/footer") %>
 
-  
-  </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      function showEditProfile() {
+        window.location.href = "/editprofile";
+      }
+
+      function addMoney() {
+        Swal.fire({
+          title: "Add Money to Wallet",
+          input: "number",
+          inputLabel: "Enter amount to add (₹)",
+          inputAttributes: { min: 1 },
+          showCancelButton: true,
+          confirmButtonText: "Add",
+          confirmButtonColor: '#ff3368',
+          cancelButtonColor: '#6c757d',
+          preConfirm: (amount) => {
+            if (!amount || amount <= 0) {
+              Swal.showValidationMessage("Please enter a valid amount");
+              return false;
+            }
+            return amount;
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const amount = parseFloat(result.value);
+            const balanceElem = document.getElementById("walletBalance");
+            const currentBalance = parseFloat(balanceElem.textContent.replace("₹", "").replace(",", ""));
+            const newBalance = currentBalance + amount;
+            balanceElem.textContent = "₹" + newBalance.toFixed(2);
+
+            Swal.fire({
+              icon: "success",
+              title: "Money Added!",
+              text: `₹${amount.toFixed(2)} added to your wallet.`,
+              timer: 1500,
+              showConfirmButton: false,
+              background: '#fff5f8',
+              color: '#2d3436',
+              iconColor: '#ff3368'
+            });
+          }
+        });
+      }
+
+      function viewTransactions() {
+        Swal.fire({
+          title: "Recent Transactions",
+          html: `
+          <ul style="text-align:left; list-style:none; padding:0;">
+            <li style="padding: 10px; border-bottom: 1px solid #f1f3f5;">
+              <i class="fas fa-plus-circle" style="color: #28a745;"></i> ₹500.00 added on 2025-11-01
+            </li>
+            <li style="padding: 10px; border-bottom: 1px solid #f1f3f5;">
+              <i class="fas fa-minus-circle" style="color: #dc3545;"></i> ₹250.00 used for order #1002
+            </li>
+            <li style="padding: 10px;">
+              <i class="fas fa-plus-circle" style="color: #28a745;"></i> ₹1000.00 added on 2025-10-20
+            </li>
+          </ul>
+        `,
+          confirmButtonText: "Close",
+          confirmButtonColor: '#ff3368'
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // SweetAlert2 Confirmation for Delete
+        window.confirmDelete = function (index) {
+          Swal.fire({
+            title: 'Are you sure?',
+            text: 'This address will be permanently deleted!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff3368',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              document.getElementById(`deleteForm${index}`).submit();
+            }
+          });
+        };
+
+        // Success Message on Page Load
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('deleted') === 'true') {
+          Swal.fire({
+            title: 'Deleted!',
+            text: 'Your address has been removed successfully.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end',
+            background: '#fff5f8',
+            color: '#2d3436',
+            iconColor: '#ff3368'
+          }).then(() => {
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+          });
+        }
+
+        // Existing Dropdown Init
+        function initDropdown(dropdownId, hiddenId, selectedSpanId) {
+          const dropdownElement = document.getElementById(dropdownId);
+          if (!dropdownElement) return;
+          const hiddenInput = document.getElementById(hiddenId);
+          const selectedSpan = document.getElementById(selectedSpanId);
+          const dropdownItems = dropdownElement.nextElementSibling.querySelectorAll('.dropdown-item');
+
+          dropdownItems.forEach(item => {
+            item.addEventListener('click', function (e) {
+              e.preventDefault();
+              const value = this.getAttribute('data-value');
+              const text = this.textContent.trim();
+
+              selectedSpan.textContent = text;
+              hiddenInput.value = value;
+
+              const dropdown = bootstrap.Dropdown.getInstance(dropdownElement);
+              if (dropdown) dropdown.hide();
+            });
+          });
+        }
+
+        if (document.getElementById('addAddressTypeDropdown')) {
+          initDropdown('addAddressTypeDropdown', 'addAddressTypeHidden', 'addAddressTypeSelected');
+        }
+
+        if (document.getElementById('editAddressTypeDropdown')) {
+          initDropdown('editAddressTypeDropdown', 'editAddressTypeHidden', 'editAddressTypeSelected');
+        }
+      });
+
+      async function cancelOrder(orderId) {
+        const result = await Swal.fire({
+          title: 'Cancel Order?',
+          text: 'This action cannot be undone.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#dc3545',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, cancel it!'
+        });
+
+        if (result.isConfirmed) {
+          try {
+            const response = await fetch(`/orders/${orderId}/cancel`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            if (data.success) {
+              Swal.fire('Cancelled!', 'Order cancelled successfully.', 'success').then(() => {
+                location.reload();  // Refresh to update table
+              });
+            } else {
+              Swal.fire('Error!', data.message, 'error');
+            }
+          } catch (error) {
+            Swal.fire('Error!', 'Failed to cancel order.', 'error');
+          }
+        }
+      }
+
+
+    </script>
 
 </body>
+
 </html>
