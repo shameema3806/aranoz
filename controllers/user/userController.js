@@ -364,7 +364,6 @@ const resendOtp = async (req,res)=>{
 const loadLogin = async (req,res)=>{
   try {
     if(!req.session.user){
-      // return res.render("login")
       res.set('Cache-Control', 'no-store');
        return res.render("login",{msg1:req.flash('err1')});
 
