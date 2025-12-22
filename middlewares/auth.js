@@ -25,16 +25,15 @@ const User = require("../models/userSchema");
 
 
 const userAuth = (req, res, next) => {
-  if (req.session && req.session.user) {  // Ensure session exists
-    User.findById(req.session.user)  // Assuming req.session.user is the _id string
+  if (req.session && req.session.user) {  
+    User.findById(req.session.user)  
       .then(data => {
         if (data && !data.isBlocked) {
-          req.user = data;  // ATTACH FULL USER OBJECT TO REQ (critical fix!)
-        //   console.log("Auth successful: User attached", data._id);  // Debug log
+          req.user = data;  
           next();
         } else {
           console.log("User blocked or not found - redirecting");
-          req.session.destroy();  // Clear invalid session
+          req.session.destroy();  
           res.redirect("/login?blocked=true");
         }
       })
@@ -57,8 +56,6 @@ const adminAuth = (req,res,next)=>{
             res.redirect("/admin/login")
         }
     }) 
-
-
     .catch(error=>{
     console.log("Error in adminauth middleware ",error)
      res.status(500).send("Internal server error")

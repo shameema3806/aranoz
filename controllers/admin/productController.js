@@ -81,7 +81,6 @@ const addProducts = async (req, res) => {
 
       await newProduct.save();
       return res.status(200).json({ message: "product successfully added", success: true });
-      console.log(req.body);
     } else {
 
       return res.status(400).json({ message: "Product already exits,please try with another name", success: false });
@@ -124,6 +123,16 @@ const getAllProducts = async (req, res) => {
       Category.find({ isListed: true }).lean()
     ]);
 
+    productData.forEach(product => {
+      const productOffer = product.offer || 0;
+      const categoryOffer = product.category ? (product.category.offer || 0) : 0;
+      const effectiveOffer = Math.max(productOffer, categoryOffer);
+      product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;
+      product.effectiveOfferPrice = effectiveOffer > 0 
+        ? (product.salePrice * (1 - effectiveOffer / 100)).toFixed(2) 
+        : null;
+    });
+
     const totalPages = Math.ceil(count / limit);
 
     res.render("products", {
@@ -156,16 +165,28 @@ const addProductOffer = async (req, res) => {
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     // Calculate discounted price
-    const discountedPrice = product.salePrice - (product.salePrice * offerPercent / 100);
+    // const discountedPrice = product.salePrice - (product.salePrice * offerPercent / 100);
+
+    // Calculate product-specific discounted price
+    const productDiscountedPrice = product.salePrice - (product.salePrice * offerPercent / 100);
 
     product.offer = offerPercent;
-    product.offerPrice = discountedPrice;
+    product.offerPrice = productDiscountedPrice;
     await product.save();
+
+    const updatedProduct = await Product.findById(id).populate('category');
+    const productOffer = updatedProduct.offer || 0;
+    const categoryOffer = updatedProduct.category ? (updatedProduct.category.offer || 0) : 0;
+    const effectiveOffer = Math.max(productOffer, categoryOffer);
+    const effectiveDiscountedPrice = effectiveOffer > 0 
+      ? (updatedProduct.salePrice * (1 - effectiveOffer / 100)).toFixed(2) 
+      : null;
 
     return res.status(200).json({
       message: "Offer applied",
       offerPercent,
-      discountedPrice
+      effectiveOffer,
+      effectiveDiscountedPrice
     });
   } catch (error) {
     console.error("Error adding offer:", error);
@@ -183,7 +204,16 @@ const removeProductOffer = async (req, res) => {
     product.offerPrice = undefined;
     await product.save();
 
-    return res.status(200).json({ success: true, message: "Offer removed" });
+    const updatedProduct = await Product.findById(id).populate('category');
+    const productOffer = updatedProduct.offer || 0;
+    const categoryOffer = updatedProduct.category ? (updatedProduct.category.offer || 0) : 0;
+    const effectiveOffer = Math.max(productOffer, categoryOffer);
+    const effectiveDiscountedPrice = effectiveOffer > 0 
+      ? (updatedProduct.salePrice * (1 - effectiveOffer / 100)).toFixed(2) 
+      : null;
+
+    return res.status(200).json({ success: true, message: "Offer removed" ,effectiveOffer,
+      effectiveDiscountedPrice});
   } catch (error) {
     console.error("Error removing offer:", error);
     return res.status(500).json({ error: "Server error" });

@@ -152,7 +152,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-    // BULLETPROOF CART SCRIPT - Prevents ALL duplicate events
+  // BULLETPROOF CART SCRIPT - Prevents ALL duplicate events
 (function() {
   'use strict';
   
@@ -234,7 +234,7 @@
           Swal.fire({
             icon: 'warning',
             title: 'Out of Limit',
-            text: `Only ${maxStock} items can added to cart`,
+            text: `Only ${maxStock} items can be added to cart`,
             confirmButtonColor: '#ff3368',
             timer: 2000
           });
@@ -292,22 +292,47 @@
             }
           }
         } else {
-          input.value = originalQty;
-          Swal.fire({
-            icon: 'error',
-            title: 'Update Failed',
-            text: data.message,
-            confirmButtonColor: '#ff3368'
-          });
+          // NEW: Check for blocked removal case
+          if (data.message && data.message.includes('Item removed from cart')) {
+            // Remove the row and update subtotal
+            row.remove();
+            if (data.subtotal !== undefined) {
+              const subtotalEl = document.getElementById('cart-subtotal');
+              if (subtotalEl) {
+                subtotalEl.textContent = '₹' + data.subtotal.toFixed(2);
+              }
+            }
+            // Check if cart is now empty
+            if (document.querySelectorAll('#cart-items tr[data-product-id]').length === 0) {
+              location.reload();
+            }
+            // Show info instead of error
+            Swal.fire({
+              icon: 'info',
+              title: 'Item Removed',
+              text: data.message,
+              confirmButtonColor: '#ff3368',
+              timer: 2000
+            });
+          } else {
+            // Standard error
+            input.value = originalQty;
+            Swal.fire({
+              icon: 'error',
+              title: 'Update Failed',
+              text: data.message,
+              confirmButtonColor: '#ff3368'
+            });
+          }
         }
       })
       .catch(err => {
         input.value = originalQty;
         console.error(' Error:', err);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Please try again',
+          icon: 'warning',
+          title: 'Limit Exceeded',
+          text: 'Cannot add more item',
           confirmButtonColor: '#ff3368'
         });
       })
@@ -399,6 +424,6 @@
   updateSubtotal();
   console.log(' Cart ready');
 })();
-  </script>
+</script>
 </body>
 </html>

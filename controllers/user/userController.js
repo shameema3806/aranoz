@@ -8,6 +8,8 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const { render } = require("ejs");
 
+
+
 const loadHomepage = async (req, res) => {
   try {
     const userId = req.session.user;  
@@ -22,19 +24,124 @@ const loadHomepage = async (req, res) => {
     productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
     // productData = productData.slice(0,4);
 
+    // Fetch only products with offers
+    const offersPage = parseInt(req.query.offersPage) || 1;
+    const offersLimit = 4;
+    const offersSkip = (offersPage - 1) * offersLimit;
+
+    const featuredOffersRaw = await Product.find({ 
+      isBlocked: false, 
+      quantity: { $gt: 0 },
+      $or: [ 
+        { offer: { $gt: 0 } }, 
+        { category: { $exists: true, $ne: null } }  // To populate and check category offer
+      ] 
+    })
+    .populate('category')
+    .sort({ createdAt: -1 })
+    .lean();
+
+    //  effectiveOffer for all
+    const allFeaturedOffers = featuredOffersRaw
+      .map(product => {
+        const now = new Date();
+        const productOffer = (product.offer && (!product.offerExpiry || product.offerExpiry > now)) ? product.offer : 0;
+        const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now) 
+          ? product.category.offer 
+          : 0;
+        const effectiveOffer = Math.max(productOffer, categoryOffer);
+        product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;
+        product.effectiveOfferPrice = effectiveOffer > 0 
+          ? (product.salePrice * (1 - effectiveOffer / 100)).toFixed(2) 
+          : null;
+        return product;
+      })
+      .filter(product => product.effectiveOffer > 0);  // Only include with active offers
+
+    const totalOffers = allFeaturedOffers.length;
+    const totalOffersPages = Math.ceil(totalOffers / offersLimit);
+    const featuredOffers = allFeaturedOffers.slice(offersSkip, offersSkip + offersLimit);  // Paginate
+
     res.set("Cache-Control", "no-store");
 
     if (userId) {
       const userData = await User.findById(userId);
-      res.render("home", { user: userData, products: productData });
+      res.render("home", { 
+        user: userData, 
+        products: productData, 
+        featuredOffers, 
+        currentOffersPage: offersPage, 
+        totalOffersPages 
+      });
     } else {
-      res.render("home", { products: productData }); 
+      res.render("home", { 
+        products: productData, 
+        featuredOffers, 
+        currentOffersPage: offersPage, 
+        totalOffersPages 
+      }); 
     }
   } catch (error) {
     console.log("Home page not found:", error); 
     res.status(500).send("Server error");
   }
 };
+
+// const loadHomepage = async (req, res) => {
+//   try {
+//     const userId = req.session.user;  
+//     const categories = await Category.find({ isListed: true });
+
+//     let productData = await Product.find({
+//       isBlocked: false,
+//       category: { $in: categories.map(category => category._id) },
+//       quantity: { $gt: 0 }
+//     });
+
+//     productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+//     // productData = productData.slice(0,4);
+
+
+//     // Fetch featured offers
+//     const featuredOffers = await Product.find({ 
+//       isBlocked: false, 
+//       quantity: { $gt: 0 },
+//       $or: [ 
+//         { offer: { $gt: 0 } }, 
+//         { category: { $exists: true, $ne: null } }  
+//       ] 
+//     })
+//     .populate('category')
+//     .limit(4)
+//     .sort({ createdAt: -1 })
+//     .lean();
+
+//     featuredOffers.forEach(product => {
+//       const now = new Date();
+//       const productOffer = (product.offer && (!product.offerExpiry || product.offerExpiry > now)) ? product.offer : 0;
+//       const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now) 
+//         ? product.category.offer 
+//         : 0;
+//       const effectiveOffer = Math.max(productOffer, categoryOffer);
+//       product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;
+//       product.effectiveOfferPrice = effectiveOffer > 0 
+//         ? (product.salePrice * (1 - effectiveOffer / 100)).toFixed(2) 
+//         : null;
+//     });
+
+//     res.set("Cache-Control", "no-store");
+
+//     if (userId) {
+//       const userData = await User.findById(userId);
+//       res.render("home", { user: userData, products: productData ,featuredOffers});
+//     } else {
+//       res.render("home", { products: productData ,featuredOffers}); 
+//     }
+//   } catch (error) {
+//     console.log("Home page not found:", error); 
+//     res.status(500).send("Server error");
+//   }
+// };
 
 
 const loadSignup = async(req,res)=>{
@@ -94,6 +201,8 @@ if (req.query.category) {
         case 'above10000':
           filter.salePrice = { $gt: 10000 };
           break;
+        case "above20000":
+          filter.salePrice = {$gt : 20000}; 
       }
     }
 
@@ -130,12 +239,30 @@ if (req.query.category) {
     const skip = (page - 1) * limit;
     const totalProducts = await Product.countDocuments(filter);
     const products = await Product.find(filter)
+      .populate('category')
       .collation({ locale: 'en', strength: 2 }) 
       .sort(sort)
       .skip(skip)
       .limit(limit)
       .lean();
+    
+    
+const processedProducts = products.map(product => {
+  const now = new Date();  // NEW: Current date for expiry checks
+  const productOffer = (product.offer && (!product.offerExpiry || product.offerExpiry > now)) ? product.offer : 0;  // NEW: Product-level offer with expiry
+  const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now) 
+    ? product.category.offer 
+    : 0;  // NEW: Category-level offer with expiry (requires populate)
+  const effectiveOffer = Math.max(productOffer, categoryOffer);  // NEW: Max of both
+  const effectiveOfferPrice = effectiveOffer > 0 
+    ? Math.round(product.salePrice * (1 - effectiveOffer / 100))  // NEW: Computed price if offer valid
+    : null;
 
+  product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;  // NEW: Set only if >0
+  product.effectiveOfferPrice = effectiveOfferPrice;  // NEW: Attach computed price
+
+  return product;
+});
     const totalPages = Math.ceil(totalProducts / limit);
 
     const buildUrl = (newParams = {}) => {
@@ -158,7 +285,7 @@ if (req.query.category) {
 
     res.render('shop', {
       categories,
-      products,
+      products: processedProducts,
       // selectedCategory: req.query.category || null,
       selectedCategory,
       selectedPriceRange: req.query.priceRange || null,
@@ -413,7 +540,7 @@ const login = async(req,res)=>{
 
 const logout = async (req,res)=>{
   try{
-    req.session.user = null;
+    req.session.user = null; 
     return res.redirect("/login");
   }
   catch (error) {

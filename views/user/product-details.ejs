@@ -174,7 +174,54 @@
                     <span class="font-small ml-5 text-muted">(<%= product?.reviews?.length || 0 %> reviews)</span>
                   </div>
 
-                  
+
+
+
+                  <div class="clearfix product-price-cover">
+  <div class="product-price primary-color float-left">
+    <% if (product.effectiveOffer && product.effectiveOffer > 0) { %>
+      <!-- Show effective price as main, original salePrice struck through -->
+      <ins>
+        <span class="text-brand fw-bold text-dark" 
+           style="font-weight:700; color:#000; font-size:24px;">
+           ₹<%= product.effectiveOfferPrice %>
+        </span>
+        <span class="save-price font-md color3 ml-15" 
+           style="color:#e63946; font-weight:600; font-size:14px;">
+           OFF UPTO <%= product.effectiveOffer %>% (₹<%= (product.salePrice - parseFloat(product.effectiveOfferPrice)).toFixed(0) %>)
+        </span>
+      </ins>
+      <br>
+      <del style="color:#888; font-size:16px;">
+        ₹<%= product.salePrice %>
+      </del>
+    <% } else { %>
+
+      
+      <!-- effective offer: Use regular salePrice display -->
+      <ins>
+        <span class="text-brand fw-bold text-dark" 
+           style="font-weight:700; color:#000; font-size:24px;">
+           ₹<%= product?.salePrice || 0 %>
+        </span>
+      </ins>
+      <% if ((product?.regularPrice || 0) > (product?.salePrice || 0)) { %>
+         <span class="save-price font-md color3 ml-15" 
+           style="color:#e63946; font-weight:600; font-size:14px;">
+           Save ₹<%= product.regularPrice - product.salePrice %>
+        </span><br>
+        <del style="color:#888; font-size:16px;">
+          ₹<%= product.regularPrice %>
+        </del>
+        <br>
+       
+      <% } %>
+    <% } %>
+  </div>
+</div>
+
+
+<!--                   
                <div class="clearfix product-price-cover">
                 <div class="product-price primary-color float-left">
                 <ins>
@@ -197,7 +244,9 @@
                   <% } %>
                 </div>
                 
-                </div><br>
+                </div> -->
+
+                <br>
 
 
            <div class="product-details mb-3">

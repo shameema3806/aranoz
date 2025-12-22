@@ -400,7 +400,7 @@
                     </h5>
                 </div>
                 <div class="section-content">
-                    <form action="/addresses/add" method="POST" novalidate>
+                    <form action="/addresses/add?redirect=<%= redirect %>" method="POST" novalidate>
                         <input type="hidden" name="addressType" id="addressTypeHidden" value="">
 
                         <div class="dropdown mb-4">

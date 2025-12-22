@@ -42,7 +42,7 @@ const getAllOrders = async (req, res) => {
     }
 
     const allOrdersData = await Order.find(query)
-      .populate('userId', 'name email phone')
+      .populate('userId', 'name email phone quantity')
       .populate('orderedItems.product', 'productName')
       .sort({updatedAt: -1, createdOn: -1 })
       .lean();
@@ -97,6 +97,7 @@ const getAllOrders = async (req, res) => {
       id: order.orderId, 
       date: order.createdOn ? order.createdOn.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       time: order.createdOn ? order.createdOn.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '12:00 PM',
+      updatedAt: order.updatedAt || order.createdOn,
       customer: {
         name: order.address?.name || order.userId?.name || 'Unknown',
         email: order.userId?.email || 'N/A',
@@ -107,8 +108,10 @@ const getAllOrders = async (req, res) => {
       
       },
       returnReason: order.returnReason,
+      rejectionReason: order.rejectionReason,
       products: order.orderedItems?.map(item => ({
         name: item.product?.productName || 'Unknown Product',
+        quantity:item.quantity,
         status: getDisplayStatus(order.status)
       })) || [],
       amount: order.finalAmount || 0,
@@ -185,8 +188,12 @@ const updateOrderStatus = async (req, res) => {
         });
       }
     } else if (newStatus === 'delivered' && oldStatus === 'Return Request') {
-      // Reject: Clear reason
-      order.returnReason = null;
+      // Reject: Keep return reason but add rejection reason
+      if (!req.body.rejectionReason) {
+        return res.status(400).json({ success: false, error: 'Rejection reason required' });
+      }
+      order.rejectionReason = req.body.rejectionReason;
+      // Keep returnReason for history
     } else if (newStatus === 'cancelled' && req.body.reason) {
       order.cancellationReason = req.body.reason;
     }

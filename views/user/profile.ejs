@@ -343,6 +343,20 @@
           margin-top: 20px;
         }
       }
+      .badge.bg-danger {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  color: white !important;
+}
+
+.badge.bg-info {
+  background: linear-gradient(135deg, #17a2b8, #138496) !important;
+  color: white !important;
+}
+
+.badge.bg-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+  color: white !important;
+}
     </style>
 </head>
 
@@ -506,13 +520,18 @@
                         </strong></td>
                       <td>
                         <%= new Date(order.createdOn).toLocaleDateString('en-IN') %>
-                      </td> <!-- e.g., 26/11/2025 -->
+                      </td> 
                       <td>
-                        <span
-                          class="badge <%= order.status === 'Delivered' ? 'bg-success' : order.status === 'Pending' || order.status === 'Processing' ? 'bg-warning text-dark' : 'bg-secondary' %>">
-                          <%= order.status %>
-                        </span>
-                      </td>
+  <span class="badge <%= 
+    order.status === 'Delivered' ? 'bg-success' : 
+    order.status === 'Cancelled' || order.status === 'Returned' ? 'bg-danger' : 
+    order.status === 'Pending' || order.status === 'Processing' || order.status === 'Return Request' ? 'bg-warning text-dark' : 
+    order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'bg-info text-white' : 
+    'bg-secondary' 
+  %>">
+    <%= order.status %>
+  </span>
+</td>
                       <td><strong>₹<%= order.finalAmount.toFixed(2) %></strong></td>
                       <td>
                         <a href="/orders/<%= order._id %>" class="btn btn-sm btn-primary me-1">

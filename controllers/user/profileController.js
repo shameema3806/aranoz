@@ -414,6 +414,8 @@ const verifyChangepassOtp = async (req,res) =>{
 
 
 const getAddresses = async (req, res) => {
+
+  const redirect = req.query.redirect;
   try {
     let userId;
     if (req.user && req.user._id) {
@@ -426,9 +428,11 @@ const getAddresses = async (req, res) => {
     }
 
     const addressDoc = await Address.findOne({ userId });
+
     const addresses = addressDoc ? addressDoc.address : [];
 
     res.render("manage-address", {
+      redirect,
       user: req.user,
       addresses,
       address: null,
@@ -444,6 +448,7 @@ const getAddresses = async (req, res) => {
 
 const addAddress = async (req, res) => {
   try {
+    console.log(req.query.redirect, "--------------------------------------------------------------------------------------");
     let userId = req.user?._id || req.session?.userId;
     if (!userId) return res.redirect("/login");
 
