@@ -11,7 +11,10 @@ const profileUploads = require('../helpers/profileUploads');
 const wishlistController = require("../controllers/user/wishlistController");
 const checkoutController = require("../controllers/user/checkoutController")
 const orderController = require("../controllers/user/orderController");
+const refferralController = require("../controllers/user/refferralController")
 // const Order = require("../controllers/user/orderContorller");
+const walletController = require('../controllers/user/walletController');
+
 const Order = require("../models/orderSchema");
 
 
@@ -35,6 +38,14 @@ router.get("/auth/google/callback",
     }
     res.redirect('/');
   });
+
+
+//referral 
+// POST /referral/generate-token - Generate referral token URL (user-facing)
+router.post('/referral/generate-token', userAuth, refferralController.generateReferralToken);
+
+// GET /referral/my-referrals - User's referral history
+router.get('/referral/my-referrals', userAuth, refferralController.getMyReferrals);
 
 
 //shop page
@@ -121,43 +132,104 @@ router.get("/checkout", userAuth, checkoutController.loadCheckout);
 
 //order Management 
 router.post("/place-order",userAuth, orderController.placeOrder);
+router.post("/checkout/verify-payment", userAuth, orderController.verifyPayment);
+router.post("/retry-payment", userAuth, orderController.retryPayment);
+
+// router.get('/order-success', userAuth, async (req, res) => {
+//   try {
+//     const orderId = req.query.orderId;
+//     const userId = req.session.user;
+//     if (!orderId) {
+//       return res.redirect('/');
+//     }
+//     const orderDetails = await Order.findOne({ _id: orderId, userId })
+//       .populate('orderedItems.product')
+//       .lean();
+//     if (!orderDetails) {
+//       return res.redirect('/');
+//     }
+//     res.render('order-success', { order: orderDetails });
+//   } catch (error) {
+//     console.error(error);
+//     res.redirect('/');
+//   }
+// });
+// router.get('/order-failure', (req, res) => {
+//   const orderId = req.query.orderId;
+//   res.render('user/order-failure', { orderId });
+// });
+
+
+// Order success page
 router.get('/order-success', userAuth, async (req, res) => {
   try {
     const orderId = req.query.orderId;
     const userId = req.session.user;
+    
     if (!orderId) {
-      return res.redirect('/');
+      return res.redirect('/orders');
     }
+    
     const orderDetails = await Order.findOne({ _id: orderId, userId })
       .populate('orderedItems.product')
       .lean();
+    
     if (!orderDetails) {
-      return res.redirect('/');
+      return res.redirect('/orders');
     }
-    res.render('order-success', { order: orderDetails });
+    
+    const user = await User.findById(userId).lean();
+    res.render('order-success', { order: orderDetails, user });
   } catch (error) {
     console.error(error);
-    res.redirect('/');
+    res.redirect('/orders');
   }
 });
-router.get('/order-failure', (req, res) => {
-  const orderId = req.query.orderId;
-  res.render('user/order-failure', { orderId });
+
+// Order failure page
+router.get('/order-failure', userAuth, async (req, res) => {
+  try {
+    const orderId = req.query.orderId;
+    const userId = req.session.user;
+    
+    if (!orderId) {
+      return res.redirect('/orders');
+    }
+    
+    const orderDetails = await Order.findOne({ _id: orderId, userId })
+      .populate('orderedItems.product')
+      .lean();
+    
+    const user = await User.findById(userId).lean();
+    res.render('order-failure', { order: orderDetails, orderId, user });
+  } catch (error) {
+    console.error(error);
+    res.redirect('/orders');
+  }
 });
-router.get('/orders/:id', userAuth, orderController.viewOrder);
+
 
 // Order listing page
 router.get('/orders', userAuth, orderController.loadOrders);
-// router.get('/orders/search', userAuth, orderController.loadOrders);
 
 // Single order details
+router.get('/orders/:id', userAuth, orderController.viewOrder);
 
 // Cancel /return
 router.post('/orders/:id/cancel', userAuth, orderController.cancelOrder);
 router.post('/orders/:id/return', userAuth, orderController.returnOrder);
 router.get('/orders/:orderId/invoice',userAuth ,orderController.generateInvoice);
 
-router.get('/orders/:id', userAuth, orderController.updateOrderStatus);
+// router.get('/orders/:id', userAuth, orderController.updateOrderStatus);
+router.post('/orders/:orderId/update-status', userAuth, orderController.updateOrderStatus);
+
+//wallet
+router.get('/wallet', userAuth, walletController.loadWallet);
+router.post('/wallet/add-money', userAuth, walletController.addMoneyToWallet);
+router.post('/wallet/verify-payment', userAuth, walletController.verifyWalletPayment);
+router.get('/wallet/balance', userAuth, walletController.getWalletBalance);
+router.post('/wallet/refund/cancel/:orderId', userAuth, walletController.processCancellationRefund);
+
 
 
 module.exports = router;

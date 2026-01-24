@@ -488,6 +488,47 @@
             </div>
           </div>
         </div>
+        <!-- Referral Section -->
+<div class="profile-card">
+  <h2 class="section-header">
+    <i class="fas fa-user-friends"></i>
+    Refer a Friend
+  </h2>
+
+  <p class="text-muted mb-3">
+    Invite your friends and earn exciting coupons when they join using your referral code.
+  </p>
+
+  <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+    
+    <!-- Referral Code Box -->
+    <div 
+      id="referralCodeBox"
+      style="
+        background:#f8f9fa;
+        border:2px dashed #ff3368;
+        padding:15px 20px;
+        border-radius:10px;
+        font-weight:700;
+        font-size:1.2rem;
+        letter-spacing:2px;
+        color:#2d3436;
+      ">
+      <%= user?.referralCode || 'N/A' %>
+    </div>
+
+    <!-- Copy Button -->
+    <button class="profile-btn" style="width:auto;" onclick="copyReferralCode()">
+      <i class="fas fa-copy"></i> Copy Code
+    </button>
+
+  </div>
+
+  <small class="text-muted d-block mt-3">
+    Share this code during signup. You’ll receive a coupon once they complete registration.
+  </small>
+</div>
+
 
         <!-- Orders Section -->
         <div class="profile-card">
@@ -741,6 +782,29 @@
           }
         }
       }
+function copyReferralCode() {
+  const code = document.getElementById('referralCodeBox').innerText;
+
+  if (!code || code === 'N/A' || code.trim() === '') {
+    Swal.fire('Oops!', 'Referral code not available', 'error');
+ 
+  } else if (code.trim().length < 4) {   // ← add this check
+  Swal.fire('Hmm...', 'Looks like an invalid referral code format', 'warning');
+  return;
+}
+
+  navigator.clipboard.writeText(code).then(() => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Copied!',
+      text: 'Referral code copied to clipboard',
+      timer: 1500,
+      showConfirmButton: false,
+      toast: true,
+      position: 'top-end'
+    });
+  });
+}
 
 
     </script>

@@ -108,7 +108,6 @@ const couponSchema = new Schema(
   }
 );
 
-// Pre-save hook: Auto-generate code if empty
 couponSchema.pre('save', function (next) {
   if (!this.code) {
     this.code = `COUPON-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
@@ -121,7 +120,6 @@ couponSchema.pre('save', function (next) {
 });
 
 // Indexes for perf
-couponSchema.index({ code: 1 }, { unique: true });
 couponSchema.index({ expiryDate: 1, isActive: 1 });
 
 const Coupon = mongoose.model('Coupon', couponSchema);

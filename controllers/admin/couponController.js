@@ -1,17 +1,27 @@
-
 const Coupon = require("../../models/couponSchema");
 const { Schema } = require('mongoose');
 const mongoose = require("mongoose");
 const Joi = require('joi'); 
 
-// Validation Schema
-const couponSchema = Joi.object({
+// Validation Schema for Create (expiry in future)
+const createCouponSchema = Joi.object({
   code: Joi.string().trim().optional(),
   discountType: Joi.string().valid('percentage', 'fixed').required(),
   discountValue: Joi.number().min(0).required(),
   minOrderAmount: Joi.number().min(0).default(0),
   maxUses: Joi.number().min(0).allow(null),
   expiryDate: Joi.date().min('now').required(),
+  isActive: Joi.boolean().default(true),
+});
+
+// Validation Schema for Update (allow past expiry)
+const updateCouponSchema = Joi.object({
+  code: Joi.string().trim().optional().allow(''),
+  discountType: Joi.string().valid('percentage', 'fixed').required(),
+  discountValue: Joi.number().min(0).required(),
+  minOrderAmount: Joi.number().min(0).default(0),
+  maxUses: Joi.number().min(0).allow(null),
+  expiryDate: Joi.date().required(),
   isActive: Joi.boolean().default(true),
 });
 
@@ -22,10 +32,15 @@ const getcoupon = async (req, res) => {
     const searchQuery = req.query.search || '';
     const skip = (page - 1) * limit;
 
-    // Build query
-    let query = { isActive: true }; 
+    // Build query - fetch ALL coupons (active/inactive/expired) for full visibility
+    let query = {};
     if (searchQuery) {
-      query.code = { $regex: searchQuery, $options: 'i' };
+      query = { 
+        $or: [
+          { code: { $regex: searchQuery, $options: 'i' } },
+          { discountType: { $regex: searchQuery, $options: 'i' } }
+        ]
+      };
     }
 
     const totalDocs = await Coupon.countDocuments(query);
@@ -62,7 +77,7 @@ const createCoupon = async (req, res) => {
       req.body.code = `COUPON-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     }
 
-    const { error } = couponSchema.validate(req.body);
+    const { error } = createCouponSchema.validate(req.body);
     if (error) {
       console.log('Joi validation error:', error.details[0].message);
       return res.status(400).json({ error: error.details[0].message });
@@ -92,15 +107,22 @@ const createCoupon = async (req, res) => {
   }
 };
 
-// PUT /admin/coupons/:id - Edit
+// PUT /admin/coupon/:id - Edit
 const updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error } = couponSchema.validate(req.body);
+    const { error } = updateCouponSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
     const coupon = await Coupon.findOne({ _id: id, createdBy: req.admin?._id || req.user?._id });
     if (!coupon) return res.status(404).json({ error: 'Coupon not found' });
+
+    // Handle code change uniqueness
+    if (req.body.code && req.body.code.trim() && req.body.code !== coupon.code) {
+      const existing = await Coupon.findOne({ code: req.body.code.trim() });
+      if (existing) return res.status(409).json({ error: 'Coupon code already exists' });
+      coupon.code = req.body.code.trim();
+    }
 
     // Update fields
     Object.assign(coupon, req.body);
@@ -114,34 +136,47 @@ const updateCoupon = async (req, res) => {
   }
 };
 
-// DELETE /admin/coupons/:id - Deactivate
+// DELETE /admin/coupon/:id - Deactivate (bypasses pre-save hooks)
 const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-    const coupon = await Coupon.findOne({ _id: id, createdBy: req.admin?._id || req.user?._id });
+    
+    // Update directly (no pre-save hook triggered)
+    const result = await Coupon.updateOne(
+      { 
+        _id: id, 
+        createdBy: req.admin?._id || req.user?._id  // Ensure ownership
+      },
+      { 
+        isActive: false 
+      }
+    );
 
-    if (!coupon) return res.status(404).json({ error: 'Coupon not found' });
-
-    if (coupon.usedCount > 0) {
-      return res.status(409).json({ 
-        error: 'Coupon has been used. Confirm to deactivate.',
-        canHardDelete: false 
-      });
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Coupon not found' });
     }
 
-    coupon.isActive = false;
-    await coupon.save();
-
-    res.json({ message: 'Coupon deactivated successfully', data: coupon });
+    // Optionally fetch and return the updated coupon for frontend refresh
+    const updatedCoupon = await Coupon.findById(id).populate('createdBy userId');
+    res.json({ message: 'Coupon deactivated successfully', data: updatedCoupon });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 };
 
+
+const getrefferal = async (req,res)=>{
+  try {
+    res.render("referraloffer")
+  } catch (error) {
+    
+  }
+}
 module.exports = {
   getcoupon,
   createCoupon,
   updateCoupon,
   deleteCoupon,
+  getrefferal
 };

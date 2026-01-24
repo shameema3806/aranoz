@@ -11,30 +11,30 @@ const adminRouter = require("./routes/adminRouter")
 db();
 
 
-    
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/public", express.static(path.join(__dirname, "uploads")));
 
 
 
-console.log(__dirname,"this is form dirname");
+console.log(__dirname, "this is form dirname");
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-          res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
-          next();
-        });
+  res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
+  next();
+});
 
 app.use(session({
-  secret:process.env.SESSION_SECRET,
-  resave:false,
-  saveUninitialized:true,
-  cookie:{
-    secure:false,
-    httpOnly:true,
-    maxAge:72*60*60*1000
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 72 * 60 * 60 * 1000
   }
 
 }))
@@ -50,7 +50,7 @@ app.use(passport.session());
 
 app.use('/profile-images', express.static('D:/FIRST PROJECT/aranoz/public/profile-images'));
 
-app.set("view engine","ejs");
+app.set("view engine", "ejs");
 app.set("views", [
   path.join(__dirname, "views/user"),
   path.join(__dirname, "views/admin"),
@@ -68,14 +68,12 @@ app.use((req, res, next) => {
 
 
 
+app.use('/admin', adminRouter);
+app.use("/", userRouter);
 
-app.use("/",userRouter);
-app.use('/admin',adminRouter);
 
-
-const PORT=3000|| process.env.PORT ;
-app.listen(PORT,() =>{
-    console.log("server is running");
+const PORT = 3000 || process.env.PORT;
+app.listen(PORT, () => {
+  console.log("server is running");
 })
 
-module.exports = app;

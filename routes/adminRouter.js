@@ -6,7 +6,9 @@ const categoryController = require("../controllers/admin/categoryController");
 const productController = require("../controllers/admin/productController");
 const upload = require('../helpers/multer');
 const ordersController = require("../controllers/admin/ordersController");
-const couponController = require("../controllers/admin/couponController")
+const couponController = require("../controllers/admin/couponController");
+const referralController = require("../controllers/admin/referralController");
+// const adminReferralController = require("../controllers/admin/referralController");
 const {userAuth,adminAuth} = require("../middlewares/auth");
 
 
@@ -15,8 +17,12 @@ router.get("/pageerror",adminController.pageerror);
 // login Management
 router.get("/login",adminController.loadLogin);
 router.post("/login",adminController.login);
-router.get("/",adminAuth,adminController.loadDashboard);
 router.get("/logout",adminController.logout);
+router.get("/",adminAuth,adminController.loadDashboard);
+router.get("/sales-report",adminAuth,adminController.getSalesReport);
+router.get('/sales-report/download', adminAuth, adminController.downloadSalesReport);
+
+
 
 // user Management
 router.get("/users",adminAuth,userController.userInfo)
@@ -49,14 +55,22 @@ router.post("/products/delete/:id", adminAuth, productController.deleteProduct);
 router.get('/order',adminAuth,ordersController.getAllOrders);
 router.post('/order/:id/status', adminAuth,ordersController.updateOrderStatus);
 
-//coupon Management 
-// router.get("/couponpage",adminAuth,couponController.getcoupon);
-
 // Coupon Management 
 router.get('/coupon', adminAuth, couponController.getcoupon);
 router.post('/coupon', adminAuth, couponController.createCoupon);
 router.put('/coupon/:id', adminAuth, couponController.updateCoupon);
 router.delete('/coupon/:id', adminAuth, couponController.deleteCoupon);
+
+//referal offer
+// GET /admin/referral - View all referrals (main page)
+router.get('/referral', adminAuth,referralController.getReferrals);
+// GET /admin/referral/:id - Get referral details
+router.get('/referral/:id', adminAuth, referralController.getReferralDetails);
+// POST /admin/referral/config - Save configuration
+router.post('/referral/config', adminAuth, referralController.saveConfig);
+// POST /admin/referral/:id/issue-reward - Manually issue reward
+router.post('/referral/:id/issue-reward', adminAuth, referralController.issueReward);
+
 
 //inventory
 router.get("/inventory",adminAuth,ordersController.inventory);

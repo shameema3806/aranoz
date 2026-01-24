@@ -1,27 +1,9 @@
 const User = require("../models/userSchema");
+const crypto = require('crypto');
 
-// const userAuth = (req,res,next)=>{
-
-//     if(req.session.user){
-
-//     User.findById(req.session.user)
-//     .then(data =>{
-//         if(data && !data.isBlocked){
-//             next();
-//         }else{
-//             res.redirect("/login?blocked=true")
-//             console.log("Auth middleware running, req.user:", req.user);
-//         }
-//     })
-//     .catch(error =>{
-//         console.log("Error in user Auth middleware",error);
-//         res.status(500).send("Internal server error")
-//     })
-// }else{
-//     res.redirect("/login")
-// }
-// }
-
+function generateReferralCode() {
+  return crypto.randomBytes(4).toString('hex').toUpperCase();
+}
 
 
 const userAuth = (req, res, next) => {

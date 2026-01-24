@@ -10,6 +10,7 @@ const path = require('path');
 const fs = require('fs');  
 
 
+
 function generateOtp(){
     const digits = "1234567890"
     let otp = "";

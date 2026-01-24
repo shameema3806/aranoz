@@ -47,7 +47,18 @@ const orderSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
   invoiceDate: { type: Date, default: Date.now },
 
-
+  razorpayOrderId: {
+  type: String,
+  default: null
+},
+razorpayPaymentId: {
+  type: String,
+  default: null
+},
+razorpaySignature: {
+  type: String,
+  default: null
+},
   status: {
     type: String,
     required: true,
