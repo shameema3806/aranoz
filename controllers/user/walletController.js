@@ -10,6 +10,10 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
+
+
+
+
 // Load Wallet Page
 const loadWallet = async (req, res) => {
   try {
@@ -55,9 +59,9 @@ const loadWallet = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Load wallet error:', error);
-    res.redirect('/500');
-  }
+    console.error('Add money error:', error);
+    res.json({ success: false, message: "Failed to add money to wallet" });
+}
 };
 
 // Add Money to Wallet
@@ -104,16 +108,17 @@ const addMoneyToWallet = async (req, res) => {
       });
     }
 
-    // Create Razorpay order for wallet recharge
-    const razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(amountNum * 100), // Amount in paise
-      currency: 'INR',
-      receipt: `wallet_${userId}_${Date.now()}`,
-      notes: {
-        userId: userId.toString(),
-        type: 'wallet_recharge'
-      }
-    });
+const shortReceipt = `wlt_${userId.toString().slice(-10)}_${Date.now()}`;
+
+const razorpayOrder = await razorpay.orders.create({
+  amount: Math.round(amountNum * 100), 
+  currency: 'INR',
+  receipt: shortReceipt, // Use the shortened version here
+  notes: {
+    userId: userId.toString(),
+    type: 'wallet_recharge'
+  }
+});
 
     // Get user details
     const user = await User.findById(userId);
@@ -418,5 +423,5 @@ module.exports = {
   refundToWallet,
   getWalletBalance,
   processCancellationRefund,
-  processReturnRefund
+  processReturnRefund,
 };

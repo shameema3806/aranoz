@@ -33,7 +33,7 @@ const walletSchema = new mongoose.Schema({
       default: Date.now
     },
     orderId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: 'Order',
       default: null
     },
@@ -46,7 +46,6 @@ const walletSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster queries
-// walletSchema.index({ userId: 1 });
+
 
 module.exports = mongoose.model('Wallet', walletSchema);

@@ -9,6 +9,7 @@ const bcrypt = require("bcrypt");
 const { render } = require("ejs");
 const { processReferralOnRegister } = require('../user/refferralController');
 const crypto = require("crypto");
+const Coupon = require("../../models/couponSchema");
 
 // Generate referral code
 function generateReferralCode(length = 5) {
@@ -109,61 +110,7 @@ const loadHomepage = async (req, res) => {
   }
 };
 
-// const loadHomepage = async (req, res) => {
-//   try {
-//     const userId = req.session.user;  
-//     const categories = await Category.find({ isListed: true });
 
-//     let productData = await Product.find({
-//       isBlocked: false,
-//       category: { $in: categories.map(category => category._id) },
-//       quantity: { $gt: 0 }
-//     });
-
-//     productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
-//     // productData = productData.slice(0,4);
-
-
-//     // Fetch featured offers
-//     const featuredOffers = await Product.find({ 
-//       isBlocked: false, 
-//       quantity: { $gt: 0 },
-//       $or: [ 
-//         { offer: { $gt: 0 } }, 
-//         { category: { $exists: true, $ne: null } }  
-//       ] 
-//     })
-//     .populate('category')
-//     .limit(4)
-//     .sort({ createdAt: -1 })
-//     .lean();
-
-//     featuredOffers.forEach(product => {
-//       const now = new Date();
-//       const productOffer = (product.offer && (!product.offerExpiry || product.offerExpiry > now)) ? product.offer : 0;
-//       const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now) 
-//         ? product.category.offer 
-//         : 0;
-//       const effectiveOffer = Math.max(productOffer, categoryOffer);
-//       product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;
-//       product.effectiveOfferPrice = effectiveOffer > 0 
-//         ? (product.salePrice * (1 - effectiveOffer / 100)).toFixed(2) 
-//         : null;
-//     });
-
-//     res.set("Cache-Control", "no-store");
-
-//     if (userId) {
-//       const userData = await User.findById(userId);
-//       res.render("home", { user: userData, products: productData ,featuredOffers});
-//     } else {
-//       res.render("home", { products: productData ,featuredOffers}); 
-//     }
-//   } catch (error) {
-//     console.log("Home page not found:", error); 
-//     res.status(500).send("Server error");
-//   }
-// };
 
 
 const loadSignup = async (req, res) => {
@@ -182,151 +129,6 @@ const loadSignup = async (req, res) => {
     res.status(500).send("Server Error");
   }
 }
-
-
-
-const loadShopping = async (req, res) => {
-  try {
-
-    const categories = await Category.find({ isListed: true }).lean();
-
-    let selectedCategory = null;
-    if (req.query.category) {
-      const category = await Category.findById(req.query.category).lean();
-      if (!category || !category.isListed) {
-        return res.redirect('/shop');
-      }
-      selectedCategory = req.query.category;
-    }
-
-    const filter = {
-      isBlocked: false,
-      quantity: { $gt: 0 },
-      category: { $in: categories.map(cat => cat._id) },
-    };
-
-    if (selectedCategory) {
-      filter.category = selectedCategory;
-    }
-
-    if (req.query.category) {
-      filter.category = req.query.category;
-    }
-
-    if (req.query.priceRange) {
-      switch (req.query.priceRange) {
-        case 'under5000':
-          filter.salePrice = { $lt: 5000 };
-          break;
-        case '5000to10000':
-          filter.salePrice = { $gte: 5000, $lte: 10000 };
-          break;
-        case 'above10000':
-          filter.salePrice = { $gt: 10000 };
-          break;
-        case "above20000":
-          filter.salePrice = { $gt: 20000 };
-      }
-    }
-
-    if (req.query.search && req.query.search.trim()) {
-      filter.productName = {
-        $regex: req.query.search.trim(),
-        $options: 'i',
-      };
-    }
-
-
-    let sort = { createdAt: -1 };
-    switch (req.query.sort) {
-      case 'priceLow':
-        sort = { salePrice: 1 };
-        break;
-      case 'priceHigh':
-        sort = { salePrice: -1 };
-        break;
-      case 'az':
-        sort = { productName: 1 };
-        break;
-      case 'za':
-        sort = { productName: -1 };
-        break;
-      case 'new':
-        sort = { createdAt: -1 };
-        break;
-    }
-
-
-    const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = (page - 1) * limit;
-    const totalProducts = await Product.countDocuments(filter);
-    const products = await Product.find(filter)
-      .populate('category')
-      .collation({ locale: 'en', strength: 2 })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-
-    const processedProducts = products.map(product => {
-      const now = new Date();  // NEW: Current date for expiry checks
-      const productOffer = (product.offer && (!product.offerExpiry || product.offerExpiry > now)) ? product.offer : 0;  // NEW: Product-level offer with expiry
-      const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now)
-        ? product.category.offer
-        : 0;  // NEW: Category-level offer with expiry (requires populate)
-      const effectiveOffer = Math.max(productOffer, categoryOffer);  // NEW: Max of both
-      const effectiveOfferPrice = effectiveOffer > 0
-        ? Math.round(product.salePrice * (1 - effectiveOffer / 100))  // NEW: Computed price if offer valid
-        : null;
-
-      product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;  // NEW: Set only if >0
-      product.effectiveOfferPrice = effectiveOfferPrice;  // NEW: Attach computed price
-
-      return product;
-    });
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    const buildUrl = (newParams = {}) => {
-      const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
-      for (const [k, v] of url.searchParams.entries()) {
-        if (!newParams[k]) newParams[k] = v;
-      }
-      Object.entries(newParams).forEach(([k, v]) => {
-        if (v) url.searchParams.set(k, v);
-        else url.searchParams.delete(k);
-      });
-      return url.pathname + url.search;
-    };
-
-    let cartCount = 0;
-    if (req.user) {
-      const cart = await Cart.findOne({ userId: req.user._id });
-      cartCount = cart ? cart.items.length : 0;
-    }
-
-    res.render('shop', {
-      categories,
-      products: processedProducts,
-      // selectedCategory: req.query.category || null,
-      selectedCategory,
-      selectedPriceRange: req.query.priceRange || null,
-      searchQuery: req.query.search || '',
-      sort: req.query.sort || '',
-      user: req.session.user ? await User.findById(req.session.user).lean() : null,
-      page,
-      totalPages,
-      totalProducts,
-      buildUrl,
-      cartCount
-    });
-  } catch (error) {
-    console.error('loadShopping error:', error);
-    res.status(500).send('Server Error');
-  }
-};
-
 
 const pageNotFound = async (req, res) => {
   try {
@@ -472,54 +274,6 @@ const showVerifyOtpPage = (req, res) => {
 };
 
 
-// const verifyOtp = async (req, res) => {
-//   try {
-//     const { otp } = req.body;
-//     console.log(otp);
-
-//     if (!otp || otp.length !== 6) {
-//       return res.status(400).json({ success: false, message: "OTP must be exactly 6 characters" });
-//     }
-
-
-//     if (otp === req.session.userOtp) {
-//       const user = req.session.userData
-//       const passwordHash = await securePasswrod(user.password);
-
-
-//       const referralCodeGenerated = generateReferralCode();
-
-
-//       const newUser = await User.create({
-//         name: user.name,
-//         email: user.email,
-//         phone: user.phone,
-//         password: passwordHash,
-//         referalCode: referralCodeGenerated,
-//       });
-
-//       await processReferralOnRegister(
-//         newUser._id,
-//         user.referralToken,
-//         user.referralCode
-//       );
-
-//       req.session.user = {
-//         _id: newUser._id,
-//         referalCode: referralCodeGenerated
-//       };
-
-//       res.json({ success: true, redirectUrl: "/" })
-
-//     } else {
-//       res.status(400).json({ success: false, message: "Invalid OTP, Please try again" })
-//     }
-
-//   } catch (error) {
-//     console.error("Error Verifying OTP", error);
-//     res.status(500).json({ success: false, message: "An error occured" })
-//   }
-// }
 
 const verifyOtp = async (req, res) => {
   try {
@@ -542,20 +296,21 @@ const verifyOtp = async (req, res) => {
         email: userData.email,
         phone: userData.phone,
         password: passwordHash,
-        referalCode: referralCodeGenerated, // saved in DB
+        referralCode: referralCodeGenerated, 
       });
 
-      // Process referral if user used a referral code or token
-      await processReferralOnRegister(
-        newUser._id,
-        userData.referralToken,
-        userData.referralCode // user-entered referral code
-      );
+     if (userData.referralCode) {
+         await processReferralOnRegister(
+            newUser._id,
+            userData.referralToken || null,
+            userData.referralCode 
+         );
+      }
 
       // Save user info in session
       req.session.user = {
         _id: newUser._id,
-        referalCode: referralCodeGenerated
+        referralCode: referralCodeGenerated
       };
 
       return res.json({ success: true, redirectUrl: "/" });
@@ -567,7 +322,6 @@ const verifyOtp = async (req, res) => {
     return res.status(500).json({ success: false, message: "An error occurred" });
   }
 };
-
 
 const resendOtp = async (req, res) => {
   try {
@@ -593,7 +347,6 @@ const resendOtp = async (req, res) => {
   }
 }
 
-
 const loadLogin = async (req, res) => {
   try {
     if (!req.session.user) {
@@ -607,8 +360,6 @@ const loadLogin = async (req, res) => {
     res.redirect("/pageNotFound")
   }
 }
-
-
 
 const login = async (req, res) => {
   try {
@@ -643,7 +394,6 @@ const login = async (req, res) => {
   }
 }
 
-
 const logout = async (req, res) => {
   try {
     req.session.user = null;
@@ -655,20 +405,15 @@ const logout = async (req, res) => {
   }
 }
 
-
-
-
-
 module.exports = {
   loadHomepage,
   pageNotFound,
   loadSignup,
+  showVerifyOtpPage,
   Signup,
   verifyOtp,
   resendOtp,
   loadLogin,
   login,
   logout,
-  loadShopping,
-
 };

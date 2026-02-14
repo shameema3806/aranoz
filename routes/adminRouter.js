@@ -19,7 +19,6 @@ router.get("/login",adminController.loadLogin);
 router.post("/login",adminController.login);
 router.get("/logout",adminController.logout);
 router.get("/",adminAuth,adminController.loadDashboard);
-router.get("/sales-report",adminAuth,adminController.getSalesReport);
 router.get('/sales-report/download', adminAuth, adminController.downloadSalesReport);
 
 
@@ -45,8 +44,8 @@ router.post('/addProducts', adminAuth, upload.array('productImages', 4), product
 router.get('/products',adminAuth, productController.getAllProducts);
 router.post('/addProductOffer/:id', adminAuth, productController.addProductOffer);
 router.delete('/removeProductOffer/:id', adminAuth, productController.removeProductOffer);
-router.get('/blockProduct', adminAuth, productController.blockProduct);
-router.get('/unblockProduct', adminAuth, productController.unblockProduct);
+router.patch('/blockProduct', adminAuth, productController.blockProduct);
+router.patch('/unblockProduct', adminAuth, productController.unblockProduct);
 router.get('/editProduct', adminAuth, productController.getEditProduct);
 router.post('/editProduct/:id', adminAuth,upload.array('productImages', 4), productController.updateProduct);
 router.post("/products/delete/:id", adminAuth, productController.deleteProduct);

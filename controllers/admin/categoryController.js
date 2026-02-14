@@ -93,7 +93,7 @@ const addCategoryOffer = async (req, res) => {
     const { id } = req.params;
     const { offerPercent } = req.body;
 
-    if (!offerPercent || isNaN(offerPercent) || offerPercent < 0 || offerPercent > 100) {
+    if (!offerPercent || isNaN(offerPercent) || offerPercent < 1 || offerPercent > 100) {
       return res.status(400).json({ error: "Invalid offer percent" });
     }
 
@@ -126,17 +126,17 @@ const removeCategoryOffer = async (req, res) => {
     const category = await Category.findById(id);
     if (!category) return res.status(404).json({ error: "Category not found" });
 
-    category.offer = undefined;
-    await category.save();
+    
+    await Category.updateOne(
+      { _id: id },
+      { $unset: { offer: 1 } }
+    );
 
-    const savedCategory = await Category.findById(id);
-    console.log('Category offer removed:', savedCategory.offer);  // Should log undefined
+    return res.status(200).json({
+      success: true,
+      message: "Category offer removed"
+    });
 
-    if (savedCategory.offer !== undefined) {
-      throw new Error('Remove failed: Offer not cleared');
-    }
-
-    return res.status(200).json({ success: true, message: "Category offer removed" });
   } catch (error) {
     console.error("Error removing category offer:", error);
     return res.status(500).json({ error: "Server error" });
@@ -166,7 +166,6 @@ const removeCategoryOffer = async (req, res) => {
 
 
 
-// GET – show the old edit page (keep it, it’s a fallback)
 const getEditCategory = async (req, res) => {
   try {
     const id = req.query.id;

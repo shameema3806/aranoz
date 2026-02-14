@@ -228,8 +228,7 @@ const blockProduct = async (req, res) => {
 
     await Product.findByIdAndUpdate(id, { isBlocked: true });
 
-    // If AJAX request → return JSON, else redirect back
-    if (req.xhr) {
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       return res.status(200).json({ success: true, message: "Product blocked" });
     } else {
       return res.redirect('/admin/products');
@@ -248,7 +247,7 @@ const unblockProduct = async (req, res) => {
 
     await Product.findByIdAndUpdate(id, { isBlocked: false });
 
-    if (req.xhr) {
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       return res.status(200).json({ success: true, message: "Product unblocked" });
     } else {
       return res.redirect('/admin/products');
@@ -258,6 +257,7 @@ const unblockProduct = async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 };
+
 
 
 

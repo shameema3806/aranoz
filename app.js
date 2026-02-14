@@ -7,25 +7,34 @@ const env = require("dotenv").config();
 const db = require("./config/db");
 const userRouter = require("./routes/userRouter");
 const flash = require('connect-flash');
-const adminRouter = require("./routes/adminRouter")
+const adminRouter = require("./routes/adminRouter");
 db();
 
 
-
 app.use(express.static(path.join(__dirname, "public")));
-
 app.use("/public", express.static(path.join(__dirname, "uploads")));
 
+app.use('/profile-images', express.static(path.join(__dirname, 'public/profile-images')));
 
-
-console.log(__dirname, "this is form dirname");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://dcad7fb668c6.ngrok-free.app'
+  ];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   next();
 });
+
+// app.use((req, res, next) => {
+//   res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
+//   next();
+// });
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -38,9 +47,10 @@ app.use(session({
   }
 
 }))
+
 app.use(flash());
 app.use((req, res, next) => {
-  res.locals.msg1 = req.flash('error'); // Passport failureFlash stores messages in 'error'
+  res.locals.msg1 = req.flash('error'); 
   next();
 });
 
@@ -48,7 +58,6 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/profile-images', express.static('D:/FIRST PROJECT/aranoz/public/profile-images'));
 
 app.set("view engine", "ejs");
 app.set("views", [
@@ -59,21 +68,19 @@ app.set("views", [
 ]);
 
 console.log("Using views path:", app.get("views"));
-// app.use(express.static(path.join(__dirname,"public")));
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user ? req.session.userData : null;
   next();
 });
 
-
-
 app.use('/admin', adminRouter);
 app.use("/", userRouter);
 
 
-const PORT = 3000 || process.env.PORT;
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log("server is running");
-})
+  console.log(`Server is running on port ${PORT}`);
+});
 

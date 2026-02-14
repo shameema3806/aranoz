@@ -11,10 +11,13 @@ const profileUploads = require('../helpers/profileUploads');
 const wishlistController = require("../controllers/user/wishlistController");
 const checkoutController = require("../controllers/user/checkoutController")
 const orderController = require("../controllers/user/orderController");
+const paymentController = require("../controllers/user/paymentController");
+const profileextandcode = require("../controllers/user/profileextandcode");
 const refferralController = require("../controllers/user/refferralController")
+const shopController = require("../controllers/user/shopController");
 // const Order = require("../controllers/user/orderContorller");
 const walletController = require('../controllers/user/walletController');
-
+const User = require("../models/userSchema");
 const Order = require("../models/orderSchema");
 
 
@@ -49,7 +52,7 @@ router.get('/referral/my-referrals', userAuth, refferralController.getMyReferral
 
 
 //shop page
-router.get("/shop", userAuth, userController.loadShopping);
+router.get("/shop", userAuth, shopController.loadShopping);
 
 //product management
 router.get("/productDetail", userAuth, productController.productDetail);
@@ -96,21 +99,21 @@ router.get("/editprofile", userAuth, profileController.editprofile);
 router.post('/updateprofile', userAuth, profileUploads.single('profileImage'), profileController.updateProfile);
 
 
-router.get("/change-email", userAuth, profileController.changeEmail);
-router.post("/change-email", userAuth, profileController.changeEmailvalid);
-router.post("/verify-email-otp", userAuth, profileController.verifyEmailOtp);
-router.post("/update-email", userAuth, profileController.updateEmail);
+router.get("/change-email", userAuth, profileextandcode.changeEmail);
+router.post("/change-email", userAuth, profileextandcode.changeEmailvalid);
+router.post("/verify-email-otp", userAuth, profileextandcode.verifyEmailOtp);
+router.post("/update-email", userAuth, profileextandcode.updateEmail);
 
-router.get("/change-password", userAuth, profileController.changePassword);
-router.post("/change-password", userAuth, profileController.changepasswordvalid);
-router.post("/verify-changepassword-otp", userAuth, profileController.verifyChangepassOtp);
+router.get("/change-password", userAuth, profileextandcode.changePassword);
+router.post("/change-password", userAuth, profileextandcode.changepasswordvalid);
+router.post("/verify-changepassword-otp", userAuth, profileextandcode.verifyChangepassOtp);
 
 //address Management
-router.get("/addresses", userAuth, profileController.getAddresses);
-router.post("/addresses/add", userAuth, profileController.addAddress);
-router.get("/addresses/edit/:id", userAuth, profileController.getEditAddress);
-router.post("/addresses/edit/:id", userAuth, profileController.updateAddress);
-router.post("/addresses/delete/:id", userAuth, profileController.deleteAddress);
+router.get("/addresses", userAuth, profileextandcode.getAddresses);
+router.post("/addresses/add", userAuth, profileextandcode.addAddress);
+router.get("/addresses/edit/:id", userAuth, profileextandcode.getEditAddress);
+router.post("/addresses/edit/:id", userAuth, profileextandcode.updateAddress);
+router.post("/addresses/delete/:id", userAuth, profileextandcode.deleteAddress);
 // router.get("/product/:id", profileController.loadProductDetails);
 router.post("/forgot-password/resend-otp", profileController.resendsOtp);
 
@@ -130,10 +133,15 @@ router.post('/wishlist/remove', userAuth, wishlistController.removeFromWishlist)
 //checkout Management
 router.get("/checkout", userAuth, checkoutController.loadCheckout);
 
+// Coupon routes
+router.get('/get-available-coupons', userAuth,checkoutController.getAvailableCoupons);
+router.post('/apply-coupon', userAuth, checkoutController.applyCoupon);
+router.post('/remove-coupon', userAuth, checkoutController.removeCoupon);
+
 //order Management 
 router.post("/place-order",userAuth, orderController.placeOrder);
-router.post("/checkout/verify-payment", userAuth, orderController.verifyPayment);
-router.post("/retry-payment", userAuth, orderController.retryPayment);
+router.post("/checkout/verify-payment", userAuth, paymentController.verifyPayment);
+router.post("/retry-payment", userAuth, paymentController.retryPayment);
 
 // router.get('/order-success', userAuth, async (req, res) => {
 //   try {
@@ -218,7 +226,7 @@ router.get('/orders/:id', userAuth, orderController.viewOrder);
 // Cancel /return
 router.post('/orders/:id/cancel', userAuth, orderController.cancelOrder);
 router.post('/orders/:id/return', userAuth, orderController.returnOrder);
-router.get('/orders/:orderId/invoice',userAuth ,orderController.generateInvoice);
+router.get('/orders/:orderId/invoice',userAuth ,paymentController.generateInvoice);
 
 // router.get('/orders/:id', userAuth, orderController.updateOrderStatus);
 router.post('/orders/:orderId/update-status', userAuth, orderController.updateOrderStatus);

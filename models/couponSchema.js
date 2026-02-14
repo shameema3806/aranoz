@@ -1,3 +1,88 @@
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+const couponSchema = new mongoose.Schema({
+  code: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    uppercase: true,
+    minlength: 4,
+    maxlength: 20,
+  },
+  couponType: {
+    type: String,
+    enum: ["regular", "referral"],
+    default: "regular"
+  }
+  ,
+  discountType: {
+    type: String,
+    required: true,
+    enum: ['percentage', 'fixed'],
+  },
+
+  discountValue: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+
+  minCartValue: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0,
+  },
+
+  maxDiscount: {
+    type: Number,
+    min: 0,
+    default: null,           // null = unlimited
+  },
+
+  usedCount: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+
+  expiryDate: {
+    type: Date,
+    required: true,
+  },
+
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: false // It's false because admin coupons don't need a userId
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'Admin',
+    required: false,
+  },
+
+  usedBy: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  }],
+
+}, {
+  timestamps: true,
+});
+
+couponSchema.index({ isActive: 1, expiryDate: 1 });
+
+const Coupon = mongoose.model('Coupon', couponSchema);
+module.exports = Coupon;
+
+
 // const mongoose = require('mongoose');
 // const {Schema} = mongoose;
 
@@ -5,24 +90,24 @@
 //     name:{
 //         type:String,
 //         required:true,
-//         unique:true 
+//         unique:true
 //      },
 //      createdOn:{
 //         type:Date,
 //         default:Date.now,
-//         required:true 
+//         required:true
 //      },
 //      expireOn:{
 //         type:Date,
-//         required:true 
+//         required:true
 //      },
 //      offerPrice:{
 //         type:Number,
-//         required:true 
+//         required:true
 //      },
 //      minimumPrice:{
-//         type:Numberr,
-//         required:true 
+//         type:Number,
+//         required:true
 //      },
 //      isList:{
 //         tyep:Boolean,
@@ -37,90 +122,3 @@
 
 // const Coupon = mongoose.model("Coupon",couponSchema);
 // module.exports = Coupon;
-
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
-
-const couponSchema = new Schema(
-  {
-    code: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    discountType: {
-      type: String,
-      enum: ['percentage', 'fixed'],
-      required: true,
-    },
-    discountValue: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    minOrderAmount: {
-      type: Number,
-      required: false,
-      default: 0,
-      min: 0,
-    },
-    maxUses: {
-      type: Number,
-      required: false,
-      default: null, // null = unlimited
-      min: 0,
-    },
-    usedCount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    expiryDate: {
-      type: Date,
-      required: true,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'User', 
-      required: false, 
-    },
-    userId: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }], 
-    applicableTo: [{
-      type: Schema.Types.ObjectId,
-      refPath: 'applicableToModel', 
-    }],
-    applicableToModel: {
-      type: String,
-      enum: ['Product', 'Category'],
-      default: null,
-    },
-  },
-  {
-    timestamps: true, 
-  }
-);
-
-couponSchema.pre('save', function (next) {
-  if (!this.code) {
-    this.code = `COUPON-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-  }
-  // Validate expiry > now
-  if (this.expiryDate <= new Date()) {
-    return next(new Error('Expiry date must be in the future'));
-  }
-  next();
-});
-
-// Indexes for perf
-couponSchema.index({ expiryDate: 1, isActive: 1 });
-
-const Coupon = mongoose.model('Coupon', couponSchema);
-module.exports = Coupon;

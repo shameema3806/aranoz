@@ -472,19 +472,18 @@
               </h2>
               <div class="wallet-balance">
                 <i class="fas fa-coins"></i>
-                Balance: <span id="walletBalance">₹1,250.00</span>
-              </div>
+<div class="balance-amount">
+                        ₹<%= walletBalance ? walletBalance.toFixed(2) : '0.00' %>
+                    </div>              </div>
               <p class="text-muted mb-0">Use wallet balance for faster checkout</p>
             </div>
 
             <div class="col-md-5 d-flex flex-column align-items-md-end mt-3 mt-md-0">
-              <button class="profile-btn mb-2" onclick="addMoney()" style="width: auto;">
-                <i class="fas fa-plus-circle"></i> Add Money
-              </button>
-              <button class="profile-btn" onclick="viewTransactions()"
-                style="width: auto; background: white; color: #ff3368; border: 2px solid #ff3368;">
-                <i class="fas fa-history"></i> View Transactions
-              </button>
+              <a href="/wallet" class="profile-btn"
+   style="width: auto; background: white; color: #ff3368; border: 2px solid #ff3368; display: inline-block; padding: 8px 16px; text-decoration: none;">
+  <i class="fas fa-history"></i> View Transactions
+</a>
+
             </div>
           </div>
         </div>
@@ -529,6 +528,43 @@
   </small>
 </div>
 
+
+
+<div class="profile-card">
+    <h2 class="section-header">
+        <i class="fas fa-gift"></i> Your Referral Coupons
+    </h2>
+    
+    <div class="row">
+        <% if (coupons && coupons.length > 0) { %>
+            <% coupons.forEach(coupon => { %>
+                <div class="col-md-6 mb-3">
+                    <div class="coupon-card p-3 border rounded shadow-sm" style="border-left: 5px solid #ff3368 !important;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1 fw-bold text-dark"><%= coupon.code %></h5>
+                                <p class="mb-0 text-muted small">
+                                    <%= coupon.discountValue %><%= coupon.discountType === 'percentage' ? '%' : '₹' %> OFF
+                                </p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger" onclick="copyToClipboard('<%= coupon.code %>')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2 small text-muted">
+                            Expires: <%= new Date(coupon.expiryDate).toLocaleDateString() %>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-percentage"></i>
+                <p>No rewards yet. Share your code to earn!</p>
+            </div>
+        <% } %>
+    </div>
+</div>
 
         <!-- Orders Section -->
         <div class="profile-card">
@@ -615,50 +651,65 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
     <script>
       function showEditProfile() {
         window.location.href = "/editprofile";
       }
 
-      function addMoney() {
-        Swal.fire({
-          title: "Add Money to Wallet",
-          input: "number",
-          inputLabel: "Enter amount to add (₹)",
-          inputAttributes: { min: 1 },
-          showCancelButton: true,
-          confirmButtonText: "Add",
-          confirmButtonColor: '#ff3368',
-          cancelButtonColor: '#6c757d',
-          preConfirm: (amount) => {
-            if (!amount || amount <= 0) {
-              Swal.showValidationMessage("Please enter a valid amount");
-              return false;
-            }
-            return amount;
-          }
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const amount = parseFloat(result.value);
-            const balanceElem = document.getElementById("walletBalance");
-            const currentBalance = parseFloat(balanceElem.textContent.replace("₹", "").replace(",", ""));
-            const newBalance = currentBalance + amount;
-            balanceElem.textContent = "₹" + newBalance.toFixed(2);
+     
+async function addMoney() {
+    const { value: amount } = await Swal.fire({
+        title: "Add Money to Wallet",
+        input: "number",
+        inputLabel: "Enter amount (₹)",
+        showCancelButton: true,
+        confirmButtonColor: '#ff3368'
+    });
 
-            Swal.fire({
-              icon: "success",
-              title: "Money Added!",
-              text: `₹${amount.toFixed(2)} added to your wallet.`,
-              timer: 1500,
-              showConfirmButton: false,
-              background: '#fff5f8',
-              color: '#2d3436',
-              iconColor: '#ff3368'
+    if (amount && amount > 0) {
+        try {
+            // 1. Create order on your backend
+            const response = await fetch('/add-to-wallet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount })
             });
-          }
-        });
-      }
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message);
+
+            // 2. Open Razorpay Checkout
+            const options = {
+                key: data.key,
+                amount: data.amount * 100,
+                currency: data.currency,
+                order_id: data.razorpayOrderId,
+                handler: async function (response) {
+                    // 3. Verify payment on backend
+                    const verifyRes = await fetch('/verify-wallet-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ...response,
+                            amount: data.amount
+                        })
+                    });
+                    const verifyData = await verifyRes.json();
+                    if(verifyData.success) {
+                        Swal.fire("Success", "Money added!", "success").then(() => location.reload());
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        } catch (err) {
+            Swal.fire("Error", err.message, "error");
+        }
+    }
+}
 
       function viewTransactions() {
         Swal.fire({
@@ -809,6 +860,20 @@ function copyReferralCode() {
 
     </script>
 
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Coupon code copied!',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    });
+}
+</script>
 </body>
 
 </html>

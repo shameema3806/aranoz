@@ -53,6 +53,28 @@
     .custom{
       padding: 2px 33px 50px;
     }
+    .main-content {
+    overflow-x: hidden; /* Prevents horizontal shifts */
+    position: relative;
+    min-height: 100vh;
+}
+
+.detail-card {
+    overflow: hidden; 
+    word-wrap: break-word;
+}
+.btn-download:active, 
+.btn-download:focus,
+.btn-action:active {
+    transform: translateY(0) !important; /* Reset transform on click */
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.1) !important;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
     .page-title {
       color: #2d3436;
       font-weight: 700;
@@ -71,7 +93,8 @@
       transition: all 0.3s ease;
       border: 2px solid transparent;
       position: relative;
-      overflow: hidden;
+      /* overflow: hidden; */
+      word-wrap: break-word;
     }
     .detail-card::before {
       content: '';
@@ -381,7 +404,7 @@
     .btn-outline-warning:hover {
       background: #ffc107;
       color: #2d3436;
-      box-shadow: 0 51px 20px rgba(255, 193, 7, 0.3);
+      box-shadow: 0 5px 20px rgba(255, 193, 7, 0.3);
     }
     .btn-outline-danger {
       border-color: #dc3545;
@@ -403,6 +426,7 @@
       }
       .detail-card {
         padding: 20px;
+        
       }
       .item-card {
         flex-direction: column;
@@ -648,9 +672,7 @@
                 <p style="color: #ff3368; font-weight: 700; font-size: 1.3rem;">₹<%= order.finalAmount.toFixed(2) %></p>
               </div>
             </div>
-            <!-- <a href="/orders/<%= order._id %>/invoice" class="btn-download">
-              <i class="fas fa-download"></i> Download Invoice
-            </a> -->
+            
             <a href="/orders/<%= order._id %>/invoice" target="_blank" class="btn-download">
   <i class="fas fa-download"></i> Download Invoice
 </a>
@@ -688,7 +710,7 @@
         confirmButtonText: 'Yes, Cancel Order',
         cancelButtonText: 'No, Keep Order'
       });
-      if (reason !== undefined) { // Fixed: Use 'reason' instead of 'value'
+      if (reason !== undefined) { 
         try {
           const response = await fetch(`/orders/${orderId}/cancel`, {
             method: 'POST',

@@ -107,6 +107,7 @@ const userSchema = new Schema({
         referee_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         referralCode: String,
         method: String,
+        rewardAmount: { type: Number, default: 0 },
         coupon_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
         created_at: { type: Date, default: Date.now }
     }]
@@ -135,7 +136,13 @@ const userSchema = new Schema({
 })
 userSchema.index({ "referrals.created_at": -1 });
 
-
+// generate a unique referral code
+userSchema.pre('save', function (next) {
+    if (!this.referralCode) {
+        this.referralCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    }
+    next();
+});
 
 const User = mongoose.model("User", userSchema);
 

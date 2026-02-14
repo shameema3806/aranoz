@@ -30,9 +30,9 @@ const getCart = async (req, res) => {
       const prod = item.productId;
       return prod && !prod.isBlocked; 
     });
+
     if (cart.items.length < initialItemsCount) {
       await cart.save(); 
-      console.log(`Removed ${initialItemsCount - cart.items.length} blocked items from cart for user: ${userId}`);
     }
 
     const now = new Date();  
@@ -47,27 +47,44 @@ const getCart = async (req, res) => {
       const effectiveOfferPrice = effectiveOffer > 0 ? Math.round(prod.salePrice * (1 - effectiveOffer / 100)) : null;
 
       const currentPrice = effectiveOfferPrice || (item.price || prod.salePrice);
-      const currentTotal = currentPrice * item.quantity;
+    //   const currentTotal = currentPrice * item.quantity;
 
-      const mappedItem = {
-        _id: prod._id?.toString() || '',
-        ...(prod._doc || {}),  
+    //   const mappedItem = {
+    //     _id: prod._id?.toString() || '',
+    //     ...(prod._doc || {}),  
+    //     price: currentPrice,  
+    //     quantity: item.quantity || 1,
+    //     total: currentTotal, 
+    //     stock: prod.quantity || 100,
+    //     effectiveOffer: effectiveOffer > 0 ? effectiveOffer : null,
+    //     effectiveOfferPrice: effectiveOfferPrice,
+    //   };
+    //   return mappedItem;
+    // }).filter(Boolean);  
+    return {
+        _id: prod._id.toString(),
+        productName: prod.productName,
+        productImage: prod.productImage,
+        salePrice: prod.salePrice,
         price: currentPrice,  
-        quantity: item.quantity || 1,
-        total: currentTotal, 
-        stock: prod.quantity || 100,
+        quantity: item.quantity,
+        total: currentPrice * item.quantity,
+        stock: prod.quantity, // Actual stock
+        isListed: prod.isListed, // Pass this to UI if you want to show a "No longer listed" badge
+        hasStock: prod.quantity >= item.quantity, // Validation for checkout
         effectiveOffer: effectiveOffer > 0 ? effectiveOffer : null,
-        effectiveOfferPrice: effectiveOfferPrice,
       };
-      return mappedItem;
-    }).filter(Boolean);  
+    }).filter(Boolean);
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
 
+    const canCheckout = cartItems.every(item => item.hasStock);
+     
     res.render('cart', {
       user: req.user,
       cartItems,
-      subtotal
+      subtotal,
+      canCheckout
     });
   } catch (error) {
     console.log("Error in getCart:", error);
@@ -198,6 +215,8 @@ const updateCart = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
+    //  Blocked products are removed immediately. 
+    // Unlisted products
     if (product.isBlocked) {
       const cart = await Cart.findOne({ userId });
       if (cart) {
@@ -289,6 +308,7 @@ const updateCart = async (req, res) => {
       return;
     }
 
+    // STOCK VALIDATION: This ensures that even unlisted products cannot exceed available inventory
     if (newQty > product.quantity) {  
       console.log(`Stock exceeded: Requested ${newQty}, Available ${product.quantity}`);
       if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
@@ -336,7 +356,6 @@ const updateCart = async (req, res) => {
           return {
             _id: prod?._id?.toString() || stringProductId,  
             totalPrice: currentTotal,
-            //  other fields if needed
           };
         } catch (mapError) {
           console.error(`Map error for item ${index}:`, mapError);  
@@ -370,7 +389,6 @@ const updateCart = async (req, res) => {
     res.redirect("/pageNotFound");
   }
 };
-
 
 
 const removeFromCart = async (req, res) => {

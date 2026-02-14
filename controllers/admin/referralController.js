@@ -4,6 +4,7 @@ const Coupon = require("../../models/couponSchema");
 const ReferralConfig = require("../../models/referralConfigSchema"); // Assuming this schema exists as per your code
 const Joi = require('joi');
 const crypto = require('crypto');
+const Wallet = require("../../models/walletSchema");
 
 // Validation schemas
 const configSchema = Joi.object({
@@ -21,7 +22,7 @@ const configSchema = Joi.object({
 const getReferrals = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 5;
     const searchQuery = req.query.search || '';
     const skip = (page - 1) * limit;
 

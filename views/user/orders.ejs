@@ -423,6 +423,34 @@
                     class="text-decoration-none fw-bold" style="color: #ff3368;">Start shopping!</a></p>
             </div>
             <% } %>
+            <% if (totalPages > 1) { %>
+  <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+    <ul class="pagination">
+      <% if (currentPage > 1) { %>
+        <li class="page-item">
+          <a class="page-link" href="/orders?page=<%= currentPage - 1 %><%= searchQuery ? '&q=' + searchQuery : '' %>" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+      <% } %>
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+          <a class="page-link" href="/orders?page=<%= i %><%= searchQuery ? '&q=' + searchQuery : '' %>"><%= i %></a>
+        </li>
+      <% } %>
+      <% if (currentPage < totalPages) { %>
+        <li class="page-item">
+          <a class="page-link" href="/orders?page=<%= currentPage + 1 %><%= searchQuery ? '&q=' + searchQuery : '' %>" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      <% } %>
+    </ul>
+  </nav>
+<% } %>
+
+
+
       </div>
     </main>
     <%- include("../partials/user/footer") %>

@@ -250,69 +250,7 @@ order.statusHistory.push({
 };
 
 
-// const inventory = async (req, res) => {
-//     try {
-//         const page = parseInt(req.query.page) || 1;
-//         const limit = 4;
 
-//         // Count total products for stats and pagination
-//         const totalProducts = await Product.countDocuments({});
-
-//         // Fetch products for the current page only
-//         const products = await Product.find({})
-//             .populate('category')
-//             .skip((page - 1) * limit)
-//             .limit(limit);
-
-//         // Calculate stock stats (you can also calculate from all products if needed)
-//         const allProducts = await Product.find({}); // fetch all for stats
-//         let inStock = 0;
-//         let lowStock = 0;
-//         let outOfStock = 0;
-
-//         allProducts.forEach(product => {
-//             if (product.quantity > 10) inStock++;
-//             else if (product.quantity > 0) lowStock++;
-//             else outOfStock++;
-//         });
-
-//         const categories = await Category.find({});
-
-//         res.render('inventory', {
-//             products,
-//             totalProducts,
-//             inStock,
-//             lowStock,
-//             outOfStock,
-//             categories,
-//             statusFilter: '',
-//             categoryFilter: '',
-//             searchQuery: '',
-//             pagination: { 
-//                 current: page,
-//                 totalPages: Math.ceil(totalProducts / limit),
-//                 start: (page - 1) * limit + 1,
-//                 end: Math.min(page * limit, totalProducts) 
-//             }
-//         });
-
-//     } catch (err) {
-//         console.log(err);
-//         res.status(500).send('Server Error');
-//     }
-// };
-
-
-
-// const inventory = async (req, res) => {
-//   try {
-//     const products = await Product.find().lean().sort({ productName: 1 }); 
-//     res.render('admin/inventory', { products });
-//   } catch (error) {
-//     console.log(error);
-//     res.redirect('/admin');
-//   }
-// };
 
 const inventory = async (req, res) => {
     try {
