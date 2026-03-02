@@ -14,7 +14,11 @@
   background-color: #e62b5d !important;
 }
 
-
+.action-btn.hover-up:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  opacity: 1;
+}
   .main-content {
     margin-top: 5rem !important; /* 448px */
   }
@@ -117,27 +121,24 @@
               
 
 
-              <!-- Product Gallery Section -->
 <!-- Product Gallery Section -->
 <div class="col-md-6">
   <div class="detail-gallery position-relative">
     
+    <!-- Wishlist button – paste here -->
+    <a aria-label="Add to Wishlist" class="action-btn hover-up position-absolute top-2 end-2 z-3" style="background: rgba(255,255,255,0.9); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; opacity: 0.8; z-index: 10;" href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>'); return false;">
+      <i class="ti-heart" style="font-size: 1.2rem; color: #ff3368;"></i>
+    </a>
+
     <!-- Main Image -->
-    <div class="main-image mb-3 position-relative">
-      <div class="zoom-wrapper">
-        <img
-          id="mainProductImage"
-          src="<%= product?.productImage?.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>"
-          alt="Main Product Image"
-          class="img-fluid border rounded shadow-sm"
-          onclick="toggleZoom(event)"
-        />
-        <!-- Zoom Icon inside image -->
-        <span class="zoom-icon">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </span>
-      </div>
+    <div class="position-relative overflow-hidden zoom-wrapper">
+      <img id="mainProductImage"
+           src="<%= product?.productImage?.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>"
+           class="img-fluid border rounded shadow-sm"
+           onclick="toggleZoom(event)"
+      />
     </div>
+
 
     <!-- Thumbnails -->
     <div class="thumbnail-gallery d-flex justify-content-between flex-wrap">
@@ -456,6 +457,45 @@
 </main>
 
 
+
+
+<script>
+async function addToWishlist(productId) {
+  try {
+    const res = await fetch('/wishlist/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ productId })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Wishlist!',
+        text: 'This product has been added to your wishlist.',
+        showConfirmButton: true,
+        confirmButtonColor: '#1a5d8c',
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops!',
+        text: data.message || 'Failed to add to wishlist.',
+        confirmButtonColor: '#ff4757',
+      });
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'There was an error adding the product to your wishlist.',
+      confirmButtonColor: '#ff4757',
+    });
+  }
+}
+</script>
 
 <script>
   // Change main image when thumbnail is clicked

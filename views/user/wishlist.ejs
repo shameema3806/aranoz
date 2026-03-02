@@ -27,7 +27,7 @@
                      alt="<%= item.productName || 'Product' %>" width="100%" height="200" class="img-fluid rounded mb-2" />
                 <h5><%= item.productName || 'Unnamed Product' %></h5>
                 <p class="text-muted">Added On: <%= new Date(item.addedOn).toLocaleDateString() %></p>
-                <p><strong>$<%= (item.salePrice || item.price || 0).toFixed(2) %></strong></p>
+                <p><strong>₹<%= (item.salePrice || item.price || 0).toFixed(2) %></strong></p>
                 <div>
                   <button class="add-cart-btn" onclick="addToCart('<%= item._id %>', 1)">Add to Cart</button>
                   <button class="remove-btn" onclick="removeFromWishlist('<%= item._id %>')">Remove</button>

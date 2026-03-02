@@ -12,7 +12,7 @@ const categoryInfo = async (req, res) => {
     // Build filter for search
     const filter = {};
     if (searchQuery) {
-      filter.name = { $regex: new RegExp(searchQuery, "i") }; // case-insensitive
+      filter.name = { $regex: new RegExp(searchQuery, "i") };
     }
 
     // Count total categories (for pagination)

@@ -220,30 +220,37 @@ document.getElementById('showAddCouponPopup').addEventListener('click', () => {
       confirmButton: 'bg-[#1A5D8C] hover:bg-[#154b70] text-white px-5 py-2 rounded-md',
       cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-700 px-5 py-2 rounded-md ml-2',
     },
+    
     preConfirm: () => {
-      const code   = document.getElementById('swal-code').value.trim();
-      const type   = document.getElementById('swal-type').value;
-      const value  = parseFloat(document.getElementById('swal-value').value);
-      const min    = parseFloat(document.getElementById('swal-min').value) || 0;
-      const max    = document.getElementById('swal-max').value ? parseFloat(document.getElementById('swal-max').value) : null;
-      const expiry = document.getElementById('swal-expiry').value;
+  const code   = document.getElementById('swal-code').value.trim();
+  const type   = document.getElementById('swal-type').value;
+  const value  = parseFloat(document.getElementById('swal-value').value);
+  const min    = parseFloat(document.getElementById('swal-min').value) || 0;
+  const max    = document.getElementById('swal-max').value ? parseFloat(document.getElementById('swal-max').value) : null;
+  const expiry = document.getElementById('swal-expiry').value;
 
-      if (!type || isNaN(value) || value <= 0 || !expiry) {
-        Swal.showValidationMessage('Please fill all required fields');
-        return false;
-      }
+  if (!type || isNaN(value) || value <= 0 || !expiry) {
+    Swal.showValidationMessage('Please fill all required fields');
+    return false;
+  }
 
   if (type === 'percentage' && max !== null && max > 100) {
     Swal.showValidationMessage('For percentage coupons, Max Discount cannot exceed 100%');
     return false;
   }
 
-      if (new Date(expiry) <= new Date()) {
-        Swal.showValidationMessage('Expiry date must be in the future');
-        return false;
-      }
-      return { code: code || undefined, discountType: type, discountValue: value, minCartValue: min, maxDiscount: max, expiryDate: expiry };
-    }
+ //discount
+  if (type === 'fixed' && min > 0 && value > min) {
+    Swal.showValidationMessage(`Fixed discount value (₹${value}) cannot exceed minimum cart value (₹${min})`);
+    return false;
+  }
+
+  if (new Date(expiry) <= new Date()) {
+    Swal.showValidationMessage('Expiry date must be in the future');
+    return false;
+  }
+  return { code: code || undefined, discountType: type, discountValue: value, minCartValue: min, maxDiscount: max, expiryDate: expiry };
+}
 
   }).then((result) => {
     if (result.isConfirmed) {

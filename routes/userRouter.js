@@ -52,7 +52,7 @@ router.get('/referral/my-referrals', userAuth, refferralController.getMyReferral
 
 
 //shop page
-router.get("/shop", userAuth, shopController.loadShopping);
+router.get("/shop", shopController.loadShopping);
 
 //product management
 router.get("/productDetail", userAuth, productController.productDetail);

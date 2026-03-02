@@ -146,7 +146,7 @@ const updateOrderStatus = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid status' });
     }
 
-    console.log('✓ Status validation passed');
+    console.log('Status validation passed');
 
     // Try to find order by BOTH orderId (string) AND _id (ObjectId)
     console.log('Searching for order...');
@@ -176,19 +176,36 @@ const updateOrderStatus = async (req, res) => {
       }
       order.returnReason = req.body.returnReason;
     } else if (newStatus === 'returned') {
-      // Approve: Ensure it was a return request
       if (oldStatus !== 'Return Request') {
         return res.status(400).json({ success: false, error: 'Can only approve from Return Request' });
       }
-      // Increment stock (full order for now)
+      // re-stock
       for (let item of order.orderedItems) {
         const productId = item.product._id || item.product;
         await Product.findByIdAndUpdate(productId, {
-          $inc: { stock: item.quantity }
+          $inc: { quantity: item.quantity }
         });
       }
+        if (order.paymentMethod === 'ONLINE' && order.paymentStatus === 'Completed') {
+              console.log('Triggering refund for order:', order._id, 'amount:', order.finalAmount); // ← add this
+
+      const { refundToWallet } = require('../../controllers/user/walletController');    const refundResult = await refundToWallet(
+      order.userId,
+      order._id,
+      order.finalAmount,
+      'Order Return Approved'
+    );
+        console.log(' Refund result:', refundResult); // ← add this
+
+    if (refundResult.success) {
+      order.paymentStatus = 'Refunded';
+    }else {
+    console.log(' Refund skipped - paymentMethod:', order.paymentMethod, 'paymentStatus:', order.paymentStatus); // ← add this
+  }
+  }
+
     } else if (newStatus === 'delivered' && oldStatus === 'Return Request') {
-      // Reject: Keep return reason but add rejection reason
+      // Keep return reason but add rejection reason
       if (!req.body.rejectionReason) {
         return res.status(400).json({ success: false, error: 'Rejection reason required' });
       }
@@ -222,7 +239,7 @@ order.statusHistory.push({
         const productId = item.product._id || item.product;
         console.log('Restoring stock for product:', productId, 'qty:', item.quantity);
         await Product.findByIdAndUpdate(productId, {
-          $inc: { stock: item.quantity }
+          $inc: { quantity: item.quantity }
         });
       }
       console.log(' Stock restored');

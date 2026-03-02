@@ -67,11 +67,11 @@
                     <td class="px-4 py-3">₹<%= product.salePrice.toFixed(2) %>
                     </td>
                     <td class="px-4 py-3">
-                      <%= product.effectiveOfferPrice ? `₹${product.effectiveOfferPrice}` : 'null' %>
+                      <%= product.effectiveOfferPrice ? `₹${product.effectiveOfferPrice}` : '_' %>
                     </td>
                     <!-- Offer % -->
                     <td class="px-4 py-3 text-center">
-                      <%= product.effectiveOffer ? `${product.effectiveOffer}%` : 'null' %>
+                      <%= product.effectiveOffer ? `${product.effectiveOffer}%` : '_' %>
                     </td>
 
                     <!-- Add / Remove Offer button -->

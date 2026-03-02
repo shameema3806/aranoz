@@ -10,6 +10,8 @@ const { render } = require("ejs");
 const { processReferralOnRegister } = require('../user/refferralController');
 const crypto = require("crypto");
 const Coupon = require("../../models/couponSchema");
+const Order = require("../../models/orderSchema");
+
 
 // Generate referral code
 function generateReferralCode(length = 5) {
@@ -32,11 +34,77 @@ async function generateUniqueReferralCode() {
   return code;
 }
 
+const getBestSellingProducts = async () => {
+  try {
+
+    const bestSelling = await Order.aggregate([
+      {
+        $match: {
+          status: "Delivered"
+        }
+      },
+
+      { $unwind: "$orderedItems" },
+
+      // Group by product id
+      {
+        $group: {
+          _id: "$orderedItems.product",
+          totalSold: { $sum: "$orderedItems.quantity" }
+        }
+      },
+
+      // Sort highest sales first
+      { $sort: { totalSold: -1 } },
+
+      // Top 10
+      { $limit: 10 },
+
+      // Join product details
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails"
+        }
+      },
+
+      { $unwind: "$productDetails" },
+
+      // ignore blocked/out of stock
+      {
+        $match: {
+          "productDetails.isBlocked": false,
+          "productDetails.quantity": { $gt: 0 }
+        }
+      },
+
+      {
+        $project: {
+          _id: "$productDetails._id",
+          productName: "$productDetails.productName",
+          salePrice: "$productDetails.salePrice",
+          regularPrice: "$productDetails.regularPrice",
+          productImage: "$productDetails.productImage",
+          totalSold: 1
+        }
+      }
+    ]);
+
+    return bestSelling;
+
+  } catch (error) {
+    console.log("Best seller error:", error);
+    return [];
+  }
+};
 
 const loadHomepage = async (req, res) => {
   try {
     const userId = req.session.user;
     const categories = await Category.find({ isListed: true });
+    const bestSellers = await getBestSellingProducts();
 
     let productData = await Product.find({
       isBlocked: false,
@@ -93,6 +161,7 @@ const loadHomepage = async (req, res) => {
         user: userData,
         products: productData,
         featuredOffers,
+        bestSellers,
         currentOffersPage: offersPage,
         totalOffersPages
       });
@@ -100,6 +169,7 @@ const loadHomepage = async (req, res) => {
       res.render("home", {
         products: productData,
         featuredOffers,
+        bestSellers,
         currentOffersPage: offersPage,
         totalOffersPages
       });

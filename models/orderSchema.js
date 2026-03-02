@@ -193,7 +193,8 @@ totalAmount: {
       'Delivered',
       'Cancelled',
       'Return Request',
-      'Returned'
+      'Returned',
+      'Payment Failed' 
     ],
     default: 'Pending'
   },

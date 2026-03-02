@@ -1,45 +1,44 @@
 const User = require("../../models/userSchema");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const Order = require("../../models/orderSchema"); 
+const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
+const Category = require("../../models/categorySchema");
 
-
-const pageerror = async(req,res)=>{
-  res.render("pagerror")
+const pageerror = async (req, res) => {
+    res.render("pagerror")
 }
 
-const loadLogin = (req,res)=>{
-    if(req.session.admin){
+const loadLogin = (req, res) => {
+    if (req.session.admin) {
         return res.redirect("/admin/dashboard")
     }
-    res.render("admin-login",{message:null})
+    res.render("admin-login", { message: null })
 }
 
 
 const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const admin = await User.findOne({ email, isAdmin: true });
+    try {
+        const { email, password } = req.body;
+        const admin = await User.findOne({ email, isAdmin: true });
 
-    if (!admin) {
-      return res.render("admin-login", { message: "Invalid email or admin account not found" });
+        if (!admin) {
+            return res.render("admin-login", { message: "Invalid email or admin account not found" });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, admin.password);
+        if (!passwordMatch) {
+            return res.render("admin-login", { message: "Incorrect password" });
+        }
+
+
+        req.session.admin = true;
+        return res.redirect("/admin");
+    } catch (error) {
+        console.error("Login error:", error);
+        return res.redirect("/pagerror");
     }
-
-    const passwordMatch = await bcrypt.compare(password, admin.password);
-    if (!passwordMatch) {
-      return res.render("admin-login", { message: "Incorrect password" });
-    }
-
-   
-    req.session.admin = true;
-    return res.redirect("/admin");
-  } catch (error) {
-    console.error("Login error:", error);
-    return res.redirect("/pagerror");
-  }
 };
-
 
 
 
@@ -50,21 +49,95 @@ const loadDashboard = async (req, res) => {
 
     try {
         const { period = 'monthly', start, end } = req.query;
-        const debugProducts = await Product.find().limit(3).lean();
+
         const [
             totalUsers,
             totalOrders,
             totalProducts,
             totalRevenue,
             salesReportData,
-            recentCompletedOrders
+            recentCompletedOrders,
+            bestSellingProducts,
+            bestSellingCategories
         ] = await Promise.all([
             User.countDocuments(),
             Order.countDocuments({ status: { $nin: ['Cancelled', 'Failed'] } }),
-            Product.countDocuments({ isBlocked: false , status: 'Available'}),
+            Product.countDocuments({ isBlocked: false, status: 'Available' }),
             calculateTotalRevenue(),
             getSalesReportData(period, start, end),
-            getRecentCompletedOrders()
+            getRecentCompletedOrders(),
+
+            // Best Selling Products (Top 10)
+            Order.aggregate([
+                { $match: { status: 'Delivered' } },
+                { $unwind: '$orderedItems' },
+                {
+                    $group: {
+                        _id: '$orderedItems.product',
+                        totalSold: { $sum: '$orderedItems.quantity' },
+                        totalRevenue: { $sum: { $multiply: ['$orderedItems.price', '$orderedItems.quantity'] } }
+                    }
+                },
+                { $sort: { totalSold: -1 } },
+                { $limit: 10 },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                { $unwind: '$product' },
+                {
+                    $project: {
+                        name: '$product.productName',
+                        image: { $arrayElemAt: ['$product.productImage', 0] },
+                        totalSold: 1,
+                        totalRevenue: 1
+                    }
+                }
+            ]),
+
+            // Best Selling Categories (Top 10)
+            Order.aggregate([
+                { $match: { status: 'Delivered' } },
+                { $unwind: '$orderedItems' },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'orderedItems.product',
+                        foreignField: '_id',
+                        as: 'productDetails'
+                    }
+                },
+                { $unwind: '$productDetails' },
+                {
+                    $group: {
+                        _id: '$productDetails.category',
+                        totalSold: { $sum: '$orderedItems.quantity' },
+                        totalRevenue: { $sum: { $multiply: ['$orderedItems.price', '$orderedItems.quantity'] } }
+                    }
+                },
+                { $sort: { totalSold: -1 } },
+                { $limit: 10 },
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'category'
+                    }
+                },
+                { $unwind: '$category' },
+                {
+                    $project: {
+                        name: '$category.name',
+                        totalSold: 1,
+                        totalRevenue: 1
+                    }
+                }
+            ])
         ]);
 
         res.render('dashboard', {
@@ -73,19 +146,15 @@ const loadDashboard = async (req, res) => {
             totalOrders,
             totalProducts,
             totalRevenue: totalRevenue.toFixed(2),
-            
-            // Sales Report Data
             salesReport: salesReportData.summary,
             chartLabels: salesReportData.chartLabels,
             chartData: salesReportData.chartData,
-            
-            // Filter state
             period,
             startDate: start || '',
             endDate: end || '',
-            
-            // Recent Orders
-            recentCompletedOrders
+            recentCompletedOrders,
+            bestSellingProducts,
+            bestSellingCategories
         });
 
     } catch (error) {
@@ -93,6 +162,7 @@ const loadDashboard = async (req, res) => {
         res.redirect('/admin/pageerror');
     }
 };
+
 
 const calculateTotalRevenue = async () => {
     const result = await Order.aggregate([
@@ -108,7 +178,7 @@ const calculateTotalRevenue = async () => {
             }
         }
     ]);
-    
+
     return result[0]?.total || 0;
 };
 
@@ -131,11 +201,11 @@ const getSalesReportData = async (period = 'monthly', startDate, endDate) => {
             const weekStart = new Date(now);
             weekStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
             weekStart.setHours(0, 0, 0, 0);
-            
+
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekStart.getDate() + 6);
             weekEnd.setHours(23, 59, 59, 999);
-            
+
             match.createdOn = { $gte: weekStart, $lte: weekEnd };
             groupFormat = '%Y-%m-%d';
             break;
@@ -158,12 +228,12 @@ const getSalesReportData = async (period = 'monthly', startDate, endDate) => {
             if (startDate && endDate) {
                 const customStart = new Date(startDate);
                 customStart.setHours(0, 0, 0, 0);
-                
+
                 const customEnd = new Date(endDate);
                 customEnd.setHours(23, 59, 59, 999);
-                
+
                 match.createdOn = { $gte: customStart, $lte: customEnd };
-                
+
                 const daysDiff = (customEnd - customStart) / (1000 * 60 * 60 * 24);
                 if (daysDiff <= 7) {
                     groupFormat = '%Y-%m-%d';
@@ -198,8 +268,8 @@ const getSalesReportData = async (period = 'monthly', startDate, endDate) => {
                 _id: null,
                 totalOrders: { $sum: 1 },
                 totalAmount: { $sum: '$finalAmount' },
-                totalDiscount: { 
-                    $sum: { 
+                totalDiscount: {
+                    $sum: {
                         $add: [
                             { $ifNull: ['$discount', 0] },
                             { $ifNull: ['$couponDiscount', 0] }
@@ -246,10 +316,10 @@ const getRecentCompletedOrders = async () => {
     const orders = await Order.find({
         status: { $in: ['Delivered', 'Completed'] }
     })
-    .sort({ createdOn: -1 })
-    .limit(5)
-    .populate('userId', 'name email')
-    .lean();
+        .sort({ createdOn: -1 })
+        .limit(5)
+        .populate('userId', 'name email')
+        .lean();
 
     return orders.map(order => ({
         orderId: order.orderId || order._id.toString().slice(-6),
@@ -266,11 +336,11 @@ const downloadSalesReport = async (req, res) => {
 
         // Get report data
         const reportData = await getSalesReportData(period, start, end);
-        
+
         // Get detailed orders for the report
         let match = {};
         match.status = { $nin: ['Cancelled', 'Failed', 'Returned'] };
-        
+
         // Apply date filters
         if (period === 'custom' && start && end) {
             const customStart = new Date(start);
@@ -335,7 +405,7 @@ const generatePDFReport = async (res, reportData, orders, period, start, end) =>
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=sales-report-${period}-${Date.now()}.pdf`);
-    
+
     doc.pipe(res);
 
     // Header
@@ -362,7 +432,7 @@ const generatePDFReport = async (res, reportData, orders, period, start, end) =>
     doc.fontSize(9);
 
     const tableTop = doc.y;
-    
+
     // Table Headers
     doc.text('Order ID', 50, tableTop, { width: 80 });
     doc.text('Customer', 130, tableTop, { width: 100 });
@@ -370,7 +440,7 @@ const generatePDFReport = async (res, reportData, orders, period, start, end) =>
     doc.text('Amount', 310, tableTop, { width: 70 });
     doc.text('Discount', 380, tableTop, { width: 70 });
     doc.text('Final', 450, tableTop, { width: 70 });
-    
+
     doc.moveDown();
     let yPos = doc.y + 5;
 
@@ -380,14 +450,14 @@ const generatePDFReport = async (res, reportData, orders, period, start, end) =>
             doc.addPage();
             yPos = 50;
         }
-        
+
         doc.text(order.orderId || order._id.toString().slice(-6), 50, yPos, { width: 80 });
         doc.text(order.userId?.name || 'Guest', 130, yPos, { width: 100 });
         doc.text(new Date(order.createdOn).toLocaleDateString(), 230, yPos, { width: 80 });
         doc.text(`₹${(order.totalPrice || 0).toFixed(2)}`, 310, yPos, { width: 70 });
         doc.text(`₹${((order.discount || 0) + (order.couponDiscount || 0)).toFixed(2)}`, 380, yPos, { width: 70 });
         doc.text(`₹${(order.finalAmount || 0).toFixed(2)}`, 450, yPos, { width: 70 });
-        
+
         yPos += 20;
     });
 
@@ -467,19 +537,17 @@ const generateExcelReport = async (res, reportData, orders, period, start, end) 
 };
 
 
-const logout = async (req,res)=>{
-        try{
-          req.session.admin = null;
-           res.redirect("/admin/login")
-        
-
-        }catch(error){
-           console.log("Error destroying error during logout",error);
-           res.redirect("/pagerror")
-        }
-     }
+const logout = async (req, res) => {
+    try {
+        req.session.admin = null;
+        res.redirect("/admin/login")
 
 
+    } catch (error) {
+        console.log("Error destroying error during logout", error);
+        res.redirect("/pagerror")
+    }
+}
 
 
 module.exports = {

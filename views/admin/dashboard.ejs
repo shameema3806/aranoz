@@ -1,322 +1,516 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link href="/assets/css/style.css" rel="stylesheet" />
 </head>
 
 <body class="bg-gray-100 text-gray-800">
   <%- include('../partials/admin/header') %>
 
-  <main class="dashboard-main pt-16 pl-64 xl:pl-64 lg:pl-64 md:pl-0 sm:pl-0 p-6 transition-all duration-300 h-[calc(100vh-4rem)] overflow-y-auto">
-    <div class="container mx-auto space-y-6">
+    <main
+      class="dashboard-main pt-16 pl-64 xl:pl-64 lg:pl-64 md:pl-0 sm:pl-0 p-6 transition-all duration-300 h-[calc(100vh-4rem)] overflow-y-auto">
+      <div class="container mx-auto space-y-6">
 
-      <!-- Summary Cards (These stay fixed) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Total Users</p>
-            <h2 class="text-2xl font-semibold mt-1"><%= totalUsers || '0' %></h2>
+        <!-- Summary Cards (These stay fixed) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Total Users</p>
+              <h2 class="text-2xl font-semibold mt-1">
+                <%= totalUsers || '0' %>
+              </h2>
+            </div>
+            <i class="fa-solid fa-user-group text-blue-600 text-3xl"></i>
           </div>
-          <i class="fa-solid fa-user-group text-blue-600 text-3xl"></i>
-        </div>
-        <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Total Orders</p>
-            <h2 class="text-2xl font-semibold mt-1"><%= totalOrders || '0' %></h2>
+          <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Total Orders</p>
+              <h2 class="text-2xl font-semibold mt-1">
+                <%= totalOrders || '0' %>
+              </h2>
+            </div>
+            <i class="fa-solid fa-basket-shopping text-green-600 text-3xl"></i>
           </div>
-          <i class="fa-solid fa-basket-shopping text-green-600 text-3xl"></i>
-        </div>
-        <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Products</p>
-            <h2 class="text-2xl font-semibold mt-1"><%= totalProducts || '0' %></h2>
+          <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Products</p>
+              <h2 class="text-2xl font-semibold mt-1">
+                <%= totalProducts || '0' %>
+              </h2>
+            </div>
+            <i class="fa-solid fa-boxes-stacked text-purple-600 text-3xl"></i>
           </div>
-          <i class="fa-solid fa-boxes-stacked text-purple-600 text-3xl"></i>
-        </div>
-        <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Revenue</p>
-            <h2 class="text-2xl font-semibold mt-1">₹<%= totalRevenue?.toLocaleString() || '0' %></h2>
+          <div class="bg-white shadow-md rounded-xl p-5 flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Revenue</p>
+              <h2 class="text-2xl font-semibold mt-1">₹<%= totalRevenue?.toLocaleString() || '0' %>
+              </h2>
+            </div>
+            <i class="fa-solid fa-sack-dollar text-yellow-500 text-3xl"></i>
           </div>
-          <i class="fa-solid fa-sack-dollar text-yellow-500 text-3xl"></i>
         </div>
-      </div>
 
-      <!-- Sales Report Graph -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="p-6 pb-4 border-b border-gray-100">
-          <h2 class="text-xl font-semibold text-gray-800">Sales Report</h2>
-        </div>
-
-        <div class="p-6">
-          <!-- Chart -->
-          <div class="h-80 md:h-96 mb-6">
-            <canvas id="salesChart"></canvas>
+        <!-- Sales Report Graph -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="p-6 pb-4 border-b border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800">Sales Report</h2>
           </div>
 
-          <!-- Filter Controls -->
-          <div class="border-t pt-6">
-            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-              
-              <!-- Period Filter Buttons -->
-              <div class="flex flex-wrap gap-3">
-                <button 
-                  onclick="changePeriod('daily')" 
-                  class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'daily' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
-                  Daily
-                </button>
-                <button 
-                  onclick="changePeriod('weekly')" 
-                  class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'weekly' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
-                  Weekly
-                </button>
-                <button 
-                  onclick="changePeriod('monthly')" 
-                  class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'monthly' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
-                  Monthly
-                </button>
-                <button 
-                  onclick="changePeriod('yearly')" 
-                  class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'yearly' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
-                  Yearly
-                </button>
-                <button 
-                  onclick="toggleCustomDate()" 
-                  class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'custom' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
-                  Custom Date
-                </button>
+          <div class="p-6">
+            <!-- Chart -->
+            <div class="h-80 md:h-96 mb-6">
+              <canvas id="salesChart"></canvas>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="border-t pt-6">
+              <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+
+                <!-- Period Filter Buttons -->
+                <div class="flex flex-wrap gap-3">
+                  <button onclick="changePeriod('daily')"
+                    class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'daily' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
+                    Daily
+                  </button>
+                  <button onclick="changePeriod('weekly')"
+                    class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'weekly' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
+                    Weekly
+                  </button>
+                  <button onclick="changePeriod('monthly')"
+                    class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'monthly' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
+                    Monthly
+                  </button>
+                  <button onclick="changePeriod('yearly')"
+                    class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'yearly' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
+                    Yearly
+                  </button>
+                  <button onclick="toggleCustomDate()"
+                    class="px-5 py-2 text-sm font-medium rounded-lg transition <%= period === 'custom' ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' %>">
+                    Custom Date
+                  </button>
+                </div>
+
+                <!-- Download Buttons -->
+                <div class="flex gap-3">
+                  <button onclick="downloadReport('pdf')"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                    <i class="fas fa-file-pdf"></i> PDF
+                  </button>
+                  <button onclick="downloadReport('excel')"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                    <i class="fas fa-file-excel"></i> Excel
+                  </button>
+                </div>
               </div>
 
-              <!-- Download Buttons -->
-              <div class="flex gap-3">
-                <button onclick="downloadReport('pdf')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
-                  <i class="fas fa-file-pdf"></i> PDF
-                </button>
-                <button onclick="downloadReport('excel')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
-                  <i class="fas fa-file-excel"></i> Excel
+              <!-- Custom Date Range (Hidden by default) -->
+              <div id="customDateRange"
+                class="<%= period === 'custom' ? '' : 'hidden' %> mt-4 flex flex-wrap items-end gap-3 bg-gray-50 p-4 rounded-lg">
+                <div>
+                  <label class="text-sm text-gray-600 block mb-1">From:</label>
+                  <input type="date" id="startDate" class="border border-gray-300 rounded px-3 py-2 text-sm"
+                    value="<%= startDate || '' %>">
+                </div>
+                <div>
+                  <label class="text-sm text-gray-600 block mb-1">To:</label>
+                  <input type="date" id="endDate" class="border border-gray-300 rounded px-3 py-2 text-sm"
+                    value="<%= endDate || '' %>">
+                </div>
+                <button onclick="applyCustomRange()"
+                  class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
+                  Apply
                 </button>
               </div>
             </div>
 
-            <!-- Custom Date Range (Hidden by default) -->
-            <div id="customDateRange" class="<%= period === 'custom' ? '' : 'hidden' %> mt-4 flex flex-wrap items-end gap-3 bg-gray-50 p-4 rounded-lg">
-              <div>
-                <label class="text-sm text-gray-600 block mb-1">From:</label>
-                <input type="date" id="startDate" class="border border-gray-300 rounded px-3 py-2 text-sm" 
-                       value="<%= startDate || '' %>">
+            <!-- Sales Summary Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6 pt-6 border-t">
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 text-center">
+                <p class="text-sm text-blue-700 mb-1 font-medium">Overall Sales Count</p>
+                <p class="text-3xl font-bold text-blue-900">
+                  <%= salesReport?.totalOrders || 0 %>
+                </p>
               </div>
-              <div>
-                <label class="text-sm text-gray-600 block mb-1">To:</label>
-                <input type="date" id="endDate" class="border border-gray-300 rounded px-3 py-2 text-sm" 
-                       value="<%= endDate || '' %>">
+              <div
+                class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 text-center">
+                <p class="text-sm text-green-700 mb-1 font-medium">Overall Order Amount</p>
+                <p class="text-3xl font-bold text-green-900">₹<%= Number(salesReport?.totalAmount ||
+                    0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+                </p>
               </div>
-              <button onclick="applyCustomRange()" 
-                      class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
-                Apply
-              </button>
-            </div>
-          </div>
-
-          <!-- Sales Summary Stats -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6 pt-6 border-t">
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 text-center">
-              <p class="text-sm text-blue-700 mb-1 font-medium">Overall Sales Count</p>
-              <p class="text-3xl font-bold text-blue-900"><%= salesReport?.totalOrders || 0 %></p>
-            </div>
-            <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 text-center">
-              <p class="text-sm text-green-700 mb-1 font-medium">Overall Order Amount</p>
-              <p class="text-3xl font-bold text-green-900">₹<%= Number(salesReport?.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></p>
-            </div>
-            <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-5 text-center">
-              <p class="text-sm text-red-700 mb-1 font-medium">Overall Discount</p>
-              <p class="text-3xl font-bold text-red-900">₹<%= Number(salesReport?.totalDiscount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></p>
+              <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-5 text-center">
+                <p class="text-sm text-red-700 mb-1 font-medium">Overall Discount</p>
+                <p class="text-3xl font-bold text-red-900">₹<%= Number(salesReport?.totalDiscount ||
+                    0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Recent Completed Orders -->
-      <div class="bg-white rounded-xl shadow-md p-5">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-semibold text-lg text-gray-700">Recent Completed Orders</h3>
-          <a href="/admin/order" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md transition">
-            View All
-          </a>
+        <!-- Best Selling Products & Categories -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+          <!-- Best Selling Products -->
+          <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-fire text-purple-600 text-sm"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Best Selling Products</h3>
+              </div>
+              <span class="text-xs bg-purple-50 text-purple-600 font-medium px-3 py-1 rounded-full">Top 10</span>
+            </div>
+
+            <div class="divide-y divide-gray-50">
+              <% if (bestSellingProducts && bestSellingProducts.length> 0) { %>
+                <% bestSellingProducts.forEach((product, index)=> { %>
+                  <div class="flex items-center gap-4 px-6 py-3 hover:bg-gray-50 transition">
+                    <!-- Rank Badge -->
+                    <div
+                      class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+            <%= index === 0 ? 'bg-yellow-100 text-yellow-700' : index === 1 ? 'bg-gray-100 text-gray-600' : index === 2 ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-gray-500' %>">
+                      <%= index + 1 %>
+                    </div>
+
+                    <!-- Product Image -->
+                    <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <% if (product.image) { %>
+                       <img src="/public/product-images/<%= product.image %>" alt="<%= product.name %>"
+  class="w-full h-full object-cover" onerror="this.src='/assets/img/placeholder.png'">
+                        <% } else { %>
+                          <div class="w-full h-full flex items-center justify-center">
+                            <i class="fas fa-box text-gray-400 text-sm"></i>
+                          </div>
+                          <% } %>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-800 truncate">
+                        <%= product.name %>
+                      </p>
+                      <p class="text-xs text-gray-500 mt-0.5">₹<%= Number(product.totalRevenue ||
+                          0).toLocaleString('en-IN', { minimumFractionDigits: 0 }) %> revenue</p>
+                    </div>
+
+                    <!-- Units Sold -->
+                    <div class="text-right flex-shrink-0">
+                      <p class="text-sm font-semibold text-gray-800">
+                        <%= product.totalSold %>
+                      </p>
+                      <p class="text-xs text-gray-400">units</p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-20 hidden sm:block">
+                      <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          class="h-full rounded-full bg-gradient-to-r from-purple-400 to-purple-600 transition-all duration-500"
+                          style="width: <%= bestSellingProducts[0].totalSold > 0 ? Math.round((product.totalSold / bestSellingProducts[0].totalSold) * 100) : 0 %>%">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <% }) %>
+                    <% } else { %>
+                      <div class="px-6 py-10 text-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <i class="fas fa-box-open text-gray-400 text-xl"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm">No sales data available yet</p>
+                      </div>
+                      <% } %>
+            </div>
+          </div>
+
+          <!-- Best Selling Categories -->
+          <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-tags text-emerald-600 text-sm"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Best Selling Categories</h3>
+              </div>
+              <span class="text-xs bg-emerald-50 text-emerald-600 font-medium px-3 py-1 rounded-full">Top 10</span>
+            </div>
+
+            <div class="divide-y divide-gray-50">
+              <% if (bestSellingCategories && bestSellingCategories.length> 0) { %>
+                <% bestSellingCategories.forEach((cat, index)=> {
+                  const colors = [
+                  'from-blue-400 to-blue-600',
+                  'from-emerald-400 to-emerald-600',
+                  'from-purple-400 to-purple-600',
+                  'from-orange-400 to-orange-600',
+                  'from-pink-400 to-pink-600',
+                  'from-cyan-400 to-cyan-600',
+                  'from-indigo-400 to-indigo-600',
+                  'from-rose-400 to-rose-600',
+                  'from-teal-400 to-teal-600',
+                  'from-amber-400 to-amber-600'
+                  ];
+                  const iconBgs = [
+                  'bg-blue-100 text-blue-600',
+                  'bg-emerald-100 text-emerald-600',
+                  'bg-purple-100 text-purple-600',
+                  'bg-orange-100 text-orange-600',
+                  'bg-pink-100 text-pink-600',
+                  'bg-cyan-100 text-cyan-600',
+                  'bg-indigo-100 text-indigo-600',
+                  'bg-rose-100 text-rose-600',
+                  'bg-teal-100 text-teal-600',
+                  'bg-amber-100 text-amber-600'
+                  ];
+                  const color = colors[index % colors.length];
+                  const iconBg = iconBgs[index % iconBgs.length];
+                  %>
+                  <div class="flex items-center gap-4 px-6 py-3 hover:bg-gray-50 transition">
+                    <!-- Rank Badge -->
+                    <div
+                      class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+            <%= index === 0 ? 'bg-yellow-100 text-yellow-700' : index === 1 ? 'bg-gray-100 text-gray-600' : index === 2 ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-gray-500' %>">
+                      <%= index + 1 %>
+                    </div>
+
+                    <!-- Category Icon -->
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 <%= iconBg %>">
+                      <i class="fas fa-tag text-sm"></i>
+                    </div>
+
+                    <!-- Category Info -->
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-800 truncate">
+                        <%= cat.name %>
+                      </p>
+                      <p class="text-xs text-gray-500 mt-0.5">₹<%= Number(cat.totalRevenue || 0).toLocaleString('en-IN',
+                          { minimumFractionDigits: 0 }) %> revenue</p>
+                    </div>
+
+                    <!-- Units Sold -->
+                    <div class="text-right flex-shrink-0">
+                      <p class="text-sm font-semibold text-gray-800">
+                        <%= cat.totalSold %>
+                      </p>
+                      <p class="text-xs text-gray-400">units</p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-20 hidden sm:block">
+                      <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full bg-gradient-to-r <%= color %> transition-all duration-500"
+                          style="width: <%= bestSellingCategories[0].totalSold > 0 ? Math.round((cat.totalSold / bestSellingCategories[0].totalSold) * 100) : 0 %>%">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <% }) %>
+                    <% } else { %>
+                      <div class="px-6 py-10 text-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <i class="fas fa-tags text-gray-400 text-xl"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm">No sales data available yet</p>
+                      </div>
+                      <% } %>
+            </div>
+          </div>
+
         </div>
-        <div class="overflow-x-auto">
-          <table class="table-auto w-full text-sm text-left">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="px-4 py-3 font-medium text-gray-600">Order ID</th>
-                <th class="px-4 py-3 font-medium text-gray-600">Customer</th>
-                <th class="px-4 py-3 font-medium text-gray-600">Amount</th>
-                <th class="px-4 py-3 font-medium text-gray-600">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (recentCompletedOrders && recentCompletedOrders.length > 0) { %>
-                <% recentCompletedOrders.forEach(order => { %>
-                <tr class="border-t hover:bg-gray-50">
-                  <td class="px-4 py-3">#<%= order.orderId %></td>
-                  <td class="px-4 py-3"><%= order.customerName %></td>
-                  <td class="px-4 py-3">₹<%= order.finalAmount.toFixed(2) %></td>
-                  <td class="px-4 py-3">
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Completed</span>
-                  </td>
-                </tr>
-                <% }) %>
-              <% } else { %>
+
+        <!-- Recent Completed Orders -->
+        <div class="bg-white rounded-xl shadow-md p-5">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-lg text-gray-700">Recent Completed Orders</h3>
+            <a href="/admin/order"
+              class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md transition">
+              View All
+            </a>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="table-auto w-full text-sm text-left">
+              <thead class="bg-gray-100">
                 <tr>
-                  <td colspan="4" class="px-4 py-6 text-center text-gray-500">
-                    No completed orders available
-                  </td>
+                  <th class="px-4 py-3 font-medium text-gray-600">Order ID</th>
+                  <th class="px-4 py-3 font-medium text-gray-600">Customer</th>
+                  <th class="px-4 py-3 font-medium text-gray-600">Amount</th>
+                  <th class="px-4 py-3 font-medium text-gray-600">Status</th>
                 </tr>
-              <% } %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% if (recentCompletedOrders && recentCompletedOrders.length> 0) { %>
+                  <% recentCompletedOrders.forEach(order=> { %>
+                    <tr class="border-t hover:bg-gray-50">
+                      <td class="px-4 py-3">#<%= order.orderId %>
+                      </td>
+                      <td class="px-4 py-3">
+                        <%= order.customerName %>
+                      </td>
+                      <td class="px-4 py-3">₹<%= order.finalAmount.toFixed(2) %>
+                      </td>
+                      <td class="px-4 py-3">
+                        <span
+                          class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Completed</span>
+                      </td>
+                    </tr>
+                    <% }) %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="4" class="px-4 py-6 text-center text-gray-500">
+                            No completed orders available
+                          </td>
+                        </tr>
+                        <% } %>
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
+    </main>
 
-    </div>
-  </main>
+    <%- include('../partials/admin/footer') %>
 
-  <%- include('../partials/admin/footer') %>
+      <script>
+        // Sales Chart
+        document.addEventListener('DOMContentLoaded', () => {
+          const ctx = document.getElementById('salesChart')?.getContext('2d');
+          if (!ctx) return;
 
-  <script>
-    // Sales Chart
-    document.addEventListener('DOMContentLoaded', () => {
-      const ctx = document.getElementById('salesChart')?.getContext('2d');
-      if (!ctx) return;
+          const labels = <%- JSON.stringify(chartLabels || []) %>;
+          const data   = <%- JSON.stringify(chartData || []) %>.map(Number);
 
-      const labels = <%- JSON.stringify(chartLabels || []) %>;
-      const data   = <%- JSON.stringify(chartData || []) %>.map(Number);
+          const safeLabels = labels.length ? labels : ['No data'];
+          const safeData = data.length ? data : [0];
 
-      const safeLabels = labels.length ? labels : ['No data'];
-      const safeData   = data.length ? data : [0];
-
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: safeLabels,
-          datasets: [{
-            label: 'Sales Revenue (₹)',
-            data: safeData,
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.4,
-            fill: true,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            pointBackgroundColor: '#10b981',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointHoverBackgroundColor: '#059669',
-            pointHoverBorderWidth: 3,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: {
-            intersect: false,
-            mode: 'index'
-          },
-          plugins: {
-            legend: {
-              position: 'top',
-              align: 'end',
-              labels: { 
-                boxWidth: 12, 
-                padding: 16, 
-                font: { size: 13, weight: '500' },
-                usePointStyle: true
-              }
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: safeLabels,
+              datasets: [{
+                label: 'Sales Revenue (₹)',
+                data: safeData,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointHoverBackgroundColor: '#059669',
+                pointHoverBorderWidth: 3,
+              }]
             },
-            tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              padding: 12,
-              titleFont: { size: 14 },
-              bodyFont: { size: 13 },
-              callbacks: {
-                label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: v => '₹' + v.toLocaleString('en-IN', { notation: 'compact' }),
-                font: { size: 12 }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                intersect: false,
+                mode: 'index'
               },
-              grid: { color: 'rgba(0, 0, 0, 0.05)' }
-            },
-            x: {
-              grid: { display: false },
-              ticks: { 
-                maxRotation: 45,
-                minRotation: 0,
-                font: { size: 12 },
-                autoSkip: true,
-                maxTicksLimit: 15
+              plugins: {
+                legend: {
+                  position: 'top',
+                  align: 'end',
+                  labels: {
+                    boxWidth: 12,
+                    padding: 16,
+                    font: { size: 13, weight: '500' },
+                    usePointStyle: true
+                  }
+                },
+                tooltip: {
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  padding: 12,
+                  titleFont: { size: 14 },
+                  bodyFont: { size: 13 },
+                  callbacks: {
+                    label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: v => '₹' + v.toLocaleString('en-IN', { notation: 'compact' }),
+                    font: { size: 12 }
+                  },
+                  grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                },
+                x: {
+                  grid: { display: false },
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 0,
+                    font: { size: 12 },
+                    autoSkip: true,
+                    maxTicksLimit: 15
+                  }
+                }
               }
             }
+          });
+        });
+
+        // Period change function
+        function changePeriod(period) {
+          document.getElementById('customDateRange')?.classList.add('hidden');
+          window.location.href = `/admin?period=${period}`;
+        }
+
+        // Toggle custom date range
+        function toggleCustomDate() {
+          const customDiv = document.getElementById('customDateRange');
+          if (customDiv) {
+            customDiv.classList.toggle('hidden');
           }
         }
-      });
-    });
 
-    // Period change function
-    function changePeriod(period) {
-      document.getElementById('customDateRange')?.classList.add('hidden');
-      window.location.href = `/admin?period=${period}`;
-    }
+        // Apply custom date range
+        function applyCustomRange() {
+          const start = document.getElementById('startDate').value;
+          const end = document.getElementById('endDate').value;
 
-    // Toggle custom date range
-    function toggleCustomDate() {
-      const customDiv = document.getElementById('customDateRange');
-      if (customDiv) {
-        customDiv.classList.toggle('hidden');
-      }
-    }
+          if (!start || !end) {
+            alert("Please select both start and end dates");
+            return;
+          }
 
-    // Apply custom date range
-    function applyCustomRange() {
-      const start = document.getElementById('startDate').value;
-      const end = document.getElementById('endDate').value;
-      
-      if (!start || !end) {
-        alert("Please select both start and end dates");
-        return;
-      }
-      
-      if (new Date(start) > new Date(end)) {
-        alert("Start date cannot be after end date");
-        return;
-      }
-      
-      window.location.href = `/admin?period=custom&start=${start}&end=${end}`;
-    }
+          if (new Date(start) > new Date(end)) {
+            alert("Start date cannot be after end date");
+            return;
+          }
 
-    // Download report
-    function downloadReport(format) {
-      const period = '<%= period || "monthly" %>';
-      const start = '<%= startDate || "" %>';
-      const end = '<%= endDate || "" %>';
+          window.location.href = `/admin?period=custom&start=${start}&end=${end}`;
+        }
+
+        // Download report
+        function downloadReport(format) {
+          const period = '<%= period || "monthly" %>';
+          const start = '<%= startDate || "" %>';
+          const end = '<%= endDate || "" %>';
+
+          let url = `/admin/sales-report/download?format=${format}&period=${period}`;
+          if (start && end) {
+            url += `&start=${start}&end=${end}`;
+          }
+
+          window.open(url, '_blank');
+        }
+      </script>
       
-      let url = `/admin/sales-report/download?format=${format}&period=${period}`;
-      if (start && end) {
-        url += `&start=${start}&end=${end}`;
-      }
-      
-      window.open(url, '_blank');
-    }
-  </script>
 </body>
+
 </html>

@@ -1,9 +1,3 @@
-// const Coupon = require("../../models/couponSchema");
-// const { Schema } = require('mongoose');
-// const mongoose = require("mongoose");
-// const Joi = require('joi'); 
-
-
 
 const Coupon = require("../../models/couponSchema");
 const { Schema } = require('mongoose');
@@ -24,8 +18,14 @@ const createCouponSchema = Joi.object({
       return helpers.error('any.invalid', { message: 'Max discount cannot exceed 100% for percentage coupons' });
     }
     return value;
-  }),          
+  }),
   expiryDate: Joi.date().min('now').required(),
+}).custom((obj, helpers) => {
+  // discount value
+  if (obj.discountType === 'fixed' && obj.minCartValue > 0 && obj.discountValue > obj.minCartValue) {
+    return helpers.error('any.invalid', { message: `Fixed discount value (₹${obj.discountValue}) cannot exceed minimum cart value (₹${obj.minCartValue})` });
+  }
+  return obj;
 });
 
 const updateCouponSchema = Joi.object({
@@ -40,6 +40,12 @@ const updateCouponSchema = Joi.object({
     return value;
   }),
   expiryDate: Joi.date().required(),
+}).custom((obj, helpers) => {
+  // discount value 
+  if (obj.discountType === 'fixed' && obj.minCartValue > 0 && obj.discountValue > obj.minCartValue) {
+    return helpers.error('any.invalid', { message: `Fixed discount value (₹${obj.discountValue}) cannot exceed minimum cart value (₹${obj.minCartValue})` });
+  }
+  return obj;
 });
 
 

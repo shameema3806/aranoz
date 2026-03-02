@@ -64,9 +64,8 @@ const loadCheckout = async (req, res) => {
       // Update discount in session
       req.session.appliedCoupon.discount = discount;
     }
-    // ============================================
 
-    const shipping = subtotal > 500 ? 0 : 30; // Free shipping above ₹500
+    const shipping = subtotal > 5000 ? 0 : 50; // Free shipping above ₹5000
     const tax = 0;
     const total = subtotal + shipping + tax - discount;
 

@@ -10,93 +10,65 @@ const crypto = require('crypto');
 const env = require("dotenv").config();
 
 
-// Verify Razorpay Payment
 const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const userId = req.session.user;
 
-    // Create signature for verification
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(sign.toString())
+      .update(sign)
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
-      // Payment verified successfully
-      const order = await Order.findById(orderId).populate('orderedItems.product');
-
-      if (!order) {
-        return res.json({ success: false, message: "Order not found" });
+      // create order from session data
+      const pending = req.session.pendingOrder;
+      if (!pending) {
+        return res.json({ success: false, message: "Session expired. Please place order again." });
       }
 
-      // Update order status
-      order.paymentStatus = 'Completed';
-      order.razorpayPaymentId = razorpay_payment_id;
-      order.razorpaySignature = razorpay_signature;
-      order.status = 'Processing'; // Move to processing after successful payment
-
-      // Add to status history
-      order.statusHistory.push({
+      const order = new Order({
+        ...pending,
         status: 'Processing',
-        timestamp: new Date(),
-        reason: 'Payment completed successfully'
+        paymentStatus: 'Completed',
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        razorpaySignature: razorpay_signature,
+        statusHistory: [{
+          status: 'Processing',
+          timestamp: new Date(),
+          reason: 'Payment completed successfully'
+        }]
       });
-
       await order.save();
 
-      // Reduce stock after successful payment
+      // Deduct stock
       for (let item of order.orderedItems) {
-        await Product.findByIdAndUpdate(item.product._id || item.product, {
-          $inc: { stock: -item.quantity }
-        });
+        await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } });
       }
 
       // Clear cart
-      await Cart.findOneAndUpdate(
-        { userId: order.userId },
-        { $set: { items: [] } }
-      );
+      await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
-      if (req.session.appliedCoupon) {
-        delete req.session.appliedCoupon;
-      }
+      // Clear session
+      delete req.session.pendingOrder;
+      if (req.session.appliedCoupon) delete req.session.appliedCoupon;
 
-      return res.json({
-        success: true,
-        orderId: order._id,
-        message: "Payment verified successfully"
-      });
+      return res.json({ success: true, orderId: order._id, message: "Payment verified successfully" });
 
     } else {
-      // Payment verification failed
-      const order = await Order.findById(orderId);
-
-      if (order) {
-        order.paymentStatus = 'Failed';
-        order.status = 'Payment Failed';
-        order.statusHistory.push({
-          status: 'Payment Failed',
-          timestamp: new Date(),
-          reason: 'Payment signature verification failed'
-        });
-        await order.save();
-      }
-
-      return res.json({
-        success: false,
-        message: "Payment verification failed"
-      });
+      // clear session, no order created
+      delete req.session.pendingOrder;
+      return res.json({ success: false, message: "Payment verification failed" });
     }
 
   } catch (error) {
     console.error('Payment verification error:', error);
-    res.json({
-      success: false,
-      message: "Payment verification error"
-    });
+    res.json({ success: false, message: "Payment verification error" });
   }
 };
+
 
 // Retry Payment for Failed Orders
 const retryPayment = async (req, res) => {
@@ -114,10 +86,13 @@ const retryPayment = async (req, res) => {
       return res.json({ success: false, message: "Order already paid" });
     }
 
+    if (order.paymentStatus === "Failed") {
+      return res.json({ success: false, message: "order failed" })
+    }
     // Check stock again before retry
     for (let item of order.orderedItems) {
       const product = await Product.findById(item.product);
-      if (!product || product.stock < item.quantity) {
+      if (!product || product.quantity < item.quantity) {
         return res.json({
           success: false,
           message: `Insufficient stock for one or more items`
@@ -139,8 +114,8 @@ const retryPayment = async (req, res) => {
 
     // Update order with new Razorpay order ID
     order.razorpayOrderId = razorpayOrder.id;
-    order.paymentStatus = 'Pending';
-    await order.save();
+    // Only update the razorpayOrderId, keep status as-is until verified
+    order.razorpayOrderId = razorpayOrder.id; await order.save();
 
     // Get user details
     const user = await User.findById(userId);
@@ -385,7 +360,7 @@ let generateInvoice = async (req, res) => {
     doc.strokeColor(primaryColor)
       .lineWidth(2)
       .moveTo(50, footerY)
-      
+
       .lineTo(562, footerY)
       .stroke();
 
@@ -402,8 +377,8 @@ let generateInvoice = async (req, res) => {
   }
 };
 
-module.exports={
-    verifyPayment,
-    retryPayment,
-    generateInvoice,
+module.exports = {
+  verifyPayment,
+  retryPayment,
+  generateInvoice,
 }

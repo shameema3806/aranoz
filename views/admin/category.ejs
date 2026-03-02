@@ -440,6 +440,8 @@ function removeOffer(categoryId) {
       $row.find('td').eq(3).text('null');
 
       // Switch button back to Add Offer (index 4)
+
+      
       $row.find('td').eq(4).html(`
         <button class="bg-[#1A5D8C] hover:bg-[#154b70] text-white px-3 py-1 rounded-md text-xs font-medium transition">
           <a href="#" onclick="addOffer('${categoryId}'); return false;" class="text-white no-underline">Add Offer</a>

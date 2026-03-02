@@ -339,6 +339,8 @@
            href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>'); return false;">
           <i class="ti-heart" style="font-size: 1.2rem; color: #ff3368;"></i>
         </a>
+
+        
         <div class="d-flex justify-content-center align-items-center p-3 bg-white">
           <a href="/productDetail?id=<%= product._id %>">
             <img 
@@ -391,11 +393,11 @@
     ₹<%= product.regularPrice %>
   </del>
 </ins>
-        <% if ((product?.regularPrice || 0) > (product?.salePrice || 0)) { %>
+        <!-- <% if ((product?.regularPrice || 0) > (product?.salePrice || 0)) { %>
            <span class="save-price font-md color3" 
              style="color:#e63946; font-weight:600; font-size:12px; display: block;">
              Save ₹<%= (product.regularPrice - product.salePrice).toFixed(0) %>
-          </span>
+          </span> -->
           
         <% } %>
       <% } %>

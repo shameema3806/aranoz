@@ -10,10 +10,6 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
-  // brand: {
-  //   type: String,
-  //   required: true,
-  // },
   category: {
     type: Schema.Types.ObjectId,
     ref: "Category",
@@ -32,19 +28,19 @@ const productSchema = new Schema({
     default: null,
   },
   offerPrice: {
-  type: Number,
-  default: null,
+    type: Number,
+    default: null,
   },
   quantity: {
     type: Number,
-    default: 0, 
+    default: 0,
   },
   color: {
     type: String,
     required: true,
   },
   productImage: {
-    type: Array, 
+    type: Array,
     required: true,
   },
   isBlocked: {
@@ -59,6 +55,6 @@ const productSchema = new Schema({
   },
 }, { timestamps: true });
 
-const Product = mongoose.model("Product", productSchema); 
+const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;
