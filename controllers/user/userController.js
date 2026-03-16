@@ -366,15 +366,15 @@ const verifyOtp = async (req, res) => {
         email: userData.email,
         phone: userData.phone,
         password: passwordHash,
-        referralCode: referralCodeGenerated, 
+        referralCode: referralCodeGenerated,
       });
 
-     if (userData.referralCode) {
-         await processReferralOnRegister(
-            newUser._id,
-            userData.referralToken || null,
-            userData.referralCode 
-         );
+      if (userData.referralCode) {
+        await processReferralOnRegister(
+          newUser._id,
+          userData.referralToken || null,
+          userData.referralCode
+        );
       }
 
       // Save user info in session

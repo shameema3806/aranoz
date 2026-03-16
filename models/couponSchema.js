@@ -39,7 +39,7 @@ const couponSchema = new mongoose.Schema({
   maxDiscount: {
     type: Number,
     min: 0,
-    default: null,           // null = unlimited
+    default: null,          
   },
 
   usedCount: {
@@ -60,7 +60,7 @@ const couponSchema = new mongoose.Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: false // It's false because admin coupons don't need a userId
+    required: false 
   },
   createdBy: {
     type: Schema.Types.ObjectId,
@@ -82,43 +82,3 @@ couponSchema.index({ isActive: 1, expiryDate: 1 });
 const Coupon = mongoose.model('Coupon', couponSchema);
 module.exports = Coupon;
 
-
-// const mongoose = require('mongoose');
-// const {Schema} = mongoose;
-
-// const couponSchema = new mongoose.Schema({
-//     name:{
-//         type:String,
-//         required:true,
-//         unique:true
-//      },
-//      createdOn:{
-//         type:Date,
-//         default:Date.now,
-//         required:true
-//      },
-//      expireOn:{
-//         type:Date,
-//         required:true
-//      },
-//      offerPrice:{
-//         type:Number,
-//         required:true
-//      },
-//      minimumPrice:{
-//         type:Number,
-//         required:true
-//      },
-//      isList:{
-//         tyep:Boolean,
-//         default:true
-//      },
-//      userId:[{
-//         type:mongoose.Schema.Types.ObjectId,
-//         ref:"User"
-//      }]
-// })
-
-
-// const Coupon = mongoose.model("Coupon",couponSchema);
-// module.exports = Coupon;

@@ -6,28 +6,23 @@ function generateReferralCode() {
 }
 
 
-const userAuth = (req, res, next) => {
-  if (req.session && req.session.user) {  
-    User.findById(req.session.user)  
-      .then(data => {
-        if (data && !data.isBlocked) {
-          req.user = data;  
-          next();
-        } else {
-          console.log("User blocked or not found - redirecting");
-          req.session.destroy();  
-          res.redirect("/login?blocked=true");
+
+const userAuth = async (req, res, next) => {
+    if (req.session.user) {
+        try {
+            const user = await User.findById(req.session.user);
+            if (!user || user.isBlocked) {
+                req.session.destroy();
+                return res.redirect('/login?blocked=true');  // ✅ Instant kick
+            }
+            next();
+        } catch (err) {
+            res.redirect('/login');
         }
-      })
-      .catch(error => {
-        console.log("Error in user Auth middleware:", error);
-        res.status(500).send("Internal server error");
-      });
-  } else {
-    console.log("No session.user - redirecting to login");
-    res.redirect("/login");
-  }
-};
+    } else {
+        res.redirect('/login');
+    }
+}
 
 const adminAuth = (req,res,next)=>{
     User.findOne({isAdmin:true})
@@ -50,3 +45,13 @@ module.exports = {
     userAuth,
     adminAuth
 }
+
+
+
+
+
+
+
+
+
+

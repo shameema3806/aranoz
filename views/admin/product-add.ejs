@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +21,7 @@
             min-height: 100vh;
             position: relative;
         }
+
         .btn-back {
             background-color: #154b70;
             color: rgba(255, 255, 255, 0.906);
@@ -35,9 +37,11 @@
             top: 20px;
             left: 20px;
         }
+
         .content-main {
             width: 100%;
         }
+
         .container {
             width: 100%;
             max-width: 800px;
@@ -45,6 +49,7 @@
             display: flex;
             justify-content: center;
         }
+
         .card {
             background-color: #fff;
             border-radius: 10px;
@@ -53,18 +58,21 @@
             border: 1px solid #e0e0e0;
             width: 100%;
         }
+
         .content-header {
             border-bottom: 2px solid #1A5D8C;
             padding-bottom: 15px;
             margin-bottom: 20px;
             text-align: center;
         }
+
         .content-title {
             color: #1A5D8C;
             font-weight: bold;
             font-size: 24px;
             margin: 0;
         }
+
         .form-label {
             color: #333;
             font-weight: 500;
@@ -72,6 +80,7 @@
             display: block;
             text-align: left;
         }
+
         .form-control,
         .form-select {
             width: 100%;
@@ -82,15 +91,18 @@
             transition: border-color 0.3s;
             box-sizing: border-box;
         }
+
         .form-control:focus,
         .form-select:focus {
             border-color: #1A5D8C;
             outline: none;
             box-shadow: 0 0 5px rgba(26, 93, 140, 0.3);
         }
+
         .border {
             border-color: #ccc !important;
         }
+
         .btn-primary {
             background-color: #1A5D8C;
             color: #fff;
@@ -102,19 +114,23 @@
             transition: background-color 0.3s;
             width: 100%;
         }
+
         .btn-primary:hover {
             background-color: #154b70;
         }
+
         .d-grid {
             margin-top: 20px;
             text-align: right;
         }
+
         .error-message {
             color: #dc3545;
             font-size: 14px;
             margin-top: 5px;
             display: none;
         }
+
         .thumbnails-container {
             display: flex;
             overflow-x: auto;
@@ -125,6 +141,7 @@
             min-height: 100px;
             margin-bottom: 15px;
         }
+
         .preview-item {
             position: relative;
             display: inline-block;
@@ -132,12 +149,14 @@
             margin-bottom: 10px;
             vertical-align: top;
         }
+
         .preview-item img {
             width: 100px;
             height: 100px;
             object-fit: cover;
             border: 1px solid #ddd;
         }
+
         .preview-item .btn {
             position: absolute;
             top: 0;
@@ -145,16 +164,19 @@
             font-size: 12px;
             z-index: 1;
         }
+
         .preview-item .btn-crop {
             left: 0;
             background-color: #0d6efd;
             color: white;
         }
+
         .preview-item .btn-remove {
             right: 0;
             background-color: #dc3545;
             color: white;
         }
+
         .img-container {
             max-height: 400px;
             width: 100%;
@@ -163,6 +185,7 @@
             position: relative;
             background: #f0f0f0;
         }
+
         .img-container img {
             max-width: 100%;
             max-height: 400px;
@@ -170,55 +193,69 @@
             margin: 0 auto;
             min-width: 200px;
         }
+
         #imageCropModal .modal-body {
             padding: 15px;
             overflow: hidden;
         }
+
         #imageCropModal .modal-dialog {
             max-width: 90%;
             margin: 1.75rem auto;
         }
+
         .cropper-container {
             width: 100% !important;
             height: 400px !important;
             overflow: hidden !important;
         }
+
         .cropper-container:hover {
             cursor: default !important;
         }
+
         .cropper-crop-box,
         .cropper-view-box {
             outline: none !important;
             border: 1px solid #0d6efd !important;
         }
+
         .cropper-drag-box {
             background-color: transparent !important;
         }
+
         .image-upload-container {
             background-color: #f8f9fa;
             border-radius: 8px;
             padding: 15px;
             height: 100%;
         }
+
         .hover-up {
             transition: transform 0.3s;
         }
+
         .hover-up:hover {
             transform: translateY(-2px);
         }
+
         .mb-4 {
             margin-bottom: 1.5rem;
         }
+
         @media (max-width: 768px) {
             .card {
                 padding: 20px;
             }
+
             .btn-primary {
                 width: 100%;
             }
+
             .text-end {
                 text-align: center;
             }
+
             .btn-back {
                 position: relative;
                 top: auto;
@@ -229,6 +266,7 @@
         }
     </style>
 </head>
+
 <body>
     <a href="/admin/products" class="btn-back">← Back</a>
     <div class="container">
@@ -240,36 +278,42 @@
                             <h2 class="content-title">Add New Product</h2>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="/admin/addProducts" enctype="multipart/form-data" id="productForm">
+                            <form method="post" action="/admin/addProducts" enctype="multipart/form-data"
+                                id="productForm">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Product Name</label>
-                                    <input type="text" placeholder="Type here" name="productName"  value="productName"  class="form-control border" id="product_name">
+                                    <input type="text" placeholder="Type here" name="productName" value="productName"
+                                        class="form-control border" id="product_name">
                                     <div id="productName-error" class="error-message"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Full Description</label>
-                                    <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border" rows="4" >NA</textarea>
+                                    <textarea placeholder="Type here" id="descriptionid" name="description"
+                                        class="form-control border" rows="4">NA</textarea>
                                     <div id="description-error" class="error-message"></div>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Regular Price</label>
-                                            <input placeholder="$" name="regularPrice"   value="2000" type="text" class="form-control border">
+                                            <input placeholder="$" name="regularPrice" value="2000" type="text"
+                                                class="form-control border">
                                             <div id="regularPrice-error" class="error-message"></div>
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Sale Price</label>
-                                            <input placeholder="$" name="salePrice" type="text"   value="1000" class="form-control border">
+                                            <input placeholder="$" name="salePrice" type="text" value="1000"
+                                                class="form-control border">
                                             <div id="salePrice-error" class="error-message"></div>
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Quantity</label>
-                                            <input placeholder="" name="quantity" type="text"   value="10" class="form-control border">
+                                            <input placeholder="" name="quantity" type="text" value="10"
+                                                class="form-control border">
                                             <div id="quantity-error" class="error-message"></div>
                                         </div>
                                     </div>
@@ -278,7 +322,7 @@
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Color</label>
-                                            <input name="color" type="text"   value="white" class="form-control border">
+                                            <input name="color" type="text" value="white" class="form-control border">
                                             <div id="color-error" class="error-message"></div>
                                         </div>
                                     </div>
@@ -290,8 +334,10 @@
                                                 <label class="form-label">Category</label>
                                                 <select class="form-select border" name="category">
                                                     <% for(let i=0; i<cat.length; i++) { %>
-                                                    <option value="<%=cat[i].name%>"><%=cat[i].name%></option>
-                                                    <% } %>
+                                                        <option value="<%=cat[i].name%>">
+                                                            <%=cat[i].name%>
+                                                        </option>
+                                                        <% } %>
                                                 </select>
                                                 <div id="category-error" class="error-message"></div>
                                             </div>
@@ -304,18 +350,22 @@
                                     </div>
                                     <div class="image-upload-container">
                                         <div id="imagesPreviewContainer" class="thumbnails-container"></div>
-                                        <input class="form-control" type="file" name="productImages" id="productImagesInput" accept="image/png, image/jpeg, image/jpg" multiple onchange="handleImageUpload(event)">
+                                        <input class="form-control" type="file" name="productImages"
+                                            id="productImagesInput" accept="image/png, image/jpeg, image/jpg" multiple
+                                            onchange="handleImageUpload(event)">
                                         <small class="text-muted">Please select 3-4 images</small>
                                         <div id="images-error" class="error-message"></div>
                                     </div>
                                 </div>
                                 <!-- Image Cropping Modal -->
-                                <div class="modal fade" id="imageCropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
+                                <div class="modal fade" id="imageCropModal" tabindex="-1"
+                                    aria-labelledby="cropModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="cropModalLabel">Crop Image</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="img-container">
@@ -323,15 +373,19 @@
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="button" class="btn btn-primary" id="cropButton">Crop & Save</button>
-                                                <div id="cropError" class="error-message" style="color: red; margin-top: 10px;"></div>
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-primary" id="cropButton">Crop &
+                                                    Save</button>
+                                                <div id="cropError" class="error-message"
+                                                    style="color: red; margin-top: 10px;"></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="d-grid">
-                                    <button class="btn btn-primary hover-up" type="button" onclick="validateAndSubmit()">Publish</button>
+                                    <button class="btn btn-primary hover-up" type="button"
+                                        onclick="validateAndSubmit()">Publish</button>
                                 </div>
                             </form>
                         </div>
@@ -531,32 +585,32 @@
                     body: formData,
                 })
                     // .then((response) => {
-                           
 
-                        // if (!response.ok) {
-                        //     return response.json().then((data) => {
-                        //         throw new Error(data.error || 'Upload failed');
-                        //     });
-                        // }
-                        // return response.json();
+
+                    // if (!response.ok) {
+                    //     return response.json().then((data) => {
+                    //         throw new Error(data.error || 'Upload failed');
+                    //     });
+                    // }
+                    // return response.json();
                     // })
-                    .then(async(data) => {
-                         
+                    .then(async (data) => {
+
                         const status = await data.json();
-                          console.log("data",status)
+                        console.log("data", status)
                         if (status?.success) {
                             window.location.href = '/admin/products';
 
                         }
-                         else {
+                        else {
                             // alert(status.message)
-                            displayErrorMessage( 'images-error', status?.message || status?.error?.response?.message );
+                            displayErrorMessage('images-error', status?.message || status?.error?.response?.message);
                         }
                     })
 
                     .catch((error) => {
-                        console.log("error",error)
-                        displayErrorMessage('images-error',error.message || 'Something went wrong. Please try again.');
+                        console.log("error", error)
+                        displayErrorMessage('images-error', error.message || 'Something went wrong. Please try again.');
                     });
             }
         }
@@ -656,4 +710,5 @@
         }
     </script>
 </body>
+
 </html>

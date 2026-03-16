@@ -136,7 +136,6 @@ const userSchema = new Schema({
 })
 userSchema.index({ "referrals.created_at": -1 });
 
-// generate a unique referral code
 userSchema.pre('save', function (next) {
     if (!this.referralCode) {
         this.referralCode = Math.random().toString(36).substring(2, 10).toUpperCase();

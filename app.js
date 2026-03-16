@@ -21,9 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   const allowedOrigins = [
-    'http://localhost:3000',
-    'https://dcad7fb668c6.ngrok-free.app'
-  ];
+  process.env.ALLOWED_ORIGIN_LOCAL,
+  process.env.ALLOWED_ORIGIN_NGROK
+].filter(Boolean)
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
@@ -31,10 +31,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use((req, res, next) => {
-//   res.setHeader("Access-Control-Allow-Origin", "https://dcad7fb668c6.ngrok-free.app");
-//   next();
-// });
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -77,6 +73,9 @@ app.use((req, res, next) => {
 app.use('/admin', adminRouter);
 app.use("/", userRouter);
 
+app.use((req, res) => {
+  res.status(404).render("page-404");
+});
 
 const PORT = process.env.PORT || 3000;
 

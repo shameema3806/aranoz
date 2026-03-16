@@ -8,7 +8,6 @@
     rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    /* Scoped overrides to avoid header conflicts */
     .main-content * {
       font-family: 'Nunito Sans', sans-serif;
     }
@@ -19,7 +18,7 @@
       padding: 20px 0;
       min-height: 100vh;
     }
-    
+
     .breadcrumb {
       background: none !important;
       padding: 0;
@@ -106,15 +105,6 @@
     .order-body {
       padding: 15px 20px;
     }
-
-    /* .status-badge {
-      padding: 9px 12px;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      min-width: 80px;
-      text-align: center;
-    } */
 
     .btn-view,
     .btn-action {
@@ -228,43 +218,45 @@
     .info-row strong {
       color: #2d3436;
     }
+
     .badge {
-  display: inline-flex !important;  
-  align-items: center !important;  
-  justify-content: center !important; 
-  padding: 9px 12px !important;   
-  border-radius: 20px !important;  
-  font-size: 1rem !important;       
-  line-height: 1.4 !important;  
-  min-width: 100px !important;     
-  min-height: 30px !important;     
-  text-align: center;              
-  font-weight: 600 !important;    
-  border: none !important;         
-  cursor: default;                  
-}
-.badge.bg-success {
-  background: linear-gradient(135deg, #28a745, #20c997) !important;
-}
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 9px 12px !important;
+      border-radius: 20px !important;
+      font-size: 1rem !important;
+      line-height: 1.4 !important;
+      min-width: 100px !important;
+      min-height: 30px !important;
+      text-align: center;
+      font-weight: 600 !important;
+      border: none !important;
+      cursor: default;
+    }
 
-.badge.bg-danger {
-  background: linear-gradient(135deg, #dc3545, #c82333) !important;
-  color: white !important;
-}
+    .badge.bg-success {
+      background: linear-gradient(135deg, #28a745, #20c997) !important;
+    }
 
-.badge.bg-warning {
-  background: linear-gradient(135deg, #ffc107, #ffb300) !important;
-}
+    .badge.bg-danger {
+      background: linear-gradient(135deg, #dc3545, #c82333) !important;
+      color: white !important;
+    }
 
-.badge.bg-info {
-  background: linear-gradient(135deg, #17a2b8, #138496) !important;
-  color: white !important;
-}
+    .badge.bg-warning {
+      background: linear-gradient(135deg, #ffc107, #ffb300) !important;
+    }
 
-.badge.bg-secondary {
-  background: linear-gradient(135deg, #6c757d, #5a6268) !important;
-  color: white !important;
-}
+    .badge.bg-info {
+      background: linear-gradient(135deg, #17a2b8, #138496) !important;
+      color: white !important;
+    }
+
+    .badge.bg-secondary {
+      background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+      color: white !important;
+    }
 
     .product-preview {
       font-size: 0.9rem;
@@ -304,7 +296,7 @@
       }
     }
 
- 
+
     header:nth-of-type(n+2) {
       display: none !important;
     }
@@ -324,8 +316,8 @@
             </li>
 
             <li class="breadcrumb-item active" aria-current="page">
-               <a href="/orders">
-              <i class="fas fa-shopping-bag "></i> Orders
+              <a href="/orders">
+                <i class="fas fa-shopping-bag "></i> Orders
               </a>
             </li>
           </ol>
@@ -367,8 +359,8 @@
   order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'bg-info text-white' : 
   'bg-secondary' 
 %>">
-  <%= order.status %>
-</span>
+                        <%= order.status %>
+                      </span>
 
 
 
@@ -423,31 +415,38 @@
                     class="text-decoration-none fw-bold" style="color: #ff3368;">Start shopping!</a></p>
             </div>
             <% } %>
-            <% if (totalPages > 1) { %>
-  <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
-    <ul class="pagination">
-      <% if (currentPage > 1) { %>
-        <li class="page-item">
-          <a class="page-link" href="/orders?page=<%= currentPage - 1 %><%= searchQuery ? '&q=' + searchQuery : '' %>" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-      <% } %>
-      <% for (let i = 1; i <= totalPages; i++) { %>
-        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-          <a class="page-link" href="/orders?page=<%= i %><%= searchQuery ? '&q=' + searchQuery : '' %>"><%= i %></a>
-        </li>
-      <% } %>
-      <% if (currentPage < totalPages) { %>
-        <li class="page-item">
-          <a class="page-link" href="/orders?page=<%= currentPage + 1 %><%= searchQuery ? '&q=' + searchQuery : '' %>" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      <% } %>
-    </ul>
-  </nav>
-<% } %>
+              <% if (totalPages> 1) { %>
+                <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+                  <ul class="pagination">
+                    <% if (currentPage> 1) { %>
+                      <li class="page-item">
+                        <a class="page-link"
+                          href="/orders?page=<%= currentPage - 1 %><%= searchQuery ? '&q=' + searchQuery : '' %>"
+                          aria-label="Previous">
+                          <span aria-hidden="true">&laquo;</span>
+                        </a>
+                      </li>
+                      <% } %>
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link"
+                              href="/orders?page=<%= i %><%= searchQuery ? '&q=' + searchQuery : '' %>">
+                              <%= i %>
+                            </a>
+                          </li>
+                          <% } %>
+                            <% if (currentPage < totalPages) { %>
+                              <li class="page-item">
+                                <a class="page-link"
+                                  href="/orders?page=<%= currentPage + 1 %><%= searchQuery ? '&q=' + searchQuery : '' %>"
+                                  aria-label="Next">
+                                  <span aria-hidden="true">&raquo;</span>
+                                </a>
+                              </li>
+                              <% } %>
+                  </ul>
+                </nav>
+                <% } %>
 
 
 

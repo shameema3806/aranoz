@@ -10,24 +10,17 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-
-
-
-
 // Load Wallet Page
 const loadWallet = async (req, res) => {
   try {
     const userId = req.session.user;
-    
+
     if (!userId) {
       return res.redirect('/login');
     }
-
     const user = await User.findById(userId).lean();
-    
-    // Get or create wallet for user
     let wallet = await Wallet.findOne({ userId });
-    
+
     if (!wallet) {
       wallet = new Wallet({
         userId,
@@ -61,7 +54,7 @@ const loadWallet = async (req, res) => {
   } catch (error) {
     console.error('Add money error:', error);
     res.json({ success: false, message: "Failed to add money to wallet" });
-}
+  }
 };
 
 // Add Money to Wallet
@@ -87,7 +80,7 @@ const addMoneyToWallet = async (req, res) => {
 
     // Get wallet
     let wallet = await Wallet.findOne({ userId });
-    
+
     if (!wallet) {
       wallet = new Wallet({
         userId,
@@ -102,25 +95,24 @@ const addMoneyToWallet = async (req, res) => {
 
     if (newBalance > WALLET_LIMIT) {
       const maxAddable = WALLET_LIMIT - wallet.balance;
-      return res.json({ 
-        success: false, 
-        message: `Wallet limit exceeded. You can add up to ₹${maxAddable.toFixed(2)} more.` 
+      return res.json({
+        success: false,
+        message: `Wallet limit exceeded. You can add up to ₹${maxAddable.toFixed(2)} more.`
       });
     }
 
-const shortReceipt = `wlt_${userId.toString().slice(-10)}_${Date.now()}`;
+    const shortReceipt = `wlt_${userId.toString().slice(-10)}_${Date.now()}`;
 
-const razorpayOrder = await razorpay.orders.create({
-  amount: Math.round(amountNum * 100), 
-  currency: 'INR',
-  receipt: shortReceipt, // Use the shortened version here
-  notes: {
-    userId: userId.toString(),
-    type: 'wallet_recharge'
-  }
-});
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(amountNum * 100),
+      currency: 'INR',
+      receipt: shortReceipt,
+      notes: {
+        userId: userId.toString(),
+        type: 'wallet_recharge'
+      }
+    });
 
-    // Get user details
     const user = await User.findById(userId);
 
     return res.json({
@@ -162,7 +154,7 @@ const verifyWalletPayment = async (req, res) => {
     if (razorpay_signature === expectedSign) {
       // Payment verified - Add money to wallet
       let wallet = await Wallet.findOne({ userId });
-      
+
       if (!wallet) {
         wallet = new Wallet({
           userId,
@@ -187,16 +179,16 @@ const verifyWalletPayment = async (req, res) => {
       wallet.balance += amountNum;
       await wallet.save();
 
-      return res.json({ 
-        success: true, 
+      return res.json({
+        success: true,
         message: "Money added successfully",
-        newBalance: wallet.balance 
+        newBalance: wallet.balance
       });
 
     } else {
-      return res.json({ 
-        success: false, 
-        message: "Payment verification failed" 
+      return res.json({
+        success: false,
+        message: "Payment verification failed"
       });
     }
 
@@ -206,7 +198,6 @@ const verifyWalletPayment = async (req, res) => {
   }
 };
 
-// Use Wallet for Order Payment (called during checkout)
 const useWalletForPayment = async (userId, orderAmount) => {
   try {
     const wallet = await Wallet.findOne({ userId });
@@ -217,7 +208,7 @@ const useWalletForPayment = async (userId, orderAmount) => {
 
     // Deduct amount
     wallet.balance -= orderAmount;
-    
+
     // Add transaction
     wallet.transactions.push({
       type: 'Debit',
@@ -254,9 +245,9 @@ const refundToWallet = async (userId, orderId, amount, reason) => {
     const newBalance = wallet.balance + amount;
 
     if (newBalance > WALLET_LIMIT) {
-      return { 
-        success: false, 
-        message: `Refund exceeds wallet limit. Please contact support.` 
+      return {
+        success: false,
+        message: `Refund exceeds wallet limit. Please contact support.`
       };
     }
 
@@ -273,10 +264,10 @@ const refundToWallet = async (userId, orderId, amount, reason) => {
     wallet.balance += amount;
     await wallet.save();
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       message: "Refund processed successfully",
-      newBalance: wallet.balance 
+      newBalance: wallet.balance
     };
 
   } catch (error) {
@@ -321,7 +312,6 @@ const processCancellationRefund = async (req, res) => {
     if (!order) {
       return res.json({ success: false, message: "Order not found" });
     }
-
     // Check if order can be cancelled
     if (!['Pending', 'Processing'].includes(order.status)) {
       return res.json({ success: false, message: "Order cannot be cancelled" });
@@ -347,11 +337,11 @@ const processCancellationRefund = async (req, res) => {
     order.paymentStatus = order.paymentMethod === 'ONLINE' ? 'Refunded' : 'Cancelled';
     await order.save();
 
-    res.json({ 
-      success: true, 
-      message: order.paymentMethod === 'ONLINE' 
-        ? "Order cancelled and amount refunded to wallet" 
-        : "Order cancelled successfully" 
+    res.json({
+      success: true,
+      message: order.paymentMethod === 'ONLINE'
+        ? "Order cancelled and amount refunded to wallet"
+        : "Order cancelled successfully"
     });
 
   } catch (error) {
@@ -402,11 +392,11 @@ const processReturnRefund = async (req, res) => {
     });
     await order.save();
 
-    res.json({ 
-      success: true, 
-      message: order.paymentMethod === 'ONLINE' 
-        ? "Return approved and amount refunded to wallet" 
-        : "Return approved successfully" 
+    res.json({
+      success: true,
+      message: order.paymentMethod === 'ONLINE'
+        ? "Return approved and amount refunded to wallet"
+        : "Return approved successfully"
     });
 
   } catch (error) {

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,29 +17,34 @@
       min-height: 100vh;
       padding: 20px;
     }
+
     .success-card {
       background: white;
       padding: 40px 30px;
       border-radius: 20px;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     }
+
     .success-card i {
       font-size: 60px;
       color: #28a745;
       margin-bottom: 20px;
     }
+
     .success-card h1 {
       font-size: 2rem;
       font-weight: 700;
       margin-bottom: 15px;
       color: #2d3436;
     }
+
     .success-card p {
       color: #636e72;
       font-size: 1rem;
       margin-bottom: 25px;
     }
+
     .success-card .btn-custom {
       margin: 5px;
       padding: 12px 25px;
@@ -47,11 +53,13 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+
     .btn-primary-custom {
       background: linear-gradient(135deg, #ff3368, #ff6b9d);
       color: white;
       border: none;
     }
+
     .btn-outline-custom {
       border: 2px solid #ff3368;
       color: #ff3368;
@@ -59,16 +67,20 @@
     }
   </style>
 </head>
+
 <body>
   <div class="success-card">
     <i class="fas fa-check-circle"></i>
     <h1>Thank You!</h1>
     <p>Your order has been placed successfully.</p>
-    <p><strong>Order ID:</strong> <%= order.orderId %></p>
+    <p><strong>Order ID:</strong>
+      <%= order.orderId %>
+    </p>
     <div>
       <a href="/orders/<%= order._id %>" class="btn btn-primary-custom btn-custom">View Order</a>
       <a href="/shop" class="btn btn-outline-custom btn-custom">Continue Shopping</a>
     </div>
   </div>
 </body>
+
 </html>

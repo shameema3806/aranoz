@@ -8,72 +8,67 @@ const upload = require('../helpers/multer');
 const ordersController = require("../controllers/admin/ordersController");
 const couponController = require("../controllers/admin/couponController");
 const referralController = require("../controllers/admin/referralController");
-// const adminReferralController = require("../controllers/admin/referralController");
-const {userAuth,adminAuth} = require("../middlewares/auth");
+const { adminAuth } = require("../middlewares/auth");
 
 
-router.get("/pageerror",adminController.pageerror);
+router.get("/pageerror", adminController.pageerror);
 
 // login Management
-router.get("/login",adminController.loadLogin);
-router.post("/login",adminController.login);
-router.get("/logout",adminController.logout);
-router.get("/",adminAuth,adminController.loadDashboard);
-router.get('/sales-report/download', adminAuth, adminController.downloadSalesReport);
+router.get("/login", adminController.loadLogin);
+router.post("/login", adminController.login);
+router.get("/logout", adminController.logout);
+router.use(adminAuth);
 
+//dashboard
+router.get("/", adminController.loadDashboard);
+router.get('/sales-report/download', adminController.downloadSalesReport);
 
 
 // user Management
-router.get("/users",adminAuth,userController.userInfo)
-router.get("/blockUser",adminAuth,userController.userBlocked);
-router.get("/unblockUser",adminAuth,userController.userunBlocked);
+router.get("/users", userController.userInfo)
+router.get("/blockUser", userController.userBlocked);
+router.get("/unblockUser", userController.userunBlocked);
 
 //category Management
-router.get("/category",adminAuth,categoryController.categoryInfo);
-router.post("/addCategory",adminAuth,categoryController.addCategory);
-router.get("/ListCategory",adminAuth,categoryController.getListCategory);
-router.get("/unListCategory",adminAuth,categoryController.getUnListCategory);
-router.post('/addCategoryOffer/:id', adminAuth,categoryController.addCategoryOffer);
-router.delete('/removeCategoryOffer/:id',adminAuth,categoryController.removeCategoryOffer);
-// router.get("/editCategory",adminAuth,categoryController.getEditCategory);
-// router.post("/editCategory/:id",adminAuth,categoryController.editCategory);
+router.get("/category", categoryController.categoryInfo);
+router.post("/addCategory", categoryController.addCategory);
+router.get("/ListCategory", categoryController.getListCategory);
+router.get("/unListCategory", categoryController.getUnListCategory);
+router.post('/addCategoryOffer/:id', categoryController.addCategoryOffer);
+router.delete('/removeCategoryOffer/:id', categoryController.removeCategoryOffer);
 
 //product Management
-router.get("/addProducts",adminAuth,productController.getProductAddPage);
-router.post('/addProducts', adminAuth, upload.array('productImages', 4), productController.addProducts);
-router.get('/products',adminAuth, productController.getAllProducts);
-router.post('/addProductOffer/:id', adminAuth, productController.addProductOffer);
-router.delete('/removeProductOffer/:id', adminAuth, productController.removeProductOffer);
-router.patch('/blockProduct', adminAuth, productController.blockProduct);
-router.patch('/unblockProduct', adminAuth, productController.unblockProduct);
-router.get('/editProduct', adminAuth, productController.getEditProduct);
-router.post('/editProduct/:id', adminAuth,upload.array('productImages', 4), productController.updateProduct);
-router.post("/products/delete/:id", adminAuth, productController.deleteProduct);
+router.get("/addProducts", productController.getProductAddPage);
+router.post('/addProducts', upload.array('productImages', 4), productController.addProducts);
+router.get('/products', productController.getAllProducts);
+router.post('/addProductOffer/:id', productController.addProductOffer);
+router.delete('/removeProductOffer/:id', productController.removeProductOffer);
+router.patch('/blockProduct', productController.blockProduct);
+router.patch('/unblockProduct', productController.unblockProduct);
+router.get('/editProduct', productController.getEditProduct);
+router.post('/editProduct/:id', upload.array('productImages', 4), productController.updateProduct);
+router.post("/products/delete/:id", productController.deleteProduct);
 
 //order Management
-router.get('/order',adminAuth,ordersController.getAllOrders);
-router.post('/order/:id/status', adminAuth,ordersController.updateOrderStatus);
+router.get('/order', ordersController.getAllOrders);
+router.post('/order/:id/status', ordersController.updateOrderStatus);
 
 // Coupon Management 
-router.get('/coupon', adminAuth, couponController.getcoupon);
-router.post('/coupon', adminAuth, couponController.createCoupon);
-router.put('/coupon/:id', adminAuth, couponController.updateCoupon);
-router.delete('/coupon/:id', adminAuth, couponController.deleteCoupon);
+router.get('/coupon', couponController.getcoupon);
+router.post('/coupon', couponController.createCoupon);
+router.put('/coupon/:id', couponController.updateCoupon);
+router.delete('/coupon/:id', couponController.deleteCoupon);
 
 //referal offer
-// GET /admin/referral - View all referrals (main page)
-router.get('/referral', adminAuth,referralController.getReferrals);
-// GET /admin/referral/:id - Get referral details
-router.get('/referral/:id', adminAuth, referralController.getReferralDetails);
-// POST /admin/referral/config - Save configuration
-router.post('/referral/config', adminAuth, referralController.saveConfig);
-// POST /admin/referral/:id/issue-reward - Manually issue reward
-router.post('/referral/:id/issue-reward', adminAuth, referralController.issueReward);
+router.get('/referral', referralController.getReferrals);
+router.get('/referral/:id', referralController.getReferralDetails);
+router.post('/referral/config', referralController.saveConfig);
+router.post('/referral/:id/issue-reward', referralController.issueReward);
 
 
 //inventory
-router.get("/inventory",adminAuth,ordersController.inventory);
-router.get("/products/:id",adminAuth,productController.adminViewProduct);
+router.get("/inventory", ordersController.inventory);
+router.get("/products/:id", productController.adminViewProduct);
 
 
 module.exports = router;

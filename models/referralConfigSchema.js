@@ -41,10 +41,10 @@ const referralConfigSchema = new Schema({
   maxReferrals: {
     type: Number,
     min: 0,
-    default: null // null means unlimited
+    default: null 
   }
 }, {
-  timestamps: true // Optional: adds createdAt/updatedAt
+  timestamps: true 
 });
 
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,29 +17,34 @@
       min-height: 100vh;
       padding: 20px;
     }
+
     .failure-card {
       background: white;
       padding: 40px 30px;
       border-radius: 20px;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     }
+
     .failure-card i {
       font-size: 60px;
       color: #dc3545;
       margin-bottom: 20px;
     }
+
     .failure-card h1 {
       font-size: 2rem;
       font-weight: 700;
       margin-bottom: 15px;
       color: #2d3436;
     }
+
     .failure-card p {
       color: #636e72;
       font-size: 1rem;
       margin-bottom: 25px;
     }
+
     .failure-card .btn-custom {
       margin: 5px;
       padding: 12px 25px;
@@ -47,16 +53,19 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+
     .btn-primary-custom {
       background: linear-gradient(135deg, #ff3368, #ff6b9d);
       color: white;
       border: none;
     }
+
     .btn-outline-custom {
       border: 2px solid #ff3368;
       color: #ff3368;
       background: white;
     }
+
     .btn-secondary-custom {
       border: 2px solid #6c757d;
       color: #6c757d;
@@ -64,18 +73,22 @@
     }
   </style>
 </head>
+
 <body>
   <div class="failure-card">
     <i class="fas fa-exclamation-triangle"></i>
     <h1>Oops! Order Failed</h1>
     <p>Something went wrong while placing your order. Please try again.</p>
     <% if (orderId) { %>
-      <p><strong>Order ID:</strong> <%= orderId %></p>
-    <% } %>
-    <div>
-      <a href="/checkout" class="btn btn-primary-custom btn-custom">Try Again</a>
-      <a href="/" class="btn btn-outline-custom btn-custom">Continue Shopping</a>
-    </div>
+      <p><strong>Order ID:</strong>
+        <%= orderId %>
+      </p>
+      <% } %>
+        <div>
+          <a href="/checkout" class="btn btn-primary-custom btn-custom">Try Again</a>
+          <a href="/" class="btn btn-outline-custom btn-custom">Continue Shopping</a>
+        </div>
   </div>
 </body>
+
 </html>

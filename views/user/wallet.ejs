@@ -38,7 +38,6 @@
             text-align: center;
         }
 
-        /* Wallet Balance Card */
         .wallet-balance-card {
             background: linear-gradient(135deg, #ff3368 0%, #ff6b9d 100%);
             border-radius: 25px;
@@ -128,7 +127,6 @@
             z-index: 1;
         }
 
-        /* Transaction Section */
         .transaction-section {
             background: white;
             border-radius: 25px;
@@ -214,7 +212,6 @@
             color: #dc3545;
         }
 
-        /* Pagination */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -250,7 +247,6 @@
             font-weight: 600;
         }
 
-        /* Add Money Modal */
         .modal-content {
             border-radius: 25px;
             border: none;
@@ -439,7 +435,8 @@
                     <ol class="breadcrumb" style="background: none; padding: 0;">
                         <li class="breadcrumb-item"><a href="/" style="color: #2d3436; text-decoration: none;">Home</a>
                         </li>
-                        <li class="breadcrumb-item"><a href="/userProfile" style="color: #2d3436; text-decoration: none;"> My Profile</a>
+                        <li class="breadcrumb-item"><a href="/userProfile"
+                                style="color: #2d3436; text-decoration: none;"> My Profile</a>
 
                         <li class="breadcrumb-item active" style="color: #636e72;">My Wallet</li>
                     </ol>
@@ -569,7 +566,7 @@
         </div>
 
         <%- include('../partials/user/footer.ejs') %>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
                 const currentBalance = <%= walletBalance || 0 %>;
@@ -588,71 +585,71 @@
                     document.getElementById('amountInput').value = amount;
                 }
 
-               
+
                 async function addMoneyToWallet() {
-    const amountInput = document.getElementById('amountInput');
-    const amount = parseFloat(amountInput.value);
+                    const amountInput = document.getElementById('amountInput');
+                    const amount = parseFloat(amountInput.value);
 
-    if (!amount || amount <= 0) {
-        swal("Invalid Amount", "Please enter a valid amount", "error");
-        return;
-    }
-
-    try {
-        const response = await fetch('/wallet/add-money', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            const options = {
-                key: data.key, // Backend sends process.env.RAZORPAY_KEY_ID
-                amount: data.amount * 100, // Razorpay works in paise
-                currency: data.currency,
-                name: "Aranoz Wallet",
-                description: "Wallet Recharge",
-                order_id: data.razorpayOrderId, // MATCHES BACKEND: razorpayOrderId
-                handler: async function (response) {
-                    // This triggers AFTER successful payment
-                    const verifyRes = await fetch('/wallet/verify-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            amount: data.amount // Original amount to add to DB
-                        })
-                    });
-
-                    const verifyData = await verifyRes.json();
-                    if (verifyData.success) {
-                        swal("Success!", "₹" + amount + " added to your wallet!", "success")
-                            .then(() => location.reload());
-                    } else {
-                        swal("Verification Failed", verifyData.message, "error");
+                    if (!amount || amount <= 0) {
+                        swal("Invalid Amount", "Please enter a valid amount", "error");
+                        return;
                     }
-                },
-                prefill: {
-                    name: data.customerDetails.name,
-                    email: data.customerDetails.email,
-                    contact: data.customerDetails.contact
-                },
-                theme: { color: "#ff3368" }
-            };
-            const rzp = new Razorpay(options);
-            rzp.open();
-        } else {
-            swal("Error", data.message, "error");
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        swal("Error!", "Something went wrong. Please try again.", "error");
-    }
-}
+
+                    try {
+                        const response = await fetch('/wallet/add-money', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            const options = {
+                                key: data.key, // Backend sends process.env.RAZORPAY_KEY_ID
+                                amount: data.amount * 100, // Razorpay works in paise
+                                currency: data.currency,
+                                name: "Aranoz Wallet",
+                                description: "Wallet Recharge",
+                                order_id: data.razorpayOrderId, // MATCHES BACKEND: razorpayOrderId
+                                handler: async function (response) {
+                                    // This triggers AFTER successful payment
+                                    const verifyRes = await fetch('/wallet/verify-payment', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_signature: response.razorpay_signature,
+                                            amount: data.amount // Original amount to add to DB
+                                        })
+                                    });
+
+                                    const verifyData = await verifyRes.json();
+                                    if (verifyData.success) {
+                                        swal("Success!", "₹" + amount + " added to your wallet!", "success")
+                                            .then(() => location.reload());
+                                    } else {
+                                        swal("Verification Failed", verifyData.message, "error");
+                                    }
+                                },
+                                prefill: {
+                                    name: data.customerDetails.name,
+                                    email: data.customerDetails.email,
+                                    contact: data.customerDetails.contact
+                                },
+                                theme: { color: "#ff3368" }
+                            };
+                            const rzp = new Razorpay(options);
+                            rzp.open();
+                        } else {
+                            swal("Error", data.message, "error");
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        swal("Error!", "Something went wrong. Please try again.", "error");
+                    }
+                }
 
                 // Pagination handlers
                 document.getElementById('prevBtn')?.addEventListener('click', () => {

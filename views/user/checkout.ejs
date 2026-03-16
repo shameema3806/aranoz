@@ -936,12 +936,6 @@
                                         </div>
                                         <% }); %>
                                             <% } %>
-                                                <!-- Add New Address Card -->
-                                                <!-- <div class="add-address-card" onclick="openAddressModal()">
-                                                    <i class="fas fa-plus-circle"></i>
-                                                    <h4>Add New Address</h4>
-                                                    <p>Add a new shipping address for delivery</p>
-                                                </div> -->
                             </div>
                         </div>
                         <!-- Payment Method Section -->
@@ -1001,9 +995,9 @@
                         ? '/public/product-images/' + product.productId.productImage[0] 
                         : '/img/product/placeholder.jpg' %>" alt="<%= product.productId.productName %>" width="100"
                                                     height="100" class="img-fluid rounded" />
-                                            </a> <!-- <-- FIXED: Close <a> IMMEDIATELY after <img> -->
-                                        </div> <!-- <-- Now safely closes d-flex (outside <a>) -->
-                                        <div class="item-details"> <!-- <-- Now safely OUTSIDE <a> -->
+                                            </a>
+                                        </div>
+                                        <div class="item-details">
                                             <h4 class="item-name">
                                                 <%= product.productName %>
                                             </h4>
@@ -1013,7 +1007,7 @@
                                                     %>
                                             </div>
                                         </div>
-                                    </div> <!-- <-- checkout-item closes cleanly -->
+                                    </div>
                                     <% }); %>
                             </div>
                         </div>
@@ -1071,9 +1065,6 @@
                             <% } %>
                                 <div class="summary-row">
                                     <span class="summary-label">Shipping charge</span>
-                                    <!-- <span class="summary-value <%= parseFloat(shipping) === 0 ? 'free' : '' %>">
-                                        <%= parseFloat(shipping)===0 ? 'Free' : '₹' + shipping %>
-                                    </span> -->
                                     <span class="summary-value">₹<%= shipping %></span>
                                 </div>
                                 <% if (parseFloat(tax)> 0) { %>
@@ -1122,9 +1113,7 @@
                         document.querySelector(`[data-payment="${paymentMethod}"]`).classList.add('selected');
                         selectedPaymentMethod = paymentMethod;
                     }
-                    // function openAddressModal() {
-                    //     window.location.href = "/addresses/add?redirect=checkout";
-                    // }
+
                     async function editAddress(addressId, event) {
                         event.stopPropagation();
                         window.location.href = `/addresses/edit/${addressId}?redirect=checkout`;

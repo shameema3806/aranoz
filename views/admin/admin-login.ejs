@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -192,8 +194,13 @@
 
         /* Animations */
         @keyframes float {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
         }
 
         @keyframes slideIn {
@@ -201,6 +208,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -272,6 +280,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="admin-login-container">
         <div class="admin-form-section">
@@ -281,21 +290,15 @@
             </h2>
             <p class="admin-subtitle">Secure administrator access</p>
 
-            
+
             <form id="adminLoginForm" method="post" action="/admin/login">
                 <div class="form-group">
                     <label for="email" class="form-label">
                         <i class="fas fa-envelope admin-icon"></i>
                         Admin Email
                     </label>
-                    <input
-                        type="email"
-                        class="form-input"
-                        name="email"
-                        id="email"
-                        placeholder="Enter your admin email"
-                        required
-                    />
+                    <input type="email" class="form-input" name="email" id="email" placeholder="Enter your admin email"
+                        required />
                     <div id="emailError" class="error-message"></div>
                 </div>
 
@@ -304,14 +307,8 @@
                         <i class="fas fa-lock admin-icon"></i>
                         Password
                     </label>
-                    <input
-                        type="password"
-                        class="form-input"
-                        name="password"
-                        id="password"
-                        placeholder="Enter your password"
-                        required
-                    />
+                    <input type="password" class="form-input" name="password" id="password"
+                        placeholder="Enter your password" required />
                     <div id="passwordError" class="error-message"></div>
                 </div>
 
@@ -336,14 +333,14 @@
 
     <script>
         class AdminLoginValidator {
-            constructor() {
+            constructor () {
                 this.form = document.getElementById('adminLoginForm');
                 this.emailInput = document.getElementById('email');
                 this.passwordInput = document.getElementById('password');
                 this.emailError = document.getElementById('emailError');
                 this.passwordError = document.getElementById('passwordError');
                 this.loginBtn = document.getElementById('adminLoginBtn');
-                
+
                 this.initializeEventListeners();
             }
 
@@ -351,10 +348,10 @@
                 // Real-time validation
                 this.emailInput.addEventListener('blur', () => this.validateEmail());
                 this.emailInput.addEventListener('input', () => this.clearError('email'));
-                
+
                 this.passwordInput.addEventListener('blur', () => this.validatePassword());
                 this.passwordInput.addEventListener('input', () => this.clearError('password'));
-                
+
                 // Form submission
                 this.form.addEventListener('submit', (e) => this.handleSubmit(e));
             }
@@ -362,34 +359,34 @@
             validateEmail() {
                 const email = this.emailInput.value.trim();
                 const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                
+
                 if (!email) {
                     this.showError('email', 'Admin email is required');
                     return false;
                 }
-                
+
                 if (!emailPattern.test(email)) {
                     this.showError('email', 'Please enter a valid email address');
                     return false;
                 }
-                
+
                 this.showSuccess('email');
                 return true;
             }
 
             validatePassword() {
                 const password = this.passwordInput.value;
-                
+
                 if (!password) {
                     this.showError('password', 'Password is required');
                     return false;
                 }
-                
+
                 if (password.length < 6) {
                     this.showError('password', 'Password must be at least 6 characters long');
                     return false;
                 }
-                
+
                 this.showSuccess('password');
                 return true;
             }
@@ -397,7 +394,7 @@
             showError(field, message) {
                 const input = field === 'email' ? this.emailInput : this.passwordInput;
                 const errorDiv = field === 'email' ? this.emailError : this.passwordError;
-                
+
                 input.classList.remove('valid');
                 input.classList.add('invalid');
                 errorDiv.textContent = message;
@@ -407,7 +404,7 @@
             showSuccess(field) {
                 const input = field === 'email' ? this.emailInput : this.passwordInput;
                 const errorDiv = field === 'email' ? this.emailError : this.passwordError;
-                
+
                 input.classList.remove('invalid');
                 input.classList.add('valid');
                 errorDiv.classList.remove('show');
@@ -416,54 +413,54 @@
             clearError(field) {
                 const input = field === 'email' ? this.emailInput : this.passwordInput;
                 const errorDiv = field === 'email' ? this.emailError : this.passwordError;
-                
+
                 input.classList.remove('invalid', 'valid');
                 errorDiv.classList.remove('show');
             }
 
             handleSubmit(e) {
                 e.preventDefault();
-                
+
                 const isEmailValid = this.validateEmail();
                 const isPasswordValid = this.validatePassword();
-                
+
                 if (isEmailValid && isPasswordValid) {
                     this.submitForm();
                 }
             }
 
-async submitForm() {
-    this.form.classList.add('loading');
-    this.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            async submitForm() {
+                this.form.classList.add('loading');
+                this.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
 
-    try {
-        const response = await fetch('/admin/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: this.emailInput.value.trim(),
-                password: this.passwordInput.value
-            })
-        });
+                try {
+                    const response = await fetch('/admin/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: this.emailInput.value.trim(),
+                            password: this.passwordInput.value
+                        })
+                    });
 
-        if (response.redirected) {
-            window.location.href = response.url; // redirect to dashboard if success
-            return;
-        }
+                    if (response.redirected) {
+                        window.location.href = response.url; // redirect to dashboard if success
+                        return;
+                    }
 
-        const result = await response.text();
-        if (result.includes("Invalid") || result.includes("Incorrect")) {
-            this.showServerMessage("Invalid email or password", "error");
-        } else {
-            this.showServerMessage("Something went wrong", "error");
-        }
-    } catch (error) {
-        this.showServerMessage("Server error, please try again later.", "error");
-    } finally {
-        this.form.classList.remove('loading');
-        this.loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Admin Login</span>';
-    }
-}
+                    const result = await response.text();
+                    if (result.includes("Invalid") || result.includes("Incorrect")) {
+                        this.showServerMessage("Invalid email or password", "error");
+                    } else {
+                        this.showServerMessage("Something went wrong", "error");
+                    }
+                } catch (error) {
+                    this.showServerMessage("Server error, please try again later.", "error");
+                } finally {
+                    this.form.classList.remove('loading');
+                    this.loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Admin Login</span>';
+                }
+            }
 
 
             showServerMessage(message, type = 'error') {
@@ -483,15 +480,16 @@ async submitForm() {
         document.addEventListener('DOMContentLoaded', () => {
             const inputs = document.querySelectorAll('.form-input');
             inputs.forEach(input => {
-                input.addEventListener('focus', function() {
+                input.addEventListener('focus', function () {
                     this.parentElement.style.transform = 'translateY(-2px)';
                 });
-                
-                input.addEventListener('blur', function() {
+
+                input.addEventListener('blur', function () {
                     this.parentElement.style.transform = 'translateY(0)';
                 });
             });
         });
     </script>
 </body>
+
 </html>

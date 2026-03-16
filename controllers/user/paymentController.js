@@ -69,8 +69,6 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-
-// Retry Payment for Failed Orders
 const retryPayment = async (req, res) => {
   try {
     const { orderId } = req.body;
@@ -89,7 +87,6 @@ const retryPayment = async (req, res) => {
     if (order.paymentStatus === "Failed") {
       return res.json({ success: false, message: "order failed" })
     }
-    // Check stock again before retry
     for (let item of order.orderedItems) {
       const product = await Product.findById(item.product);
       if (!product || product.quantity < item.quantity) {
@@ -100,7 +97,6 @@ const retryPayment = async (req, res) => {
       }
     }
 
-    // Create new Razorpay order
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(order.finalAmount * 100),
       currency: 'INR',
@@ -112,12 +108,9 @@ const retryPayment = async (req, res) => {
       }
     });
 
-    // Update order with new Razorpay order ID
     order.razorpayOrderId = razorpayOrder.id;
-    // Only update the razorpayOrderId, keep status as-is until verified
     order.razorpayOrderId = razorpayOrder.id; await order.save();
 
-    // Get user details
     const user = await User.findById(userId);
     const addressDoc = await Address.findOne({ userId });
 

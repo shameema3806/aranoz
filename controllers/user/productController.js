@@ -5,8 +5,8 @@ const User = require("../../models/userSchema");
 
 const productDetail = async (req, res) => {
   try {
-      const userId = req.session.user; 
-      const productId = req.query.id;
+    const userId = req.session.user;
+    const productId = req.query.id;
 
     if (!productId) {
       return res.redirect('/shop');
@@ -15,14 +15,13 @@ const productDetail = async (req, res) => {
     const product = await Product.findById(productId).populate('category').lean();
     if (!product || product.isBlocked) return res.redirect('/shop');
 
-    // const now = new Date();  //  expiry if needed
     const productOffer = (product.offer && (!product.offerExpiry || product.offerExpiry > now)) ? product.offer : 0;
-    const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now) 
-      ? product.category.offer 
+    const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now)
+      ? product.category.offer
       : 0;
     const effectiveOffer = Math.max(productOffer, categoryOffer);
-    const effectiveOfferPrice = effectiveOffer > 0 
-      ? (product.salePrice * (1 - effectiveOffer / 100)).toFixed(2) 
+    const effectiveOfferPrice = effectiveOffer > 0
+      ? (product.salePrice * (1 - effectiveOffer / 100)).toFixed(2)
       : null;
 
     product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;
@@ -34,9 +33,9 @@ const productDetail = async (req, res) => {
       isBlocked: false,
       quantity: { $gt: 0 }
     })
-    .limit(4)
-    .sort({ productName: 1 }) 
-    .lean();
+      .limit(4)
+      .sort({ productName: 1 })
+      .lean();
 
     let user = null;
     if (userId) {
@@ -52,5 +51,5 @@ const productDetail = async (req, res) => {
 
 
 module.exports = {
-   productDetail
-   };
+  productDetail
+};

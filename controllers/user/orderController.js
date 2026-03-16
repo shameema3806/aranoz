@@ -68,76 +68,6 @@ const placeOrder = async (req, res) => {
       });
     }
 
-    // Create order
-    //     const order = new Order({
-    //       userId,
-    //       orderedItems: cart.items.map(i => ({
-    //         product: i.productId._id,
-    //         quantity: i.quantity,
-    //         price: i.price
-    //       })),
-    //       totalPrice: subtotal,
-    //       discount: discount,
-    //       couponCode: appliedCoupon?.id || null,
-    //       shipping,
-    //       finalAmount,
-    //       address: {
-    //         name: address.name,
-    //         phone: address.phone,
-    //         address: address.landMark,
-    //         city: address.city,
-    //         state: address.state,
-    //         pincode: address.pincode,
-    //         addressType: address.addressType
-    //       },
-    //       paymentMethod: paymentMethod.toUpperCase(),
-    //         // online orders start as Payment Failed until verified
-    //        status: paymentMethod === 'online' ? 'Payment Failed' : 'Pending',
-    //        paymentStatus: paymentMethod === 'online' ? 'Failed' : 'Pending'
-    //     });
-
-    //     await order.save();
-
-    //     // Handle COD
-    //     if (paymentMethod === 'cod') {
-    //       for (let item of cart.items) {
-    //         await Product.findByIdAndUpdate(item.productId._id, { $inc: { stock: -item.quantity } });
-    //       }
-    //       await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
-    //       delete req.session.appliedCoupon;
-
-    //       return res.json({ success: true, orderId: order._id, displayOrderId: order.orderId });
-    //     }
-
-    //     // Handle Online Payment
-    // if (paymentMethod === 'online') {
-    //   const razorpayOrder = await razorpay.orders.create({
-    //     amount: Math.round(finalAmount * 100),
-    //     currency: 'INR',
-    //     receipt: `temp_${Date.now()}`  // temp receipt, no DB order yet
-    //   });
-
-    //   const user = await User.findById(userId);
-    //   return res.json({
-    //     success: true,
-    //     razorpayOrderId: razorpayOrder.id,
-    //     amount: finalAmount,
-    //     key: process.env.RAZORPAY_KEY_ID,
-    //     // Pass order data in session to create AFTER payment
-    //     pendingOrderData: {
-    //       addressId,
-    //       subtotal,
-    //       discount,
-    //       shipping,
-    //       finalAmount,
-    //       couponCode: appliedCoupon?.id || null,
-    //       razorpayOrderId: razorpayOrder.id
-    //     },
-    //     customerDetails: { name: address.name, email: user.email, contact: address.phone }
-    //   });
-    // }
-
-
     if (paymentMethod === 'cod') {
       const order = new Order({
         userId,
@@ -168,7 +98,7 @@ const placeOrder = async (req, res) => {
       await order.save();
 
       for (let item of cart.items) {
-        await Product.findByIdAndUpdate(item.productId._id, { $inc: { quantity: -item.quantity } }); 
+        await Product.findByIdAndUpdate(item.productId._id, { $inc: { quantity: -item.quantity } });
 
       }
       await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
@@ -177,7 +107,6 @@ const placeOrder = async (req, res) => {
       return res.json({ success: true, orderId: order._id, displayOrderId: order.orderId });
     }
 
-    // Don't save order yet store in session
     if (paymentMethod === 'online') {
       const razorpayOrder = await razorpay.orders.create({
         amount: Math.round(finalAmount * 100),
@@ -185,7 +114,6 @@ const placeOrder = async (req, res) => {
         receipt: `pending_${Date.now()}`
       });
 
-      // created in DB only after payment success
       req.session.pendingOrder = {
         userId,
         orderedItems: cart.items.map(i => ({
@@ -288,7 +216,7 @@ let viewOrder = async (req, res) => {
     const user = await User.findById(userId).lean();
 
     const order = await Order.findOne({ _id: orderId, userId })
-      .populate('orderedItems.product') // Populate products for items list
+      .populate('orderedItems.product')
       .lean();
 
     if (!order) return res.redirect('/orders');
@@ -338,10 +266,8 @@ let returnOrder = async (req, res) => {
     if (!reason) {
       return res.json({ success: false, message: 'Return reason is required' });
     }
-    console.log('Return attempt:', { orderId, userId, reason });
 
     const order = await Order.findOne({ _id: orderId, userId });
-    console.log('Found order:', order ? { _id: order._id, status: order.status } : 'Not found'); // Debug log
 
     if (!order || order.status !== 'Delivered') {
       return res.json({ success: false, message: 'Cannot return this order' });
@@ -357,8 +283,6 @@ let returnOrder = async (req, res) => {
       reason: reason
     });
     await order.save();
-
-
     res.json({ success: true, message: 'Return request submitted' });
   } catch (error) {
     console.error('Error returning order:', error);
@@ -400,10 +324,6 @@ let updateOrderStatus = async (req, res) => {
   }
 };
 
-
-
-
-
 module.exports = {
   placeOrder,
   loadOrders,
@@ -411,5 +331,4 @@ module.exports = {
   cancelOrder,
   returnOrder,
   updateOrderStatus,
-
 };

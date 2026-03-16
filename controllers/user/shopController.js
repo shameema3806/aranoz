@@ -99,19 +99,18 @@ const loadShopping = async (req, res) => {
 
 
     const processedProducts = products.map(product => {
-      const now = new Date();  // NEW: Current date for expiry checks
+      const now = new Date();
       const productOffer = (product.offer && (!product.offerExpiry || product.offerExpiry > now)) ? product.offer : 0;  // NEW: Product-level offer with expiry
       const categoryOffer = product.category && product.category.offer && (!product.category.offerExpiry || product.category.offerExpiry > now)
         ? product.category.offer
-        : 0;  // NEW: Category-level offer with expiry (requires populate)
-      const effectiveOffer = Math.max(productOffer, categoryOffer);  // NEW: Max of both
+        : 0;
+      const effectiveOffer = Math.max(productOffer, categoryOffer);
       const effectiveOfferPrice = effectiveOffer > 0
-        ? Math.round(product.salePrice * (1 - effectiveOffer / 100))  // NEW: Computed price if offer valid
+        ? Math.round(product.salePrice * (1 - effectiveOffer / 100))
         : null;
 
-      product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;  // NEW: Set only if >0
-      product.effectiveOfferPrice = effectiveOfferPrice;  // NEW: Attach computed price
-
+      product.effectiveOffer = effectiveOffer > 0 ? effectiveOffer : null;
+      product.effectiveOfferPrice = effectiveOfferPrice;
       return product;
     });
     const totalPages = Math.ceil(totalProducts / limit);
@@ -137,7 +136,6 @@ const loadShopping = async (req, res) => {
     res.render('shop', {
       categories,
       products: processedProducts,
-      // selectedCategory: req.query.category || null,
       selectedCategory,
       selectedPriceRange: req.query.priceRange || null,
       searchQuery: req.query.search || '',

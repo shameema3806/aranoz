@@ -1,0 +1,293 @@
+<%- include("../../views/partials/user/header") %>
+
+    <style>
+        body {
+            background-color: #f9fdff;
+        }
+
+        .contact_hero {
+            background: linear-gradient(135deg, #deecf3 0%, #ebf1f5 100%);
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+
+        .contact_hero h1 {
+            font-size: 48px;
+            font-weight: 900;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        .contact_hero p {
+            font-size: 17px;
+            color: #666;
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .contact_section {
+            padding: 70px 0;
+            background: #fff;
+        }
+
+        .contact_card {
+            background: #ebf1f5;
+            border-radius: 12px;
+            padding: 40px 35px;
+            height: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+        }
+
+        .contact_card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .contact_card i {
+            font-size: 28px;
+            color: #ff3368;
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .contact_card h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .contact_card p {
+            font-size: 15px;
+            color: #777;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .contact_card a {
+            color: #1a5d8c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact_card a:hover {
+            color: #ff3368;
+            text-decoration: underline;
+        }
+
+        .about_section {
+            padding: 70px 0;
+            background: #ebf1f5;
+        }
+
+        .about_section .section_tittle h2 {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        .about_section p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.9;
+            margin-bottom: 16px;
+        }
+
+        .about_badge {
+            display: inline-block;
+            background: #ff3368;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 18px;
+            border-radius: 20px;
+            margin: 4px 4px 4px 0;
+            letter-spacing: 0.5px;
+            transition: background 0.2s ease;
+        }
+
+        .about_badge:hover {
+            background: #1a5d8c;
+        }
+
+        .hours_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .hours_table td {
+            padding: 10px 0;
+            font-size: 15px;
+            color: #555;
+            border-bottom: 1px solid #d1e8f5;
+        }
+
+        .hours_table td:last-child {
+            text-align: right;
+            font-weight: 600;
+            color: #1a5d8c;
+        }
+
+        .map_section {
+            padding: 0 0 70px;
+            background: #fff;
+        }
+
+        .map_section iframe {
+            width: 100%;
+            height: 380px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .divider_line {
+            height: 3px;
+            width: 60px;
+            background: #ff3368;
+            margin: 0 auto 30px;
+            border-radius: 2px;
+        }
+
+        .section_label {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ff3368;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+    </style>
+
+    <!-- Hero -->
+    <section class="contact_hero">
+        <div class="container">
+            <h1>Get In Touch</h1>
+            <div class="divider_line"></div>
+            <p>We'd love to hear from you. Visit our store, send us a message, or simply browse our curated collection
+                of timeless furniture and décor.</p>
+        </div>
+    </section>
+
+    <!-- Contact Cards -->
+    <section class="contact_section">
+        <div class="container">
+            <div class="row g-4">
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact_card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h4>Visit Our Store</h4>
+                        <p>
+                            24 Furniture Lane<br>
+                            Calicut, Kerala<br>
+                            India
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact_card">
+                        <i class="fas fa-phone-alt"></i>
+                        <h4>Call Us</h4>
+                        <p>
+                            <a href="tel:+919856436876">+91 98564 36876</a><br>
+                            <a href="tel:+918745362460">+91 87453 62460</a><br>
+                            <span style="font-size:13px; color:#aaa;">Mon – Sat, 9am – 9pm</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact_card">
+                        <i class="fas fa-envelope"></i>
+                        <h4>Email Us</h4>
+                        <p>
+                            <a href="mailto:hello@aranoz.com">hello@aranoz.com</a><br>
+                            <a href="mailto:support@aranoz.com">support@aranoz.com</a><br>
+                            <span style="font-size:13px; color:#aaa;">We reply within 24 hours</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About the Shop -->
+    <section class="about_section">
+        <div class="container">
+            <div class="row align-items-center g-5">
+
+                <div class="col-lg-6">
+                    <p class="section_label">Our Story</p>
+                    <div class="section_tittle">
+                        <h2>About Aranoz</h2>
+                    </div>
+                    <p>
+                        Aranoz was founded with a simple belief — that your home deserves furniture that tells a story.
+                        We source premium materials from across the world and craft pieces that blend natural textures
+                        with modern sensibility.
+                    </p>
+                    <p>
+                        Every item in our collection is handpicked by our in-house design team. From statement sofas to
+                        subtle accent pieces, we believe in quality that lasts and style that endures.
+                    </p>
+                    <p>
+                        Whether you're furnishing a new home or refreshing a single room, our team is here to guide you
+                        every step of the way — in store or online.
+                    </p>
+                    <div class="mt-3">
+                        <span class="about_badge">Free Delivery</span>
+                        <span class="about_badge">Premium Quality</span>
+                        <span class="about_badge">Easy Returns</span>
+                        <span class="about_badge">Expert Advice</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="contact_card">
+                        <i class="fas fa-clock"></i>
+                        <h4>Store Hours</h4>
+                        <table class="hours_table">
+                            <tr>
+                                <td>Monday – Friday</td>
+                                <td>9:00 AM – 9:00 PM</td>
+                            </tr>
+                            <tr>
+                                <td>Saturday</td>
+                                <td>9:00 AM – 10:00 PM</td>
+                            </tr>
+                            <tr>
+                                <td>Sunday</td>
+                                <td>11:00 AM – 7:00 PM</td>
+                            </tr>
+                            <tr>
+                                <td>Public Holidays</td>
+                                <td>10:00 AM – 8:00 PM</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Map -->
+    <section class="map_section pt-5">
+        <div class="container">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3914.4!2d75.78!3d11.25!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDE1JzAwLjAiTiA3NcKwNDYnNDguMCJF!5e0!3m2!1sen!2sin!4v1234567890"
+                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                title="Aranoz Store Location - Calicut">
+            </iframe>
+        </div>
+    </section>
+
+    <%- include("../../views/partials/user/footer") %>

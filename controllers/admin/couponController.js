@@ -52,7 +52,7 @@ const updateCouponSchema = Joi.object({
 const getcoupon = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const itemsPerPage = parseInt(req.query.limit) || 5; 
+    const itemsPerPage = parseInt(req.query.limit) || 5;
     const searchQuery = req.query.search?.trim() || '';
     const skip = (page - 1) * itemsPerPage;
 
@@ -78,7 +78,7 @@ const getcoupon = async (req, res) => {
     res.render('couponpage', {
       coupons,
       currentPage: page,
-      itemsPerPage,               // ← matches EJS <%= itemsPerPage %>
+      itemsPerPage,
       totalPages,
       searchQuery,
     });
@@ -88,8 +88,6 @@ const getcoupon = async (req, res) => {
   }
 };
 
-
-// POST /admin/coupon - Create coupon
 const createCoupon = async (req, res) => {
   console.log('POST /admin/coupon → Body:', req.body);
 
@@ -117,7 +115,7 @@ const createCoupon = async (req, res) => {
 
     const coupon = new Coupon({
       ...req.body,
-      createdBy: req.admin?._id || null,  
+      createdBy: req.admin?._id || null,
       createdAt: new Date(),
     });
 
@@ -133,8 +131,6 @@ const createCoupon = async (req, res) => {
   }
 };
 
-
-// PUT /admin/coupon/:id - Update coupon
 const updateCoupon = async (req, res) => {
   const { id } = req.params;
 
@@ -152,18 +148,11 @@ const updateCoupon = async (req, res) => {
       return res.status(404).json({ error: 'Coupon not found' });
     }
 
-    // Optional: check ownership (uncomment if needed)
-    // if (coupon.createdBy?.toString() !== req.admin?._id?.toString()) {
-    //   return res.status(403).json({ error: 'Not authorized' });
-    // }
-
-    // Update fields (code is NOT updated - readonly in frontend)
     coupon.discountType = req.body.discountType;
     coupon.discountValue = req.body.discountValue;
     coupon.minCartValue = req.body.minCartValue ?? 0;
     coupon.maxDiscount = req.body.maxDiscount ?? null;
     coupon.expiryDate = new Date(req.body.expiryDate);
-    // isActive is NOT updated from frontend
 
     await coupon.save();
 
@@ -177,8 +166,6 @@ const updateCoupon = async (req, res) => {
   }
 };
 
-
-// DELETE /admin/coupon/:id - Real delete (matches current frontend)
 const deleteCoupon = async (req, res) => {
   const { id } = req.params;
 
@@ -187,14 +174,7 @@ const deleteCoupon = async (req, res) => {
     if (!coupon) {
       return res.status(404).json({ error: 'Coupon not found' });
     }
-
-    // Optional: ownership check
-    // if (coupon.createdBy?.toString() !== req.admin?._id?.toString()) {
-    //   return res.status(403).json({ error: 'Not authorized' });
-    // }
-
     await Coupon.deleteOne({ _id: id });
-
     res.json({ message: 'Coupon deleted successfully' });
   } catch (err) {
     console.error('Delete coupon error:', err);

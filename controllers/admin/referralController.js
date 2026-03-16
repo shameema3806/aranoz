@@ -1,7 +1,6 @@
-// controllers/admin/referralController.js
 const User = require("../../models/userSchema");
 const Coupon = require("../../models/couponSchema");
-const ReferralConfig = require("../../models/referralConfigSchema"); // Assuming this schema exists as per your code
+const ReferralConfig = require("../../models/referralConfigSchema");
 const Joi = require('joi');
 const crypto = require('crypto');
 const Wallet = require("../../models/walletSchema");
@@ -18,7 +17,7 @@ const configSchema = Joi.object({
   maxReferrals: Joi.number().min(0).allow(null),
 });
 
-// GET /admin/referral - View all referrals (aggregated from User.referrals)
+// View all referrals
 const getReferrals = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -41,16 +40,16 @@ const getReferrals = async (req, res) => {
         $or: [
           { _id: { $in: userIds } }, // Referrer match
           { 'referrals.referee_id': { $in: userIds } }, // Referred user match
-          { 'referrals.referralCode': { $regex: searchQuery, $options: 'i' } } // Code match
+          { 'referrals.referralCode': { $regex: searchQuery, $options: 'i' } }
         ]
       };
     }
 
-    // Use $facet for efficient pagination and count
     const facetPipeline = [
       { $match: matchStage },
       { $unwind: { path: '$referrals', preserveNullAndEmptyArrays: false } },
-      { $lookup: {
+      {
+        $lookup: {
           from: 'users',
           localField: 'referrals.referee_id',
           foreignField: '_id',
@@ -58,7 +57,8 @@ const getReferrals = async (req, res) => {
         }
       },
       { $unwind: { path: '$referredUser', preserveNullAndEmptyArrays: true } },
-      { $lookup: {
+      {
+        $lookup: {
           from: 'coupons',
           localField: 'referrals.coupon_id',
           foreignField: '_id',
@@ -125,7 +125,8 @@ const getReferrals = async (req, res) => {
 
     const pendingRewardsAgg = await User.aggregate([
       { $unwind: '$referrals' },
-      { $match: {
+      {
+        $match: {
           'referrals.referee_id': { $ne: null },
           'referrals.coupon_id': null
         }
@@ -141,7 +142,7 @@ const getReferrals = async (req, res) => {
       pendingRewards
     };
 
-    res.render('referral', { // Adjust path to your EJS file
+    res.render('referral', {
       referrals,
       currentPage: page,
       itemsPerPage: limit,
@@ -155,7 +156,6 @@ const getReferrals = async (req, res) => {
   }
 };
 
-// GET /admin/referral/:id - Get referral details (by subdoc _id)
 const getReferralDetails = async (req, res) => {
   try {
     const { id } = req.params; // This is the referrals.subdoc _id
@@ -166,29 +166,29 @@ const getReferralDetails = async (req, res) => {
     const referral = user.referrals.id(id); // Mongoose subdoc
     await user.populate('referrals.referee_id', 'name email');
     await user.populate('referrals.coupon_id');
-    res.json({ data: {
-      referrer: { name: user.name, email: user.email, referralCode: user.referalCode },
-      method: referral.method || 'code',
-      referredUser: referral.referee_id ? { name: referral.referee_id.name, email: referral.referee_id.email } : null,
-      rewardIssued: !!referral.coupon_id,
-      couponIssued: referral.coupon_id ? referral.coupon_id.code : null,
-      status: referral.status,
-      createdAt: referral.created_at
-    } });
+    res.json({
+      data: {
+        referrer: { name: user.name, email: user.email, referralCode: user.referalCode },
+        method: referral.method || 'code',
+        referredUser: referral.referee_id ? { name: referral.referee_id.name, email: referral.referee_id.email } : null,
+        rewardIssued: !!referral.coupon_id,
+        couponIssued: referral.coupon_id ? referral.coupon_id.code : null,
+        status: referral.status,
+        createdAt: referral.created_at
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 };
 
-// POST /admin/referral/config - Save referral configuration
 const saveConfig = async (req, res) => {
   try {
     const { error } = configSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
-    // Update or create config (singleton pattern)
     let config = await ReferralConfig.findOne();
     if (config) {
       Object.assign(config, req.body);
@@ -204,7 +204,6 @@ const saveConfig = async (req, res) => {
   }
 };
 
-// POST /admin/referral/:id/issue-reward - Manually issue reward (by subdoc _id)
 const issueReward = async (req, res) => {
   try {
     const { id } = req.params;
@@ -219,12 +218,10 @@ const issueReward = async (req, res) => {
     if (referral.coupon_id) {
       return res.status(400).json({ error: 'Reward already issued' });
     }
-    // Get config
     const config = await ReferralConfig.findOne();
     if (!config) {
       return res.status(400).json({ error: 'Referral program not configured' });
     }
-    // Create coupon for referrer
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + config.expiryDays);
     const coupon = new Coupon({
@@ -242,7 +239,7 @@ const issueReward = async (req, res) => {
     // Update referral subdoc
     referral.coupon_id = coupon._id;
     referral.status = 'claimed';
-    referral.rewardIssuedAt = new Date(); // Add this field to schema if needed
+    referral.rewardIssuedAt = new Date();
     await user.save();
     res.json({
       message: 'Reward issued successfully',

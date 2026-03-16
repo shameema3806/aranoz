@@ -11,7 +11,7 @@ const walletSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     min: 0,
-    max: 10000 // Wallet limit
+    max: 10000
   },
   transactions: [{
     type: {
@@ -45,7 +45,6 @@ const walletSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
 
 
 module.exports = mongoose.model('Wallet', walletSchema);

@@ -1,6 +1,20 @@
 <!-- Header Section -->
 <%- include("../../views/partials/user/header") %>
 
+    <style>
+        #timer {
+            display: flex;
+            gap: 10px;
+        }
+
+        #timer .date {
+            display: inline-block;
+            min-width: 55px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+
     <!-- Banner Part Start -->
     <section class="banner_part">
         <div class="container">
@@ -13,10 +27,11 @@
                                 <div class="col-lg-5 col-md-8">
                                     <div class="banner_text">
                                         <div class="banner_text_iner">
-                                            <h1>Wood & Cloth Sofa</h1>
-                                            <p>Incididunt ut labore et dolore magna aliqua quis ipsum
-                                                suspendisse ultrices gravida. Risus commodo viverra</p>
-                                            <a href="/products" class="btn_2">Buy Now</a>
+                                            <h1>Furniture And Decor Items</h1>
+                                            <p>Experience the perfect harmony of natural textures and premium comfort.
+                                                Elevate your living space with our curated collection of timeless
+                                                furniture and artisanal accents.</p>
+                                            <a href="/shop" class="btn_2">Buy Now</a>
                                         </div>
                                     </div>
                                 </div>
@@ -30,10 +45,11 @@
                                 <div class="col-lg-5 col-md-8">
                                     <div class="banner_text">
                                         <div class="banner_text_iner">
-                                            <h1>Cloth & Wood Sofa</h1>
-                                            <p>Incididunt ut labore et dolore magna aliqua quis ipsum
-                                                suspendisse ultrices gravida. Risus commodo viverra</p>
-                                            <a href="/products" class="btn_2">Buy Now</a>
+                                            <h1>Furniture And Decor Items</h1>
+                                            <p>Experience the perfect harmony of natural textures and premium comfort.
+                                                Elevate your living space with our curated collection of timeless
+                                                furniture and artisanal accents.</p>
+                                            <a href="/shop" class="btn_2">Buy Now</a>
                                         </div>
                                     </div>
                                 </div>
@@ -47,10 +63,11 @@
                                 <div class="col-lg-5 col-md-8">
                                     <div class="banner_text">
                                         <div class="banner_text_iner">
-                                            <h1>Wood & Cloth Sofa</h1>
-                                            <p>Incididunt ut labore et dolore magna aliqua quis ipsum
-                                                suspendisse ultrices gravida. Risus commodo viverra</p>
-                                            <a href="/products" class="btn_2">Buy Now</a>
+                                            <h1>Furniture And Decor Items</h1>
+                                            <p>Experience the perfect harmony of natural textures and premium comfort.
+                                                Elevate your living space with our curated collection of timeless
+                                                furniture and artisanal accents.</p>
+                                            <a href="/shop" class="btn_2">Buy Now</a>
                                         </div>
                                     </div>
                                 </div>
@@ -90,7 +107,7 @@
                                     <h4>
                                         <% if (products[i].offerPrice) { %>
                                             <span class="original-price"><s>₹<%= products[i].regularPrice.toFixed(2) %>
-                                                        </s></span>
+                                                </s></span>
                                             ₹<%= products[i].offerPrice.toFixed(2) %>
                                                 <% } else { %>
                                                     ₹<%= products[i].salePrice.toFixed(2) %>
@@ -122,135 +139,99 @@
         </div>
     </section>
     <!-- Product List End -->
-<!-- Featured Offers Start -->
-<section class="feature_part padding_top">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="section_tittle text-center">
-                    <h2 style="font-size: 29px; font-weight: 900; font-style:inherit ;">SPECIAL OFFERS</h2>
-                    <p>Discover our top deals and discounts</p>
-                </div>
-            </div>
-        </div>
-        <div class="row align-items-center justify-content-between" id="featuredOffersRow">
-            <% if (featuredOffers && featuredOffers.length > 0) { %>
-                <% featuredOffers.forEach((product, index) => { %>
-                    <% const colClass = index % 2 === 0 ? 'col-lg-7 col-sm-6' : 'col-lg-5 col-sm-6'; %>
-                    <div class="<%= colClass %>">
-                        <div class="single_feature_post_text">
-                            <p>Premium Quality</p>
-                            <h3><%= product.productName %></h3>
-                            <div class="price-section mb-2">
-                                <% if (product.effectiveOffer && product.effectiveOffer > 0) { %>
-                                    <span class="badge bg-danger rounded-pill px-2 py-1 me-2">
-                                        -<%= product.effectiveOffer %>% OFF
-                                    </span>
-                                    <span class="text-success fw-bold fs-5">₹<%= product.effectiveOfferPrice %></span>
-                                    <br>
-                                    <small class="text-muted text-decoration-line-through">₹<%= product.salePrice %></small>
-                                    <small class="text-danger ms-2" style="font-size: 0.8rem; font-weight: 600;">
-                                        OFF UPTO <%= product.effectiveOffer %>% (₹<%= (product.salePrice - parseFloat(product.effectiveOfferPrice)).toFixed(0) %>)
-                                    </small>
-                                <% } else { %>
-                                    <span class="text-dark fw-bold fs-5">₹<%= product.salePrice %></span>
-                                    <% if (product.regularPrice > product.salePrice) { %>
-                                        <small class="text-muted text-decoration-line-through ms-2">₹<%= product.regularPrice %></small>
-                                    <% } %>
-                                <% } %>
-                            </div>
-                            <a href="/productDetail?id=<%= product._id %>" class="feature_btn">Explore Now <i class="fas fa-play"></i></a>
-                            <% if (product.productImage && product.productImage.length > 0) { %>
-                                <img src="/public/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>" class="img-fluid mt-3 rounded shadow">
-                            <% } else { %>
-                                <img src="/img/product/placeholder.jpg" alt="Placeholder" class="img-fluid mt-3 rounded shadow">
-                            <% } %>
-                        </div>
+    <!-- Featured Offers Start -->
+    <section class="feature_part padding_top">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="section_tittle text-center">
+                        <h2 style="font-size: 29px; font-weight: 900; font-style:inherit ;">SPECIAL OFFERS</h2>
+                        <p>Discover our top deals and discounts</p>
                     </div>
-                <% }) %>
-            <% } else { %>
-                <!-- Fallback if no offers -->
-                <div class="col-12 text-center">
-                    <p class="text-muted">No featured offers available right now. Check back soon!</p>
                 </div>
-            <% } %>
-        </div>
+            </div>
+            <div class="row align-items-center justify-content-between" id="featuredOffersRow">
+                <% if (featuredOffers && featuredOffers.length> 0) { %>
+                    <% featuredOffers.forEach((product, index)=> { %>
+                        <% const colClass=index % 2===0 ? 'col-lg-7 col-sm-6' : 'col-lg-5 col-sm-6' ; %>
+                            <div class="<%= colClass %>">
+                                <div class="single_feature_post_text">
+                                    <p>Premium Quality</p>
+                                    <h3>
+                                        <%= product.productName %>
+                                    </h3>
+                                    <div class="price-section mb-2">
+                                        <% if (product.effectiveOffer && product.effectiveOffer> 0) { %>
+                                            <span class="badge bg-danger rounded-pill px-2 py-1 me-2">
+                                                -<%= product.effectiveOffer %>% OFF
+                                            </span>
+                                            <span class="text-success fw-bold fs-5">₹<%= product.effectiveOfferPrice %>
+                                            </span>
+                                            <br>
+                                            <small class="text-muted text-decoration-line-through">₹<%=
+                                                    product.salePrice %></small>
+                                            <small class="text-danger ms-2"
+                                                style="font-size: 0.8rem; font-weight: 600;">
+                                                OFF UPTO <%= product.effectiveOffer %>% (₹<%= (product.salePrice -
+                                                        parseFloat(product.effectiveOfferPrice)).toFixed(0) %>)
+                                            </small>
+                                            <% } else { %>
+                                                <span class="text-dark fw-bold fs-5">₹<%= product.salePrice %></span>
+                                                <% if (product.regularPrice> product.salePrice) { %>
+                                                    <small class="text-muted text-decoration-line-through ms-2">₹<%=
+                                                            product.regularPrice %></small>
+                                                    <% } %>
+                                                        <% } %>
+                                    </div>
+                                    <a href="/productDetail?id=<%= product._id %>" class="feature_btn">Explore Now <i
+                                            class="fas fa-play"></i></a>
+                                    <% if (product.productImage && product.productImage.length> 0) { %>
+                                        <img src="/public/product-images/<%= product.productImage[0] %>"
+                                            alt="<%= product.productName %>" class="img-fluid mt-3 rounded shadow">
+                                        <% } else { %>
+                                            <img src="/img/product/placeholder.jpg" alt="Placeholder"
+                                                class="img-fluid mt-3 rounded shadow">
+                                            <% } %>
+                                </div>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <!-- Fallback if no offers -->
+                                    <div class="col-12 text-center">
+                                        <p class="text-muted">No featured offers available right now. Check back soon!
+                                        </p>
+                                    </div>
+                                    <% } %>
+            </div>
 
-        <!-- Pagination for Featured Offers (below the row, centered) -->
-        <% if (totalOffersPages > 1) { %>
-            <nav aria-label="Featured Offers Pagination" class="mt-4">
-                <ul class="pagination justify-content-center" id="offersPaginationList">
-                    <!-- Previous -->
-                    <li class="page-item <%= currentOffersPage <= 1 ? 'disabled' : '' %>">
-                        <a class="page-link ajax-paginate" data-page="<%= currentOffersPage - 1 %>"><</a>
-                    </li>
-
-                    <!-- Page Numbers -->
-                    <% for(let i = 1; i <= totalOffersPages; i++) { %>
-                        <li class="page-item <%= i === currentOffersPage ? 'active' : '' %>">
-                            <a class="page-link ajax-paginate" data-page="<%= i %>"><%= i %></a>
+            <!-- Pagination for Featured Offers (below the row, centered) -->
+            <% if (totalOffersPages> 1) { %>
+                <nav aria-label="Featured Offers Pagination" class="mt-4">
+                    <ul class="pagination justify-content-center" id="offersPaginationList">
+                        <!-- Previous -->
+                        <li class="page-item <%= currentOffersPage <= 1 ? 'disabled' : '' %>">
+                            <a class="page-link ajax-paginate" data-page="<%= currentOffersPage - 1 %>">
+                                << /a>
                         </li>
-                    <% } %>
 
-                    <!-- Next -->
-                    <li class="page-item <%= currentOffersPage >= totalOffersPages ? 'disabled' : '' %>">
-                        <a class="page-link ajax-paginate" data-page="<%= currentOffersPage + 1 %>">></a>
-                    </li>
-                </ul>
-            </nav>
-        <% } %>
-    </div>
-</section>
-<!-- Featured Offers End -->
+                        <!-- Page Numbers -->
+                        <% for(let i=1; i <=totalOffersPages; i++) { %>
+                            <li class="page-item <%= i === currentOffersPage ? 'active' : '' %>">
+                                <a class="page-link ajax-paginate" data-page="<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                            <% } %>
 
-
-    <!-- Featured Category Start -->
-    <!-- <section class="feature_part padding_top">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="section_tittle text-center">
-                    <h2>Featured Category</h2>
-                </div>
-            </div>
+                                <!-- Next -->
+                                <li class="page-item <%= currentOffersPage >= totalOffersPages ? 'disabled' : '' %>">
+                                    <a class="page-link ajax-paginate" data-page="<%= currentOffersPage + 1 %>">></a>
+                                </li>
+                    </ul>
+                </nav>
+                <% } %>
         </div>
-        <div class="row align-items-center justify-content-between">
-            <div class="col-lg-7 col-sm-6">
-                <div class="single_feature_post_text">
-                    <p>Premium Quality</p>
-                    <h3>Latest Foam Sofa</h3>
-                    <a href="/products" class="feature_btn">Explore Now <i class="fas fa-play"></i></a>
-                    <img src="img/feature/feature_1.png" alt="Latest Foam Sofa">
-                </div>
-            </div>
-            <div class="col-lg-5 col-sm-6">
-                <div class="single_feature_post_text">
-                    <p>Premium Quality</p>
-                    <h3>Modern Wooden Chair</h3>
-                    <a href="/products" class="feature_btn">Explore Now <i class="fas fa-play"></i></a>
-                    <img src="img/feature/feature_2.png" alt="Modern Wooden Chair">
-                </div>
-            </div>
-            <div class="col-lg-5 col-sm-6">
-                <div class="single_feature_post_text">
-                    <p>Premium Quality</p>
-                    <h3>Luxury Dining Table</h3>
-                    <a href="/products" class="feature_btn">Explore Now <i class="fas fa-play"></i></a>
-                    <img src="img/feature/feature_3.png" alt="Luxury Dining Table">
-                </div>
-            </div>
-            <div class="col-lg-7 col-sm-6">
-                <div class="single_feature_post_text">
-                    <p>Premium Quality</p>
-                    <h3>Classic Leather Sofa</h3>
-                    <a href="/products" class="feature_btn">Explore Now <i class="fas fa-play"></i></a>
-                    <img src="img/feature/feature_4.png" alt="Classic Leather Sofa">
-                </div>
-            </div>
-        </div>
-    </div>
-</section> -->
-    <!-- Featured Category End -->
+    </section>
 
     <!-- Awesome Shop Start -->
     <section class="our_offer section_padding">
@@ -266,18 +247,13 @@
                         <h2>Weekly Sale on 60% Off All Products</h2>
                         <div class="date_countdown">
                             <div id="timer">
-                                <div id="days" class="date"></div>
                                 <div id="hours" class="date"></div>
                                 <div id="minutes" class="date"></div>
                                 <div id="seconds" class="date"></div>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Enter email address"
-                                aria-label="Recipient's username" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <a href="/products" class="input-group-text btn_2" id="basic-addon2">Book Now</a>
-                            </div>
+                        <div class="book-now-wrapper">
+                            <a href="/shop" class="btn_2">Book Now</a>
                         </div>
                     </div>
                 </div>
@@ -286,78 +262,78 @@
     </section>
     <!-- Awesome Shop End -->
 
-<!-- Best Sellers Start -->
-<section class="product_list best_seller section_padding">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-                <div class="section_tittle text-center">
-                    <h2>Best Sellers <span>shop</span></h2>
+    <!-- Best Sellers Start -->
+    <section class="product_list best_seller section_padding">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <div class="section_tittle text-center">
+                        <h2>Best Sellers <span>shop</span></h2>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row align-items-center justify-content-between">
-            <div class="col-lg-12">
-                <div class="best_product_slider owl-carousel">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-lg-12">
+                    <div class="best_product_slider owl-carousel">
 
-                    <% if (bestSellers && bestSellers.length > 0) { %>
+                        <% if (bestSellers && bestSellers.length> 0) { %>
 
-                        <% bestSellers.forEach(function(product){ %>
+                            <% bestSellers.forEach(function(product){ %>
 
-                            <div class="single_feature_post_text">
-                                <p>Best Selling Product</p>
+                                <div class="single_feature_post_text">
+                                    <p>Best Selling Product</p>
 
-                                <h3>
-                                    <%= product.productName %>
-                                    <small>Sold <%= product.totalSold %> units</small>
+                                    <h3>
+                                        <%= product.productName %>
+                                            <small>Sold <%= product.totalSold %> units</small>
 
-                                </h3>
+                                    </h3>
 
-                                <h4>
-                                    <% if (product.offerPrice) { %>
-                                        <span class="original-price">
-                                            <s>$<%= product.regularPrice.toFixed(2) %></s>
-                                        </span>
-                                        $<%= product.offerPrice.toFixed(2) %>
-                                    <% } else { %>
-                                        $<%= product.salePrice.toFixed(2) %>
-                                    <% } %>
-                                </h4>
+                                    <h4>
+                                        <% if (product.offerPrice) { %>
+                                            <span class="original-price">
+                                                <s>₹<%= product.regularPrice.toFixed(2) %></s>
+                                            </span>
+                                            ₹<%= product.offerPrice.toFixed(2) %>
+                                                <% } else { %>
+                                                    ₹<%= product.salePrice.toFixed(2) %>
+                                                        <% } %>
+                                    </h4>
 
-                                <div class="product-actions">
-                                    <a href="/productDetails?id=<%= product._id %>" class="feature_btn">
-                                        Explore Now <i class="fas fa-play"></i>
+                                    <div class="product-actions">
+                                        <a href="/productDetails?id=<%= product._id %>" class="feature_btn">
+                                            Explore Now <i class="fas fa-play"></i>
+                                        </a>
+
+                                        <a aria-label="Add to Wishlist" class="action-btn hover-up"
+                                            href="/addToWishlist?id=<%= product._id %>">
+                                            <i class="ti-heart"></i>
+                                        </a>
+
+                                        <a href="/addToCart?id=<%= product._id %>" class="action-btn hover-up">
+                                            <i class="ti-shopping-cart"></i>
+                                        </a>
+                                    </div>
+
+                                    <a href="/productDetails?id=<%= product._id %>">
+                                        <img src="<%= product.productImage && product.productImage.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>"
+                                            alt="<%= product.productName %>">
                                     </a>
 
-                                    <a aria-label="Add to Wishlist" class="action-btn hover-up"
-                                        href="/addToWishlist?id=<%= product._id %>">
-                                        <i class="ti-heart"></i>
-                                    </a>
-
-                                    <a href="/addToCart?id=<%= product._id %>" class="action-btn hover-up">
-                                        <i class="ti-shopping-cart"></i>
-                                    </a>
                                 </div>
 
-                                <a href="/productDetails?id=<%= product._id %>">
-                                    <img src="<%= product.productImage && product.productImage.length > 0 ? '/public/product-images/' + product.productImage[0] : '/img/product/placeholder.jpg' %>"
-                                        alt="<%= product.productName %>">
-                                </a>
+                                <% }) %>
 
-                            </div>
+                                    <% } else { %>
+                                        <p class="text-center">No best selling products yet.</p>
+                                        <% } %>
 
-                        <% }) %>
-
-                    <% } else { %>
-                        <p class="text-center">No best selling products yet.</p>
-                    <% } %>
-
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-<!-- Best Sellers End -->
+    </section>
+    <!-- Best Sellers End -->
 
 
     <!-- Subscribe Area Start -->
@@ -424,36 +400,33 @@
     <!-- Client Logo End -->
 
 
-
-
     <!-- Footer Part Start -->
     <%- include("../../views/partials/user/footer") %>
 
-    
-<script>
-// AJAX Pagination for Featured Offers (No full reload on clicks)
-document.addEventListener('DOMContentLoaded', function() {
-  // Attach event listeners to pagination links
-  document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('ajax-paginate')) {
-      e.preventDefault();  // Stop default link behavior (no reload)
-      const page = parseInt(e.target.dataset.page);
-      if (page && page !== currentOffersPage) {
-        loadOffersPage(page);
-      }
-    }
-  });
-});
 
-let currentOffersPage = <%= currentOffersPage || 1 %>;  // Initial page from server
+        <script>
+            // AJAX Pagination for Featured Offers (No full reload on clicks)
+            document.addEventListener('DOMContentLoaded', function () {
+                // Attach event listeners to pagination links
+                document.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('ajax-paginate')) {
+                        e.preventDefault();  // Stop default link behavior (no reload)
+                        const page = parseInt(e.target.dataset.page);
+                        if (page && page !== currentOffersPage) {
+                            loadOffersPage(page);
+                        }
+                    }
+                });
+            });
 
-async function loadOffersPage(page) {
-  currentOffersPage = page;
-  const row = document.getElementById('featuredOffersRow');
-  const paginationList = document.getElementById('offersPaginationList');
+            let currentOffersPage = <%= currentOffersPage || 1 %>;  // Initial page from server
 
-  // Show loading in row
-  row.innerHTML = `
+            async function loadOffersPage(page) {
+                currentOffersPage = page;
+                const row = document.getElementById('featuredOffersRow');
+                const paginationList = document.getElementById('offersPaginationList');
+
+                row.innerHTML = `
     <div class="col-12 text-center py-4">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading offers...</span>
@@ -461,32 +434,44 @@ async function loadOffersPage(page) {
     </div>
   `;
 
-  try {
-    // Fetch new page data
-    const res = await fetch(`?offersPage=${page}`);  // Use full URL with current query params
-    if (!res.ok) throw new Error('Failed to load offers');
-    const html = await res.text();  // Get full HTML response (server re-renders section)
+                try {
+                    const res = await fetch(`?offersPage=${page}`);  // Use full URL with current query params
+                    if (!res.ok) throw new Error('Failed to load offers');
+                    const html = await res.text();  // Get full HTML response (server re-renders section)
 
-    // Parse only the updated row HTML (extract via DOMParser for safety)
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const newRow = doc.querySelector('#featuredOffersRow').innerHTML;
-    row.innerHTML = newRow;
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newRow = doc.querySelector('#featuredOffersRow').innerHTML;
+                    row.innerHTML = newRow;
 
-    // Update pagination (re-attach classes/links)
-    const newPagination = doc.querySelector('#offersPaginationList').innerHTML;
-    paginationList.innerHTML = newPagination;
+                    const newPagination = doc.querySelector('#offersPaginationList').innerHTML;
+                    paginationList.innerHTML = newPagination;
 
-    // Re-attach event listeners (since DOM changed)
-    // (The event delegation above handles this automatically)
 
-  } catch (error) {
-    console.error('Load offers error:', error);
-    row.innerHTML = `
+                } catch (error) {
+                    console.error('Load offers error:', error);
+                    row.innerHTML = `
       <div class="col-12 text-center">
         <p class="text-danger">Error loading offers. Please try again.</p>
       </div>
     `;
-  }
-}
-</script>
+                }
+            }
+        </script>
+
+
+        <script>
+            const updateClock = () => {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+
+                document.getElementById('hours').textContent = hours + 'h';
+                document.getElementById('minutes').textContent = minutes + 'm';
+                document.getElementById('seconds').textContent = seconds + 's';
+            };
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        </script>
