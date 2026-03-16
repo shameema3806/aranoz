@@ -1,0 +1,490 @@
+<%- include("../../views/partials/admin/header") %>
+
+  <!-- ====================== MAIN CONTENT ====================== -->
+  <div class="ml-64 pt-12 bg-gray-100 min-h-screen p-6">
+    <div class="max-w-full w-full bg-white rounded-xl shadow-lg p-6 space-y-6">
+
+      <div
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b-2 border-[#1A5D8C]">
+        <h1 class="text-[#154b70] text-2xl font-bold">Coupons</h1>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <form action="/admin/coupon" method="get"
+            class="flex items-center bg-[#1A5D8C] rounded-md overflow-hidden flex-1 sm:flex-initial">
+            <input type="text" name="search" placeholder="Search coupons..."
+              value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+              class="w-full sm:w-64 px-3 py-2 bg-transparent text-white placeholder-white/70 outline-none text-sm" />
+            <button type="submit" class="px-3 text-white">
+              <i class="fas fa-search"></i>
+            </button>
+          </form>
+
+          <% if (typeof searchQuery !=='undefined' && searchQuery) { %>
+            <a href="/admin/coupon" class="text-[#1A5D8C] underline text-sm whitespace-nowrap">Clear</a>
+            <% } %>
+
+              <button id="showAddCouponPopup"
+                class="bg-[#1A5D8C] hover:bg-[#154b70] text-white font-medium px-4 py-2 rounded-md transition flex items-center gap-2 text-sm whitespace-nowrap">
+                <i class="fas fa-plus"></i> Add Coupon
+              </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table id="couponTable" class="w-full text-sm min-w-max">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">S.No.</th>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Code</th>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Offer</th>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Min Cart Value</th>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Max Discount</th>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Expiry</th>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Status</th>
+              <th class="px-4 py-3 text-left font-medium text-[#1A5D8C]">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="couponTableBody" class="divide-y divide-gray-200">
+            <% if (typeof coupons !=='undefined' && coupons.length> 0) { %>
+              <% coupons.forEach((coupon, index)=> { %>
+                <% const expiryDate=new Date(coupon.expiryDate); %>
+                  <% const isExpired=expiryDate < new Date(); %>
+                    <% const effectiveActive=coupon.isActive && !isExpired; %>
+                      <tr class="hover:bg-gray-50 transition" data-id="<%= coupon._id %>">
+                        <td class="px-4 py-3">
+                          <%= (currentPage - 1) * itemsPerPage + index + 1 %>
+                        </td>
+                        <td class="px-4 py-3 font-medium">
+                          <%= coupon.code %>
+                        </td>
+                        <td class="px-4 py-3">
+                          <span
+                            class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            <%= coupon.discountType==='percentage' ? coupon.discountValue + '%' : '₹' +
+                              coupon.discountValue %>
+                          </span>
+                        </td>
+                        <td class="px-4 py-3">₹<%= coupon.minCartValue ?? 0 %>
+                        </td>
+                        <td class="px-4 py-3">
+                          <% if (coupon.maxDiscount) { %>
+                            <%= coupon.discountType==='percentage' ? coupon.maxDiscount + '%' : '₹' + coupon.maxDiscount
+                              %>
+                              <% } else { %>
+                                <span class="text-gray-400">No Limit</span>
+                                <% } %>
+                        </td>
+                        <td class="px-4 py-3">
+                          <%= expiryDate.toLocaleDateString() %>
+                        </td>
+                        <td class="px-4 py-3">
+                          <span
+                            class="inline-block px-3 py-1 text-xs font-medium rounded-full <%= effectiveActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+                            <%= effectiveActive ? 'Active' : 'Inactive' %>
+                          </span>
+                        </td>
+                        <td class="px-4 py-3 space-x-2">
+                          <button
+                            class="inline-block px-3 py-1 text-xs font-medium text-white bg-[#1A5D8C] hover:bg-[#154b70] rounded-md transition"
+                            data-edit-coupon data-id="<%= coupon._id %>" data-code="<%= coupon.code %>"
+                            data-type="<%= coupon.discountType %>" data-value="<%= coupon.discountValue %>"
+                            data-min="<%= coupon.minCartValue ?? 0 %>" data-max="<%= coupon.maxDiscount ?? '' %>"
+                            data-expiry="<%= coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().slice(0, 16) : '' %>"
+                            data-active="<%= coupon.isActive %>">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button
+                            class="inline-block px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition"
+                            onclick="deleteCoupon('<%= coupon._id %>', '<%= coupon.code %>')">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <% }) %>
+                        <% } else { %>
+                          <tr>
+                            <td colspan="8" class="text-center text-gray-500 py-8">No coupons found.</td>
+                          </tr>
+                          <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex justify-center items-center gap-1 py-3">
+        <% if (typeof totalPages !=='undefined' && totalPages> 1) { %>
+          <% if (currentPage> 1) { %>
+            <a href="?page=<%= currentPage - 1 %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + searchQuery : '' %>"
+              class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&lt;</a>
+            <% } else { %>
+              <span class="px-3 py-1.5 text-gray-400">&lt;</span>
+              <% } %>
+
+                <% for (let i=1; i <=totalPages; i++) { %>
+                  <% if (i===currentPage) { %>
+                    <span class="px-3 py-1.5 bg-[#1A5D8C] text-white rounded text-sm">
+                      <%= i %>
+                    </span>
+                    <% } else { %>
+                      <a href="?page=<%= i %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + searchQuery : '' %>"
+                        class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">
+                        <%= i %>
+                      </a>
+                      <% } %>
+                        <% } %>
+
+                          <% if (currentPage < totalPages) { %>
+                            <a href="?page=<%= currentPage + 1 %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + searchQuery : '' %>"
+                              class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&gt;</a>
+                            <% } else { %>
+                              <span class="px-3 py-1.5 text-gray-400">&gt;</span>
+                              <% } %>
+                                <% } %>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Pagination -->
+  <div id="pagination" class="flex justify-center items-center gap-1 py-3">
+    <% if (totalPages> 1) { %>
+      <% if (currentPage> 1) { %>
+        <a href="?page=<%= currentPage - 1 %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&lt;</a>
+        <% } else { %>
+          <span class="px-3 py-1.5 text-gray-400">&lt;</span>
+          <% } %>
+
+            <% for (let i=1; i <=totalPages; i++) { %>
+              <% if (i===currentPage) { %>
+                <span class="px-3 py-1.5 bg-[#1A5D8C] text-white rounded text-sm">
+                  <%= i %>
+                </span>
+                <% } else { %>
+                  <a href="?page=<%= i %>" class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">
+                    <%= i %>
+                  </a>
+                  <% } %>
+                    <% } %>
+
+                      <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>"
+                          class="px-3 py-1.5 border rounded text-sm hover:bg-gray-100">&gt;</a>
+                        <% } else { %>
+                          <span class="px-3 py-1.5 text-gray-400">&gt;</span>
+                          <% } %>
+                            <% } %>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <script>
+    // Add Coupon Popup - Simple Design
+    document.getElementById('showAddCouponPopup').addEventListener('click', () => {
+      Swal.fire({
+        title: 'Create New Coupon',
+        html: `
+      <div class="text-left space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
+          <input id="swal-code" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" placeholder="e.g., SAVE20">
+          <p class="text-xs text-gray-500 mt-1">Leave empty to auto-generate</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type <span class="text-red-500">*</span></label>
+            <select id="swal-type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]">
+              <option value="">Select Type</option>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed (₹)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Discount Value <span class="text-red-500">*</span></label>
+            <input id="swal-value" type="number" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" min="0" step="0.01" placeholder="e.g., 20">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Min Cart Value (₹)</label>
+            <input id="swal-min" type="number" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" min="0" placeholder="e.g., 500" value="0">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Max Discount</label>
+            <input id="swal-max" type="number" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" min="0" placeholder="Optional">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date <span class="text-red-500">*</span></label>
+          <input id="swal-expiry" type="datetime-local" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]">
+        </div>
+      </div>
+    `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Create',
+        cancelButtonText: 'Cancel',
+        width: '500px',
+        customClass: {
+          confirmButton: 'bg-[#1A5D8C] hover:bg-[#154b70] text-white px-5 py-2 rounded-md',
+          cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-700 px-5 py-2 rounded-md ml-2',
+        },
+
+        preConfirm: () => {
+          const code = document.getElementById('swal-code').value.trim();
+          const type = document.getElementById('swal-type').value;
+          const value = parseFloat(document.getElementById('swal-value').value);
+          const min = parseFloat(document.getElementById('swal-min').value) || 0;
+          const max = document.getElementById('swal-max').value ? parseFloat(document.getElementById('swal-max').value) : null;
+          const expiry = document.getElementById('swal-expiry').value;
+
+          if (!type || isNaN(value) || value <= 0 || !expiry) {
+            Swal.showValidationMessage('Please fill all required fields');
+            return false;
+          }
+
+          if (type === 'percentage' && max !== null && max > 100) {
+            Swal.showValidationMessage('For percentage coupons, Max Discount cannot exceed 100%');
+            return false;
+          }
+
+          //discount
+          if (type === 'fixed' && min > 0 && value > min) {
+            Swal.showValidationMessage(`Fixed discount value (₹${value}) cannot exceed minimum cart value (₹${min})`);
+            return false;
+          }
+
+          if (new Date(expiry) <= new Date()) {
+            Swal.showValidationMessage('Expiry date must be in the future');
+            return false;
+          }
+          return { code: code || undefined, discountType: type, discountValue: value, minCartValue: min, maxDiscount: max, expiryDate: expiry };
+        }
+
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const data = result.value;
+          Swal.fire({ title: 'Creating Coupon...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+          fetch('/admin/coupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          })
+            .then(async res => {
+              if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.message || 'Failed to create coupon');
+              }
+              return res.json();
+            })
+            .then(response => {
+              const tbody = document.getElementById('couponTableBody');
+              const newRow = document.createElement('tr');
+              newRow.className = 'hover:bg-gray-50 transition';
+              newRow.dataset.id = response.data._id;
+              newRow.innerHTML = `
+          <td class="px-4 py-3">1</td>
+          <td class="px-4 py-3 font-medium">${response.data.code}</td>
+          <td class="px-4 py-3">
+            <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+              ${response.data.discountType === 'percentage' ? response.data.discountValue + '%' : '₹' + response.data.discountValue}
+            </span>
+          </td>
+          <td class="px-4 py-3">₹${response.data.minCartValue || 0}</td>
+          <td class="px-4 py-3">${response.data.maxDiscount ? (response.data.discountType === 'percentage' ? response.data.maxDiscount + '%' : '₹' + response.data.maxDiscount) : '<span class="text-gray-400">No Limit</span>'}</td>
+          <td class="px-4 py-3">${new Date(response.data.expiryDate).toLocaleDateString()}</td>
+          <td class="px-4 py-3">
+            <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Active</span>
+          </td>
+          <td class="px-4 py-3 space-x-2">
+            <button class="inline-block px-3 py-1 text-xs font-medium text-white bg-[#1A5D8C] hover:bg-[#154b70] rounded-md transition" 
+                    data-edit-coupon 
+                    data-id="${response.data._id}" 
+                    data-code="${response.data.code}" 
+                    data-type="${response.data.discountType}" 
+                    data-value="${response.data.discountValue}" 
+                    data-min="${response.data.minCartValue || 0}" 
+                    data-max="${response.data.maxDiscount || ''}" 
+                    data-expiry="${new Date(response.data.expiryDate).toISOString().slice(0, 16)}" 
+                    data-active="${response.data.isActive}">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="inline-block px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition" 
+                    onclick="deleteCoupon('${response.data._id}', '${response.data.code}')">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </td>
+        `;
+              tbody.insertBefore(newRow, tbody.firstChild);
+
+              // Re-number rows
+              const rows = tbody.querySelectorAll('tr');
+              rows.forEach((r, i) => {
+                if (r.cells[0]) r.cells[0].textContent = i + 1;
+              });
+
+              Swal.fire({ icon: 'success', title: 'Success!', text: 'Coupon created successfully!', timer: 2000, showConfirmButton: false });
+              setTimeout(() => location.reload(), 2000);
+            })
+            .catch(err => {
+              Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            });
+        }
+      });
+    });
+
+    // Edit Coupon
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-edit-coupon]');
+      if (!btn) return;
+
+      const id = btn.dataset.id;
+      const code = btn.dataset.code;
+      const type = btn.dataset.type;
+      const value = btn.dataset.value;
+      const min = btn.dataset.min;
+      const max = btn.dataset.max;
+      const expiry = btn.dataset.expiry;
+
+      Swal.fire({
+        title: 'Edit Coupon',
+        html: `
+      <div class="text-left space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
+          <input id="edit-code" type="text" value="${code}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" readonly>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type <span class="text-red-500">*</span></label>
+            <select id="edit-type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]">
+              <option value="percentage" ${type === 'percentage' ? 'selected' : ''}>Percentage (%)</option>
+              <option value="fixed" ${type === 'fixed' ? 'selected' : ''}>Fixed (₹)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Discount Value <span class="text-red-500">*</span></label>
+            <input id="edit-value" type="number" value="${value}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" min="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Min Cart Value (₹)</label>
+            <input id="edit-min" type="number" value="${min}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" min="0">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Max Discount</label>
+            <input id="edit-max" type="number" value="${max}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]" min="0" placeholder="Optional">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date <span class="text-red-500">*</span></label>
+          <input id="edit-expiry" type="datetime-local" value="${expiry}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A5D8C]">
+        </div>
+      </div>
+    `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Update',
+        cancelButtonText: 'Cancel',
+        width: '500px',
+        customClass: {
+          confirmButton: 'bg-[#1A5D8C] hover:bg-[#154b70] text-white px-5 py-2 rounded-md',
+          cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-700 px-5 py-2 rounded-md ml-2',
+        },
+        preConfirm: () => {
+          const newType = document.getElementById('edit-type').value;
+          const newValue = parseFloat(document.getElementById('edit-value').value);
+          const newMin = parseFloat(document.getElementById('edit-min').value) || 0;
+          const newMax = document.getElementById('edit-max').value ? parseFloat(document.getElementById('edit-max').value) : null;
+
+          if (newType === 'percentage' && newMax !== null && newMax > 100) {
+            Swal.showValidationMessage('For percentage coupons, Max Discount cannot exceed 100%');
+            return false;
+          }
+
+          const newExpiry = document.getElementById('edit-expiry').value;
+
+
+          if (!newType || isNaN(newValue) || newValue <= 0 || !newExpiry) {
+            Swal.showValidationMessage('Please fill all required fields');
+            return false;
+          }
+          return { discountType: newType, discountValue: newValue, minCartValue: newMin, maxDiscount: newMax, expiryDate: newExpiry };
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const updateData = result.value;
+          Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+          fetch(`/admin/coupon/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateData)
+          })
+            .then(async res => {
+              if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.message || 'Failed to update coupon');
+              }
+              return res.json();
+            })
+            .then(() => {
+              Swal.fire({ icon: 'success', title: 'Updated!', text: 'Coupon updated successfully!', timer: 2000, showConfirmButton: false });
+              setTimeout(() => location.reload(), 2000);
+            })
+            .catch(err => {
+              Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            });
+        }
+      });
+    });
+
+    // Delete Coupon
+    function deleteCoupon(id, code) {
+      Swal.fire({
+        title: 'Delete Coupon?',
+        text: `Are you sure you want to delete "${code}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel',
+        customClass: {
+          confirmButton: 'bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md',
+          cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-700 px-5 py-2 rounded-md ml-2',
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'Deleting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+          fetch(`/admin/coupon/${id}`, { method: 'DELETE' })
+            .then(async res => {
+              if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.message || 'Failed to delete coupon');
+              }
+              return res.json();
+            })
+            .then(() => {
+              Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Coupon deleted successfully!', timer: 2000, showConfirmButton: false });
+              setTimeout(() => location.reload(), 2000);
+            })
+            .catch(err => {
+              Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            });
+        }
+      });
+    }
+  </script>
+
+  <%- include("../../views/partials/admin/footer") %>

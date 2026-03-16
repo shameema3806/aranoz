@@ -46,7 +46,7 @@
       autoplayHoverPause: true,
       autoplayTimeout: 5000,
       nav: true,
-      navText: ["previous", "next"],
+      navText: ["prev", "next"],
       responsive: {
         0: {
           margin: 15,
@@ -83,7 +83,7 @@
       autoplayHoverPause: true,
       autoplayTimeout: 5000,
       nav: true,
-      navText: ["previous", "next"],
+      navText: ["prev", "next"],
       smartSpeed: 1000,
       responsive: {
         0: {
@@ -104,22 +104,6 @@
       }
     });
   }
-
-  //single banner slider
-  // var banner_slider = $('.banner_slider');
-  // if (banner_slider.length) {
-  //   banner_slider.owlCarousel({
-  //     items: 1,
-  //     loop: true,
-  //     dots: false,
-  //     autoplay: true,
-  //     autoplayHoverPause: true,
-  //     autoplayTimeout: 5000,
-  //     nav: true,
-  //     navText: ["next","previous"],
-  //     smartSpeed: 1000,
-  //   });
-  // }
 
   if ($('.img-gal').length > 0) {
     $('.img-gal').magnificPopup({
@@ -147,7 +131,7 @@
     autoplayHoverPause: true,
     autoplayTimeout: 5000,
     nav: true,
-    navText: ["previous", "next"],
+    navText: ["prev", "next"],
     smartSpeed: 1000,
     responsive: {
       0: {

@@ -343,6 +343,21 @@
           margin-top: 20px;
         }
       }
+
+      .badge.bg-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333) !important;
+        color: white !important;
+      }
+
+      .badge.bg-info {
+        background: linear-gradient(135deg, #17a2b8, #138496) !important;
+        color: white !important;
+      }
+
+      .badge.bg-secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+        color: white !important;
+      }
     </style>
 </head>
 
@@ -368,10 +383,9 @@
             <!-- Left Side: Image + Info -->
             <div class="col-md-7 d-flex align-items-center mb-4 mb-md-0 flex-column flex-md-row">
               <div class="profile-image-container">
-                <img 
-  id="profilePreviewDisplay"
-  src="<%= user.profileImage ? user.profileImage + '?t=' + Date.now() : '/img/profilepic.png' %>"
-  alt="Profile Image">
+                <img id="profilePreviewDisplay"
+                  src="<%= user.profileImage ? user.profileImage + '?t=' + Date.now() : '/img/profilepic.png' %>"
+                  alt="Profile Image">
 
               </div>
               <div class="profile-info">
@@ -458,20 +472,100 @@
               </h2>
               <div class="wallet-balance">
                 <i class="fas fa-coins"></i>
-                Balance: <span id="walletBalance">₹1,250.00</span>
+                <div class="balance-amount">
+                  ₹<%= walletBalance ? walletBalance.toFixed(2) : '0.00' %>
+                </div>
               </div>
               <p class="text-muted mb-0">Use wallet balance for faster checkout</p>
             </div>
 
             <div class="col-md-5 d-flex flex-column align-items-md-end mt-3 mt-md-0">
-              <button class="profile-btn mb-2" onclick="addMoney()" style="width: auto;">
-                <i class="fas fa-plus-circle"></i> Add Money
-              </button>
-              <button class="profile-btn" onclick="viewTransactions()"
-                style="width: auto; background: white; color: #ff3368; border: 2px solid #ff3368;">
+              <a href="/wallet" class="profile-btn"
+                style="width: auto; background: white; color: #ff3368; border: 2px solid #ff3368; display: inline-block; padding: 8px 16px; text-decoration: none;">
                 <i class="fas fa-history"></i> View Transactions
-              </button>
+              </a>
+
             </div>
+          </div>
+        </div>
+        <!-- Referral Section -->
+        <div class="profile-card">
+          <h2 class="section-header">
+            <i class="fas fa-user-friends"></i>
+            Refer a Friend
+          </h2>
+
+          <p class="text-muted mb-3">
+            Invite your friends and earn exciting coupons when they join using your referral code.
+          </p>
+
+          <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+
+            <!-- Referral Code Box -->
+            <div id="referralCodeBox" style="
+        background:#f8f9fa;
+        border:2px dashed #ff3368;
+        padding:15px 20px;
+        border-radius:10px;
+        font-weight:700;
+        font-size:1.2rem;
+        letter-spacing:2px;
+        color:#2d3436;
+      ">
+              <%= user?.referralCode || 'N/A' %>
+            </div>
+
+            <!-- Copy Button -->
+            <button class="profile-btn" style="width:auto;" onclick="copyReferralCode()">
+              <i class="fas fa-copy"></i> Copy Code
+            </button>
+
+          </div>
+
+          <small class="text-muted d-block mt-3">
+            Share this code during signup. You’ll receive a coupon once they complete registration.
+          </small>
+        </div>
+
+
+
+        <div class="profile-card">
+          <h2 class="section-header">
+            <i class="fas fa-gift"></i> Your Referral Coupons
+          </h2>
+
+          <div class="row">
+            <% if (coupons && coupons.length> 0) { %>
+              <% coupons.forEach(coupon=> { %>
+                <div class="col-md-6 mb-3">
+                  <div class="coupon-card p-3 border rounded shadow-sm"
+                    style="border-left: 5px solid #ff3368 !important;">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h5 class="mb-1 fw-bold text-dark">
+                          <%= coupon.code %>
+                        </h5>
+                        <p class="mb-0 text-muted small">
+                          <%= coupon.discountValue %>
+                            <%= coupon.discountType==='percentage' ? '%' : '₹' %> OFF
+                        </p>
+                      </div>
+                      <button class="btn btn-sm btn-outline-danger" onclick="copyToClipboard('<%= coupon.code %>')">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                    <div class="mt-2 small text-muted">
+                      Expires: <%= new Date(coupon.expiryDate).toLocaleDateString() %>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+                  <% } else { %>
+                    <div class="empty-state">
+                      <i class="fas fa-percentage"></i>
+                      <p>No rewards yet. Share your code to earn!</p>
+                    </div>
+                    <% } %>
           </div>
         </div>
 
@@ -506,10 +600,15 @@
                         </strong></td>
                       <td>
                         <%= new Date(order.createdOn).toLocaleDateString('en-IN') %>
-                      </td> <!-- e.g., 26/11/2025 -->
+                      </td>
                       <td>
-                        <span
-                          class="badge <%= order.status === 'Delivered' ? 'bg-success' : order.status === 'Pending' || order.status === 'Processing' ? 'bg-warning text-dark' : 'bg-secondary' %>">
+                        <span class="badge <%= 
+    order.status === 'Delivered' ? 'bg-success' : 
+    order.status === 'Cancelled' || order.status === 'Returned' ? 'bg-danger' : 
+    order.status === 'Pending' || order.status === 'Processing' || order.status === 'Return Request' ? 'bg-warning text-dark' : 
+    order.status === 'Shipped' || order.status === 'Out for Delivery' ? 'bg-info text-white' : 
+    'bg-secondary' 
+  %>">
                           <%= order.status %>
                         </span>
                       </td>
@@ -555,49 +654,64 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
     <script>
       function showEditProfile() {
         window.location.href = "/editprofile";
       }
 
-      function addMoney() {
-        Swal.fire({
+
+      async function addMoney() {
+        const { value: amount } = await Swal.fire({
           title: "Add Money to Wallet",
           input: "number",
-          inputLabel: "Enter amount to add (₹)",
-          inputAttributes: { min: 1 },
+          inputLabel: "Enter amount (₹)",
           showCancelButton: true,
-          confirmButtonText: "Add",
-          confirmButtonColor: '#ff3368',
-          cancelButtonColor: '#6c757d',
-          preConfirm: (amount) => {
-            if (!amount || amount <= 0) {
-              Swal.showValidationMessage("Please enter a valid amount");
-              return false;
-            }
-            return amount;
-          }
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const amount = parseFloat(result.value);
-            const balanceElem = document.getElementById("walletBalance");
-            const currentBalance = parseFloat(balanceElem.textContent.replace("₹", "").replace(",", ""));
-            const newBalance = currentBalance + amount;
-            balanceElem.textContent = "₹" + newBalance.toFixed(2);
-
-            Swal.fire({
-              icon: "success",
-              title: "Money Added!",
-              text: `₹${amount.toFixed(2)} added to your wallet.`,
-              timer: 1500,
-              showConfirmButton: false,
-              background: '#fff5f8',
-              color: '#2d3436',
-              iconColor: '#ff3368'
-            });
-          }
+          confirmButtonColor: '#ff3368'
         });
+
+        if (amount && amount > 0) {
+          try {
+            //  Create order on your backend
+            const response = await fetch('/add-to-wallet', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ amount })
+            });
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message);
+
+            //  Open Razorpay Checkout
+            const options = {
+              key: data.key,
+              amount: data.amount * 100,
+              currency: data.currency,
+              order_id: data.razorpayOrderId,
+              handler: async function (response) {
+                // Verify payment on backend
+                const verifyRes = await fetch('/verify-wallet-payment', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    ...response,
+                    amount: data.amount
+                  })
+                });
+                const verifyData = await verifyRes.json();
+                if (verifyData.success) {
+                  Swal.fire("Success", "Money added!", "success").then(() => location.reload());
+                }
+              }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+          } catch (err) {
+            Swal.fire("Error", err.message, "error");
+          }
+        }
       }
 
       function viewTransactions() {
@@ -722,10 +836,47 @@
           }
         }
       }
+      function copyReferralCode() {
+        const code = document.getElementById('referralCodeBox').innerText;
+
+        if (!code || code === 'N/A' || code.trim() === '') {
+          Swal.fire('Oops!', 'Referral code not available', 'error');
+
+        } else if (code.trim().length < 4) {   // ← add this check
+          Swal.fire('Hmm...', 'Looks like an invalid referral code format', 'warning');
+          return;
+        }
+
+        navigator.clipboard.writeText(code).then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Copied!',
+            text: 'Referral code copied to clipboard',
+            timer: 1500,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
+        });
+      }
 
 
     </script>
 
+    <script>
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Coupon code copied!',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        });
+      }
+    </script>
 </body>
 
 </html>

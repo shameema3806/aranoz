@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - aranoz</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -214,7 +216,7 @@
         }
 
         .signup-link a {
-            color:  #165582;
+            color: #165582;
             text-decoration: none;
             font-weight: 500;
         }
@@ -235,8 +237,13 @@
 
         /* Animations */
         @keyframes float {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
         }
 
         @keyframes slideIn {
@@ -244,6 +251,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -307,74 +315,55 @@
             border-color: #e74c3c;
             background: #fff8f8;
         }
-           
-        .forgot-password-link{
+
+        .forgot-password-link {
             font-size: 0.875rem;
             color: #165582;
             text-decoration: none;
         }
-        .forgot-password-link:hover{
+
+        .forgot-password-link:hover {
             color: #165582;
             text-decoration: underline;
         }
-
-
-
-
-
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-form-section">
             <h2 class="form-title">Welcome Back</h2>
             <p class="form-subtitle">Please sign in to your account</p>
-            
-        
             <form id="loginForm" method="post" action="/login">
                 <div class="form-group">
                     <label for="email" class="form-label">Email Address</label>
-                    <input
-                        type="email"
-                        class="form-input"
-                        name="email"
-                        id="email"
-                        placeholder="Enter your email address"
-                        required/>
-                   <% if (typeof msg1 !== 'undefined' && msg1) { %>
-                   <div style="color:red;"><%= msg1 %></div>
-                   <% } %>
-                   <div id="emailError" class="error-message"></div>
-                   </div>
-            
+                    <input type="email" class="form-input" name="email" id="email"
+                        placeholder="Enter your email address" required />
+                    <% if (typeof msg1 !=='undefined' && msg1) { %>
+                        <div style="color:red;">
+                            <%= msg1 %>
+                        </div>
+                        <% } %>
+                            <div id="emailError" class="error-message"></div>
+                </div>
+
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
-                    <input
-                        type="password"
-                        class="form-input"
-                        name="password"
-                        id="password"
-                        placeholder="Enter your password"
-                        required />
+                    <input type="password" class="form-input" name="password" id="password"
+                        placeholder="Enter your password" required />
                     <div id="passwordError" class="error-message"></div>
                 </div>
-                  
-                 <div class="form-group d-flex justify-content-end">
+
+                <div class="form-group d-flex justify-content-end">
                     <a href="/forgot-password" class="forgot-password-link ms-auto">Forgot Password</a>
-                 </div>
+                </div>
 
-
-                <!-- Server-side error message -->
                 <div id="serverMessage" class="alert" style="display: none;">
-                    <!-- Server message will be displayed here -->
                 </div>
 
                 <button type="submit" class="login-btn" id="loginBtn">
                     <span>Sign In</span>
                 </button>
-                  
-                
-
 
                 <div class="divider">
                     <span>or continue with</span>
@@ -382,10 +371,14 @@
 
                 <a href="/auth/google" class="google-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     Continue with Google
                 </a>
@@ -404,174 +397,22 @@
         </div>
     </div>
 
-    <script>
-        
-        // class LoginValidator {
-        //     constructor() {
-        //         this.form = document.getElementById('loginForm');
-        //         this.emailInput = document.getElementById('email');
-        //         this.passwordInput = document.getElementById('password');
-        //         this.emailError = document.getElementById('emailError');
-        //         this.passwordError = document.getElementById('passwordError');
-        //         this.loginBtn = document.getElementById('loginBtn');
-                
-        //         this.initializeEventListeners();
-        //     }
-
-        //     initializeEventListeners() {
-        //         // Real-time validation
-        //         this.emailInput.addEventListener('blur', () => this.validateEmail());
-        //         this.emailInput.addEventListener('input', () => this.clearError('email'));
-                
-        //         this.passwordInput.addEventListener('blur', () => this.validatePassword());
-        //         this.passwordInput.addEventListener('input', () => this.clearError('password'));
-                
-        //         // Form submission
-        //         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        //     }
-
-        //     validateEmail() {
-        //         const email = this.emailInput.value.trim();
-        //         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                
-        //         if (!email) {
-        //             this.showError('email', 'Email address is required');
-        //             return false;
-        //         }
-                
-        //         if (!emailPattern.test(email)) {
-        //             this.showError('email', 'Please enter a valid email address');
-        //             return false;
-        //         }
-                
-        //         this.showSuccess('email');
-        //         return true;
-        //     }
-
-        //     validatePassword() {
-        //         const password = this.passwordInput.value;
-                
-        //         if (!password) {
-        //             this.showError('password', 'Password is required');
-        //             return false;
-        //         }
-                
-        //         if (password.length < 6) {
-        //             this.showError('password', 'Password must be at least 6 characters long');
-        //             return false;
-        //         }
-                
-        //         this.showSuccess('password');
-        //         return true;
-        //     }
-
-        //     showError(field, message) {
-        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
-        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
-                
-        //         input.classList.remove('valid');
-        //         input.classList.add('invalid');
-        //         errorDiv.textContent = message;
-        //         errorDiv.classList.add('show');
-        //     }
-
-        //     showSuccess(field) {
-        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
-        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
-                
-        //         input.classList.remove('invalid');
-        //         input.classList.add('valid');
-        //         errorDiv.classList.remove('show');
-        //     }
-
-        //     clearError(field) {
-        //         const input = field === 'email' ? this.emailInput : this.passwordInput;
-        //         const errorDiv = field === 'email' ? this.emailError : this.passwordError;
-                
-        //         input.classList.remove('invalid', 'valid');
-        //         errorDiv.classList.remove('show');
-        //     }
-
-        //     handleSubmit(e) {
-        //         e.preventDefault();
-                
-        //         const isEmailValid = this.validateEmail();
-        //         const isPasswordValid = this.validatePassword();
-                
-        //         if (isEmailValid && isPasswordValid) {
-        //             this.submitForm();
-        //         }
-        //     }
-
-        //     submitForm() {
-        //         // Add loading state
-        //         this.form.classList.add('loading');
-        //         this.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-                
-        //         // Simulate form submission (replace with actual form submission)
-        //         setTimeout(() => {
-        //             // Remove loading state
-        //             this.form.classList.remove('loading');
-        //             this.loginBtn.innerHTML = '<span>Sign In</span>';
-                    
-        //             // In a real application, you would submit the form here
-        //             // this.form.submit();
-                    
-        //             // For demo purposes, show success message
-        //             this.showServerMessage('Login successful! Redirecting...', 'success');
-        //         }, 2000);
-        //     }
-
-        //     showServerMessage(message, type = 'error') {
-        //         const serverMessage = document.getElementById('serverMessage');
-        //         serverMessage.textContent = message;
-        //         serverMessage.style.display = 'block';
-        //         serverMessage.className = `alert ${type === 'success' ? 'alert-success' : ''}`;
-                
-        //         if (type === 'success') {
-        //             serverMessage.style.background = '#d4edda';
-        //             serverMessage.style.color = '#155724';
-        //             serverMessage.style.borderColor = '#c3e6cb';
-        //         }
-        //     }
-        // }
-
-        // // Initialize the login validator when the DOM is loaded
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     new LoginValidator();
-        // });
-
-        // // Add some interactive effects
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     // Add hover effect to form inputs
-        //     const inputs = document.querySelectorAll('.form-input');
-        //     inputs.forEach(input => {
-        //         input.addEventListener('focus', function() {
-        //             this.parentElement.style.transform = 'translateY(-2px)';
-        //         });
-                
-        //         input.addEventListener('blur', function() {
-        //             this.parentElement.style.transform = 'translateY(0)';
-        //         });
-        //     });
-        // });
-     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const blocked = urlParams.get("blocked");
 
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const blocked = urlParams.get("blocked");
-
-  if (blocked === "true") {
-    Swal.fire({
-      icon: "error",
-      title: "Access Denied",
-      text: "This user has been blocked by the admin.",
-      confirmButtonColor: "#3085d6",
-    });
-  }
-</script>
+        if (blocked === "true") {
+            Swal.fire({
+                icon: "error",
+                title: "Access Denied",
+                text: "This user has been blocked by the admin.",
+                confirmButtonColor: "#3085d6",
+            });
+        }
+    </script>
 
 </body>
+
 </html>

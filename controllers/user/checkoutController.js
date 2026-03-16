@@ -1,8 +1,9 @@
 const User = require("../../models/userSchema");
 const Product = require("../../models/productSchema");
 const Cart = require('../../models/cartSchema');
-const mongoose = require('mongoose'); 
+const mongoose = require('mongoose');
 const Address = require('../../models/addressSchema');
+const Coupon = require("../../models/couponSchema");
 
 
 const loadCheckout = async (req, res) => {
@@ -34,37 +35,58 @@ const loadCheckout = async (req, res) => {
 
     const itemCount = products.length;
     const subtotal = cart.items.reduce((acc, p) => acc + p.totalPrice, 0);
-    const discount = 0;
-    const shipping = 30;
+
+
+    const appliedCoupon = req.session?.appliedCoupon || null;
+    let discount = 0;
+
+    if (appliedCoupon) {
+      if (appliedCoupon.discountType === 'percentage') {
+        discount = (subtotal * appliedCoupon.discountValue) / 100;
+
+        if (appliedCoupon.maxDiscount && discount > appliedCoupon.maxDiscount) {
+          discount = appliedCoupon.maxDiscount;
+        }
+      } else if (appliedCoupon.discountType === 'fixed') {
+        discount = appliedCoupon.discountValue;
+
+        if (discount > subtotal) {
+          discount = subtotal;
+        }
+      }
+
+      discount = Math.round(discount * 100) / 100;
+      req.session.appliedCoupon.discount = discount;
+    }
+
+    const shipping = subtotal > 5000 ? 0 : 50;
     const tax = 0;
     const total = subtotal + shipping + tax - discount;
 
-
-
+    // ADDRESSES
     let addresses = [];
-  const addressDoc = await Address.findOne({ userId });
-  if (addressDoc && addressDoc.address.length > 0) {
-  addresses = addressDoc.address.map(addr => ({
-    _id: addr._id,
-    firstName: addr.name.split(" ")[0],
-    lastName: addr.name.split(" ").slice(1).join(" "),
-    phone: addr.phone,
-    address: addr.landMark,
-    state: addr.state,
-    pinCode: addr.pincode,
-    city: addr.city,
-    addressType: addr.addressType,
-    isDefault: addr.default || false
-  }));
+    const addressDoc = await Address.findOne({ userId });
+    if (addressDoc && addressDoc.address.length > 0) {
+      addresses = addressDoc.address.map(addr => ({
+        _id: addr._id,
+        firstName: addr.name.split(" ")[0],
+        lastName: addr.name.split(" ").slice(1).join(" "),
+        phone: addr.phone,
+        address: addr.landMark,
+        state: addr.state,
+        pinCode: addr.pincode,
+        city: addr.city,
+        addressType: addr.addressType,
+        isDefault: addr.default || false
+      }));
 
-  if (!addresses.some(a => a.isDefault)) {
-    addresses[0].isDefault = true;
-  }
-}
-
+      if (!addresses.some(a => a.isDefault)) {
+        addresses[0].isDefault = true;
+      }
+    }
 
     res.render("checkout", {
-      user, 
+      user,
       addresses,
       cart: { products },
       itemCount,
@@ -72,7 +94,8 @@ const loadCheckout = async (req, res) => {
       discount: discount.toFixed(2),
       shipping: shipping.toFixed(2),
       tax: tax.toFixed(2),
-      total: total.toFixed(2)
+      total: total.toFixed(2),
+      appliedCoupon
     });
 
   } catch (error) {
@@ -81,4 +104,167 @@ const loadCheckout = async (req, res) => {
   }
 };
 
-module.exports = { loadCheckout };
+
+
+const getAvailableCoupons = async (req, res) => {
+  try {
+    const currentDate = new Date();
+
+    const coupons = await Coupon.find({
+      isActive: true,
+      expiryDate: { $gte: currentDate }
+    })
+      .select('code discountType discountValue minCartValue maxDiscount expiryDate')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      coupons
+    });
+  } catch (error) {
+    console.error('Error fetching coupons:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch coupons'
+    });
+  }
+};
+
+const applyCoupon = async (req, res) => {
+  try {
+    const { couponCode } = req.body;
+    const userId = req.session.user;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Please login to apply coupon'
+      });
+    }
+
+    if (!couponCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coupon code is required'
+      });
+    }
+
+    const coupon = await Coupon.findOne({
+      code: couponCode.toUpperCase(),
+      isActive: true
+    });
+
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid coupon code'
+      });
+    }
+
+    if (new Date(coupon.expiryDate) < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: 'This coupon has expired'
+      });
+    }
+
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Your cart is empty'
+      });
+    }
+
+    const subtotal = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+
+    if (subtotal < coupon.minCartValue) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum cart value of ₹${coupon.minCartValue} required`
+      });
+    }
+
+    let discount = 0;
+    if (coupon.discountType === 'percentage') {
+      discount = (subtotal * coupon.discountValue) / 100;
+
+      if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+        discount = coupon.maxDiscount;
+      }
+    } else if (coupon.discountType === 'fixed') {
+      discount = coupon.discountValue;
+
+      if (discount > subtotal) {
+        discount = subtotal;
+      }
+    }
+
+    discount = Math.round(discount * 100) / 100;
+
+    req.session.appliedCoupon = {
+      id: coupon._id,
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      minCartValue: coupon.minCartValue,
+      maxDiscount: coupon.maxDiscount,
+      discount: discount
+    };
+
+    res.json({
+      success: true,
+      message: 'Coupon applied successfully',
+      discount: discount,
+      coupon: {
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue
+      }
+    });
+
+  } catch (error) {
+    console.error('Error applying coupon:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to apply coupon'
+    });
+  }
+};
+
+const removeCoupon = async (req, res) => {
+  try {
+    if (req.session && req.session.appliedCoupon) {
+      delete req.session.appliedCoupon;
+    }
+
+    res.json({
+      success: true,
+      message: 'Coupon removed successfully'
+    });
+
+  } catch (error) {
+    console.error('Error removing coupon:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove coupon'
+    });
+  }
+};
+
+
+module.exports = {
+  loadCheckout,
+  getAvailableCoupons,
+  applyCoupon,
+  removeCoupon
+};
+
+
+
+
+
+
+
+

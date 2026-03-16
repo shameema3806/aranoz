@@ -7,9 +7,9 @@ const orderSchema = new Schema({
     ref: "User",
     required: true
   },
+
   orderId: {
     type: String,
-    required: true,
     default: () => `ORD${Date.now()}`,
     unique: true
   },
@@ -21,14 +21,49 @@ const orderSchema = new Schema({
       required: true
     },
     quantity: { type: Number, required: true },
-    price: { type: Number, default: 0 }
+    price: { type: Number, required: true }
   }],
 
-  totalPrice: { type: Number, required: true },  // subtotal
-  discount: { type: Number, default: 0 },
-  tax: { type: Number, default: 0 },
-  shipping: { type: Number, default: 50 },
-  finalAmount: { type: Number, required: true },
+  subtotal: {
+    type: Number,
+    default: function () {
+      return this.totalPrice;
+    }
+  },
+  totalPrice: {
+    type: Number,
+    required: true
+  },
+  discount: {
+    type: Number,
+    default: 0
+  },
+  shipping: {
+    type: Number,
+    default: 0
+  },
+  tax: {
+    type: Number,
+    default: 0
+  },
+  finalAmount: {
+    type: Number,
+    required: true
+  },
+  totalAmount: {
+    type: Number,
+    default: function () {
+      return this.finalAmount;
+    }
+  },
+  couponCode: {
+    type: String,
+    default: null
+  },
+  couponApplied: {
+    type: Boolean,
+    default: false
+  },
 
   address: {
     name: String,
@@ -42,32 +77,39 @@ const orderSchema = new Schema({
 
   paymentMethod: { type: String, default: "COD" },
   paymentStatus: { type: String, default: "Pending" },
-  cancellationReason: String,
-  returnReason: { type: String, default: null },
-  updatedAt: { type: Date, default: Date.now },
-  invoiceDate: { type: Date, default: Date.now },
 
+  razorpayOrderId: String,
+  razorpayPaymentId: String,
+  razorpaySignature: String,
 
   status: {
     type: String,
-    required: true,
-    enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
-    default: "Pending"
+    enum: [
+      'Pending',
+      'Processing',
+      'Shipped',
+      'Out for Delivery',
+      'Delivered',
+      'Cancelled',
+      'Return Request',
+      'Returned',
+      'Payment Failed'
+    ],
+    default: 'Pending'
   },
+
   statusHistory: [{
-    status: {
-      type: String,
-      required: true,
-      enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Return Request', 'Returned']
-    },
+    status: String,
     timestamp: { type: Date, default: Date.now },
-    reason: { type: String, default: null }  
+    reason: String
   }],
+
+  cancellationReason: String,
+  returnReason: String,
+
   createdOn: { type: Date, default: Date.now },
-  couponApplied: { type: Boolean, default: false }
+  updatedAt: { type: Date, default: Date.now }
 });
-
-
 
 
 

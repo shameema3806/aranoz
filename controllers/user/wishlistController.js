@@ -2,10 +2,6 @@ const Wishlist = require('../../models/wishlistSchema');
 const Cart = require('../../models/cartSchema');
 const Product = require("../../models/productSchema");
 
-
-
-
-// Get user's wishlist
 const getWishlist = async (req, res) => {
   try {
     const userId = req.user?._id || req.session?.userId;
@@ -20,10 +16,10 @@ const getWishlist = async (req, res) => {
     const wishlistItems = wishlist.products.map(item => ({
       ...item.productId._doc,
       addedOn: item.addedOn,
-      _id: item.productId._id  // For template data-product-id
+      _id: item.productId._id
     }));
 
-    res.render('wishlist', {  // Assuming views/user/wishlist.ejs
+    res.render('wishlist', {
       user: req.user,
       wishlistItems
     });

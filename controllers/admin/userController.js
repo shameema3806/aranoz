@@ -15,7 +15,7 @@ const userInfo = async (req, res) => {
     };
 
     const users = await User.find(query)
-      .sort({ _id: -1 })
+      .sort({ createdAt: -1 })  // Descending order 
       .limit(limit)
       .skip((page - 1) * limit)
       .exec();
@@ -46,7 +46,6 @@ const userInfo = async (req, res) => {
 const userBlocked = async (req, res) => {
   try {
     const userId = req.query.id;
-    console.log("Blocking user ID:", userId); 
     await User.findByIdAndUpdate(userId, { isBlocked: true });
     res.sendStatus(200);
   } catch (err) {
@@ -67,8 +66,8 @@ const userunBlocked = async (req, res) => {
   }
 };
 
-  module.exports = {
-            userInfo,
-            userBlocked,
-            userunBlocked,
-        }
+module.exports = {
+  userInfo,
+  userBlocked,
+  userunBlocked,
+};

@@ -13,17 +13,22 @@
     "connect-flash": "^0.1.1",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "joi": "^18.0.2",
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.4",
     "multer": "^2.0.1",
     "nodemailer": "^7.0.3",
-    "nodemon": "^3.1.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pdfkit": "^0.17.2",
+    "razorpay": "^2.9.6",
     "sharp": "^0.34.2",
     "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }

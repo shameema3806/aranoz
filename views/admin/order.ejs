@@ -338,6 +338,22 @@
                 padding: 10px 5px;
             }
         }
+        .status-return-request {
+    background-color: #fff3cd;
+    color: #856404;
+}
+.status-returned {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+.status-processing {
+    background-color: #e7f3ff;
+    color: #004085;
+}
+.swal2-textarea {
+    z-index: 9999 !important;
+    position: relative !important;
+}
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -356,6 +372,8 @@
                             <select class="form-select" id="statusFilter">
                                 <option value="">All Status</option>
                                 <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
+                                                <option value="processing" <%= statusFilter === 'processing' ? 'selected' : '' %>>Processing</option>
+
                                 <option value="shipped" <%= statusFilter === 'shipped' ? 'selected' : '' %>>Shipped</option>
                                 <option value="out-for-delivery" <%= statusFilter === 'out-for-delivery' ? 'selected' : '' %>>Out for Delivery</option>
                                 <option value="delivered" <%= statusFilter === 'delivered' ? 'selected' : '' %>>Delivered</option>
@@ -419,196 +437,256 @@
             </div>
         </div>
     </div>
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let allOrders = <%- JSON.stringify(orders) %> || [];
-        let filteredOrders = [...allOrders];
-        let currentPage = <%= currentPage || 1 %>;
-        const ordersPerPage = 2;
+<script>
+    let allOrders = <%- JSON.stringify(orders) %> || [];
+    let filteredOrders = [...allOrders];
+    let currentPage = <%= currentPage || 1 %>;
+    const ordersPerPage = 2;
 
+    
+    // NEW FUNCTION: Get status options based on current status
+    function getStatusOptions(currentStatus) {
+        const statusFlow = ['pending', 'processing', 'shipped', 'out-for-delivery', 'delivered'];
+        const currentIndex = statusFlow.indexOf(currentStatus);
         
-        function renderOrders() {
-    const tbody = document.getElementById('ordersTableBody');
-    const startIndex = (currentPage - 1) * ordersPerPage;
-    const endIndex = startIndex + ordersPerPage;
-    const ordersToShow = filteredOrders.slice(startIndex, endIndex);
-    if (ordersToShow.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="no-orders">No orders found</td></tr>';
-        return;
-    }
-    tbody.innerHTML = ordersToShow.map((order, index) => `
-        <tr>
-            <td>${startIndex + index + 1}</td>
-            <td><span class="order-id">#${order.id}</span></td>
-            <td>
-                <div class="date-time">
-                    <span class="date">${formatDate(order.date)}</span>
-                    <span class="time">${order.time}</span>
-                </div>
-            </td>
-            <td>
-                <div class="customer-info">
-                    <span class="customer-name">${order.customer.name}</span>
-                    <span class="customer-email">${order.customer.email}</span>
-                    ${order.customer.address && order.customer.address !== 'N/A' ? `<span class="customer-address">📍 ${order.customer.address}</span>` : ''}
-                </div>
-            </td>
-            <td>
-                <div class="product-list">
-                    <span>${order.products.length} item(s)</span>
-                    ${order.products.map(p => `
-                        <div class="product-item">
-                            <span class="product-name">${p.name}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </td>
-            <td>
-                <span class="amount">₹${order.amount.toFixed(2)}</span>
-                ${order.discount > 0 ? `<span class="discount">-₹${order.discount.toFixed(2)} off</span>` : ''}
-            </td>
-            <td>
-                <span class="status-badge status-${order.status}">
-                    ${order.status.replace('-', ' ')}${order.returnReason ? ` (${order.returnReason.substring(0, 20)}...)` : ''}
-                </span>
-                <br><br>
-                <select class="status-dropdown status-${order.status}" onchange="updateOrderStatus('${order.id}', this.value)">
-                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                    <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                    <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                    <option value="out-for-delivery" ${order.status === 'out-for-delivery' ? 'selected' : ''}>Out for Delivery</option>
-                    <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                    <option value="return-request" ${order.status === 'return-request' ? 'selected' : ''}>Return Request</option>
-                    <option value="returned" ${order.status === 'returned' ? 'selected' : ''}>Returned</option>
-                    <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                </select>
-            </td>
-            <td>
-                <button class="btn-view" onclick="viewOrderDetails('${order.id}')">View Details</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-
-
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
-            const paginationContainer = document.getElementById('paginationContainer');
-            if (totalPages <= 1) {
-                paginationContainer.innerHTML = '';
-                return;
+        let options = '';
+        
+        // If delivered, can't go back - only allow return request
+        if (currentStatus === 'delivered') {
+            options += `<option value="delivered" selected>Delivered</option>`;
+            options += `<option value="return-request">Return Request</option>`;
+            return options;
+        }
+        
+        // If returned or cancelled, locked - cannot change
+        if (currentStatus === 'returned' || currentStatus === 'cancelled') {
+            const label = currentStatus.replace('-', ' ');
+            options += `<option value="${currentStatus}" selected>${label.charAt(0).toUpperCase() + label.slice(1)}</option>`;
+            return options;
+        }
+        
+        // If return-request, locked - approve/reject in modal only
+        if (currentStatus === 'return-request') {
+            options += `<option value="return-request" selected>Return Request</option>`;
+            return options;
+        }
+        
+        // Normal flow: show current and next statuses only
+        statusFlow.forEach((status, index) => {
+            if (index >= currentIndex) {
+                const selected = status === currentStatus ? 'selected' : '';
+                const label = status.replace('-', ' ');
+                options += `<option value="${status}" ${selected}>${label.charAt(0).toUpperCase() + label.slice(1)}</option>`;
             }
-            let html = `
-                <button class="pagination-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
-                    <
-                </button>
-            `;
-            const startPage = Math.max(1, currentPage - 2);
-            const endPage = Math.min(totalPages, currentPage + 2);
-            for (let i = startPage; i <= endPage; i++) {
-                html += `
-                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
-                        ${i}
-                    </button>
-                `;
-            }
-            html += `
-                <button class="pagination-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
-                    >
-                </button>
-            `;
-            paginationContainer.innerHTML = html;
-        }
-        function changePage(page) {
-            const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
-            if (page < 1 || page > totalPages) return;
-            currentPage = page;
-            renderOrders();
-            renderPagination();
-        }
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
-        function applyFilters() {
-            const status = document.getElementById('statusFilter').value;
-            const sort = document.getElementById('sortFilter').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            filteredOrders = allOrders.filter(order => {
-                const matchesStatus = !status || order.status === status;
-               const orderIdStr = (order.id + '').toLowerCase();
-const matchesSearch = !search ||
-    orderIdStr.includes(search) ||
-    order.customer.name.toLowerCase().includes(search) ||
-    order.customer.email.toLowerCase().includes(search) ||
-    order.status.toLowerCase().includes(search);
-                return matchesStatus && matchesSearch;
-            });
-            // Apply sorting
-            switch(sort) {
-                case 'date-desc':
-                    filteredOrders.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
-                    break;
-                case 'date-asc':
-                    filteredOrders.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
-                    break;
-                case 'amount-desc':
-                    filteredOrders.sort((a, b) => b.amount - a.amount);
-                    break;
-                case 'amount-asc':
-                    filteredOrders.sort((a, b) => a.amount - b.amount);
-                    break;
-            }
-            currentPage = 1;
-            renderOrders();
-            renderPagination();
-        }
-        function resetFilters() {
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('sortFilter').value = 'date-desc';
-            document.getElementById('searchInput').value = '';
-            applyFilters();
-        }
-
-
-        // AJAX for status update (connects to backend updateOrderStatus)
-async function updateOrderStatus(orderId, newStatus) {
-    try {
-        const response = await fetch(`/admin/order/${orderId}/status`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus ,
-                reason: "Customer requested cancellation" 
-            })
         });
-        const data = await response.json();
+        
+        // Always allow cancellation if not delivered
+        options += `<option value="cancelled">Cancelled</option>`;
+        
+        return options;
+    }
 
-        const order = allOrders.find(o => o.id === orderId);
+    
+    function renderOrders() {
+        const tbody = document.getElementById('ordersTableBody');
+        const startIndex = (currentPage - 1) * ordersPerPage;
+        const endIndex = startIndex + ordersPerPage;
+        const ordersToShow = filteredOrders.slice(startIndex, endIndex);
+        if (ordersToShow.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="no-orders">No orders found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = ordersToShow.map((order, index) => `
+            <tr>
+                <td>${startIndex + index + 1}</td>
+                <td><span class="order-id">#${order.id}</span></td>
+                <td>
+                    <div class="date-time">
+                        <span class="date">${formatDate(order.date)}</span>
+                        <span class="time">${order.time}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="customer-info">
+                        <span class="customer-name">${order.customer.name}</span>
+                        <span class="customer-email">${order.customer.email}</span>
+                        ${order.customer.address && order.customer.address !== 'N/A' ? `<span class="customer-address">📍 ${order.customer.address}</span>` : ''}
+                    </div>
+                </td>
+                <td>
+                    <div class="product-list">
+                        <span>${order.products.length} item(s)</span>
+                        ${order.products.map(p => `
+                            <div class="product-item">
+                                <span class="product-name">${p.name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>
+                <td>
+                    <span class="amount">₹${order.amount.toFixed(2)}</span>
+                    ${order.discount > 0 ? `<span class="discount">-₹${order.discount.toFixed(2)} off</span>` : ''}
+                </td>
+                <td>
+                    <span class="status-badge status-${order.status}">
+                        ${order.status.replace('-', ' ')}
+                    </span>
+                    <br><br>
+                    <select class="status-dropdown status-${order.status}" onchange="updateOrderStatus('${order.id}', this.value)">
+                        ${getStatusOptions(order.status)}
+                    </select>
+                </td>
+                <td>
+                    <button class="btn-view" onclick="viewOrderDetails('${order.id}')">View Details</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-        if (data.success) {
-            if (order) {
-                order.status = newStatus;
-                order.products.forEach(p => p.status = newStatus);
-                // Re-apply current filters to reflect the status change
-                applyFilters();
-            }
-            Swal.fire({
-                icon: 'success',
-                title: 'Status Updated!',
-                text: `Order ${orderId} status changed to "${newStatus}"`,
-                timer: 2000,
-                timerProgressBar: true,
-                showConfirmButton: false
+
+
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+        const paginationContainer = document.getElementById('paginationContainer');
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+        let html = `
+            <button class="pagination-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                
+            </button>
+        `;
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        for (let i = startPage; i <= endPage; i++) {
+            html += `
+                <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                    ${i}
+                </button>
+            `;
+        }
+        html += `
+            <button class="pagination-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                >
+            </button>
+        `;
+        paginationContainer.innerHTML = html;
+    }
+    
+    function changePage(page) {
+        const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderOrders();
+        renderPagination();
+    }
+    
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+    
+    function applyFilters() {
+        const status = document.getElementById('statusFilter').value;
+        const sort = document.getElementById('sortFilter').value;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        filteredOrders = allOrders.filter(order => {
+            const matchesStatus = !status || order.status === status;
+           const orderIdStr = (order.id + '').toLowerCase();
+            const matchesSearch = !search ||
+                orderIdStr.includes(search) ||
+                order.customer.name.toLowerCase().includes(search) ||
+                order.customer.email.toLowerCase().includes(search) ||
+                order.status.toLowerCase().includes(search);
+            return matchesStatus && matchesSearch;
+        });
+        // Apply sorting
+        switch(sort) {
+            case 'date-desc':
+                filteredOrders.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+                break;
+            case 'date-asc':
+                filteredOrders.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+                break;
+            case 'amount-desc':
+                filteredOrders.sort((a, b) => b.amount - a.amount);
+                break;
+            case 'amount-asc':
+                filteredOrders.sort((a, b) => a.amount - b.amount);
+                break;
+        }
+        currentPage = 1;
+        renderOrders();
+        renderPagination();
+    }
+    
+    function resetFilters() {
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('sortFilter').value = 'date-desc';
+        document.getElementById('searchInput').value = '';
+        applyFilters();
+    }
+
+
+    // AJAX for status update (connects to backend updateOrderStatus)
+    async function updateOrderStatus(orderId, newStatus) {
+        try {
+            const response = await fetch(`/admin/order/${orderId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus ,
+                    reason: "Customer requested cancellation" 
+                })
             });
-        } else {
+            const data = await response.json();
+
+            const order = allOrders.find(o => o.id === orderId);
+
+            if (data.success) {
+                if (order) {
+                    order.status = newStatus;
+                    order.products.forEach(p => p.status = newStatus);
+                    // Re-apply current filters to reflect the status change
+                    applyFilters();
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Status Updated!',
+                    text: `Order ${orderId} status changed to "${newStatus}"`,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: data.error || 'Unknown error'
+                });
+                // Revert dropdown if update failed
+                if (order) {
+                    const dropdowns = document.querySelectorAll(`select.status-dropdown`);
+                    dropdowns.forEach(dd => {
+                        if (dd.onchange && dd.value === newStatus) {
+                            dd.value = order.status;
+                        }
+                    });
+                }
+            }
+        } catch (err) {
             Swal.fire({
                 icon: 'error',
-                title: 'Update Failed',
-                text: data.error || 'Unknown error'
+                title: 'Server Error',
+                text: err.message
             });
-            // Revert dropdown if update failed
+            // Revert dropdown if error
+            const order = allOrders.find(o => o.id === orderId);
             if (order) {
                 const dropdowns = document.querySelectorAll(`select.status-dropdown`);
                 dropdowns.forEach(dd => {
@@ -618,143 +696,234 @@ async function updateOrderStatus(orderId, newStatus) {
                 });
             }
         }
-    } catch (err) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Server Error',
-            text: err.message
-        });
-        // Revert dropdown if error
+    }
+
+
+    // UPDATED: View order details with new return section logic
+    function viewOrderDetails(orderId) {
         const order = allOrders.find(o => o.id === orderId);
-        if (order) {
-            const dropdowns = document.querySelectorAll(`select.status-dropdown`);
-            dropdowns.forEach(dd => {
-                if (dd.onchange && dd.value === newStatus) {
-                    dd.value = order.status;
-                }
-            });
-        }
-    }
-}
+        if (!order) return;
 
-
-
-
-
-function viewOrderDetails(orderId) {
-    const order = allOrders.find(o => o.id === orderId);
-    if (!order) return;
-
-    let returnSection = '';
-    if (order.status === 'Return Request' && order.returnReason) {
-        returnSection = `
-            <div style="margin-bottom: 25px; padding: 15px; background-color: #fff3cd; border-radius: 5px; border-left: 4px solid #856404;">
-                <h5 style="color: #856404; margin-bottom: 10px;">Return Request</h5>
-                <p style="margin: 5px 0;"><strong>Reason:</strong> ${order.returnReason}</p>
-                <div style="margin-top: 10px;">
-                    <button class="btn btn-success btn-sm" onclick="handleReturn('${orderId}', 'Returned')">Approve & Restore Stock</button>
-                    <button class="btn btn-secondary btn-sm" onclick="handleReturn('${orderId}', 'Delivered')" style="margin-left: 10px;">Reject</button>
-                </div>
-            </div>
-        `;
-    } else if (order.status === 'Returned' && order.returnReason) {
-        returnSection = `
-            <div style="margin-bottom: 25px; padding: 15px; background-color: #d1e7dd; border-radius: 5px; border-left: 4px solid #0f5132;">
-                <h5 style="color: #0f5132; margin-bottom: 10px;">Return Approved</h5>
-                <p style="margin: 5px 0;"><strong>Original Reason:</strong> ${order.returnReason}</p>
-                <p style="margin: 5px 0;"><strong>Approved On:</strong> ${formatDate(order.updatedAt)}</p>
-            </div>
-        `;
-    }
-
-    const content = `
-        <div style="padding: 20px;">
-            <div style="border-bottom: 2px solid #1A5D8C; padding-bottom: 15px; margin-bottom: 20px;">
-                <h4 style="color: #1A5D8C; margin: 0;">Order #${order.id}</h4>
-                <p style="color: #666; margin: 5px 0 0 0;">${formatDate(order.date)} at ${order.time}</p>
-            </div>
-           
-            <div style="margin-bottom: 25px;">
-                <h5 style="color: #333; margin-bottom: 10px;">Customer Information</h5>
-                <p style="margin: 5px 0;"><strong>Name:</strong> ${order.customer.name}</p>
-                <p style="margin: 5px 0;"><strong>Email:</strong> ${order.customer.email}</p>
-                <p style="margin: 5px 0;"><strong>Phone:</strong> ${order.customer.phone}</p>
-                ${order.customer.address && order.customer.address !== 'N/A' ? `<p style="margin: 5px 0;"><strong>Shipping Address:</strong> ${order.customer.address}</p>` : ''}
-            </div>
-            <div style="margin-bottom: 25px;">
-                <h5 style="color: #333; margin-bottom: 10px;">Products</h5>
-                ${order.products.map(p => `
-                    <div style="padding: 10px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
-                        <p style="margin: 0; font-weight: 500;">${p.name}</p>
+        let returnSection = '';
+        if (order.returnReason) {
+            if (order.status === 'return-request') {
+                // Pending return - show approve/reject buttons
+                returnSection = `
+                    <div style="margin-bottom: 25px; padding: 15px; background-color: #fff3cd; border-radius: 5px; border-left: 4px solid #856404;">
+                        <h5 style="color: #856404; margin-bottom: 10px;">⚠️ Return Request Pending</h5>
+                        <p style="margin: 5px 0;"><strong>Requested On:</strong> ${formatDate(order.updatedAt || order.date)}</p>
+                        <p style="margin: 5px 0;"><strong>Customer Reason:</strong> ${order.returnReason}</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-success btn-sm" onclick="handleReturnApproval('${order.id}', 'approve')">
+                                ✓ Approve & Restore Stock
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="handleReturnApproval('${order.id}', 'reject')" style="margin-left: 10px;">
+                                ✗ Reject Return
+                            </button>
+                        </div>
                     </div>
-                `).join('')}
-            </div>
-            ${returnSection}
-            <div style="margin-bottom: 25px;">
-                <h5 style="color: #333; margin-bottom: 10px;">Order Status</h5>
-                <span class="status-badge status-${order.status}">${order.status.replace('-', ' ')}</span>
-            </div>
-            <div style="border-top: 2px solid #dee2e6; padding-top: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span>Subtotal:</span>
-                    <span>₹${(order.amount + order.discount).toFixed(2)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #28a745;">
-                    <span>Discount:</span>
-                    <span>-₹${order.discount.toFixed(2)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #1A5D8C;">
-                    <span>Total:</span>
-                    <span>₹${order.amount.toFixed(2)}</span>
-                </div>
-            </div>
-        </div>
-    `;
-    document.getElementById('orderDetailsContent').innerHTML = content;
-    const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-    modal.show();
-}
-
-async function handleReturn(orderId, newStatus) {
-    if (confirm(`Confirm ${newStatus === 'Returned' ? 'approve' : 'reject'} return?`)) {
-        try {
-            const response = await fetch(`/admin/order/${orderId}/status`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    status: newStatus.toLowerCase().replace(' ', '-') // Convert to lowercase kebab for backend
-                })
-            });
-            const data = await response.json();
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Updated!',
-                    text: `Status changed to ${newStatus}`,
-                    timer: 2000
-                });
-                // Refresh the orders list to reflect changes
-                applyFilters();
-                // Optionally, refresh modal
-                viewOrderDetails(orderId);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.error || 'Update failed'
-                });
+                `;
+            } else if (order.status === 'returned') {
+                // Approved return - show approval info
+                returnSection = `
+                    <div style="margin-bottom: 25px; padding: 15px; background-color: #d1e7dd; border-radius: 5px; border-left: 4px solid #0f5132;">
+                        <h5 style="color: #0f5132; margin-bottom: 10px;">✓ Return Approved</h5>
+                        <p style="margin: 5px 0;"><strong>Customer Reason:</strong> ${order.returnReason}</p>
+                        <p style="margin: 5px 0;"><strong>Approved Date:</strong> ${formatDate(order.updatedAt || order.date)}</p>
+                    </div>
+                `;
+            } else if (order.rejectionReason) {
+                // Rejected return - show rejection info
+                returnSection = `
+                    <div style="margin-bottom: 25px; padding: 15px; background-color: #f8d7da; border-radius: 5px; border-left: 4px solid #842029;">
+                        <h5 style="color: #842029; margin-bottom: 10px;">✗ Return Rejected</h5>
+                        <p style="margin: 5px 0;"><strong>Customer Reason:</strong> ${order.returnReason}</p>
+                        <p style="margin: 5px 0;"><strong>Rejection Reason:</strong> ${order.rejectionReason}</p>
+                        <p style="margin: 5px 0;"><strong>Rejected Date:</strong> ${formatDate(order.updatedAt || order.date)}</p>
+                    </div>
+                `;
             }
-        } catch (err) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Network error'
-            });
         }
+
+        const content = `
+            <div style="padding: 20px;">
+                <div style="border-bottom: 2px solid #1A5D8C; padding-bottom: 15px; margin-bottom: 20px;">
+                    <h4 style="color: #1A5D8C; margin: 0;">Order #${order.id}</h4>
+                    <p style="color: #666; margin: 5px 0 0 0;">${formatDate(order.date)} at ${order.time}</p>
+                </div>
+               
+                <div style="margin-bottom: 25px;">
+                    <h5 style="color: #333; margin-bottom: 10px;">Customer Information</h5>
+                    <p style="margin: 5px 0;"><strong>Name:</strong> ${order.customer.name}</p>
+                    <p style="margin: 5px 0;"><strong>Email:</strong> ${order.customer.email}</p>
+                    <p style="margin: 5px 0;"><strong>Phone:</strong> ${order.customer.phone}</p>
+                    ${order.customer.address && order.customer.address !== 'N/A' ? `<p style="margin: 5px 0;"><strong>Shipping Address:</strong> ${order.customer.address}</p>` : ''}
+                </div>
+                <div style="margin-bottom: 25px;">
+                    <h5 style="color: #333; margin-bottom: 10px;">Products</h5>
+                    ${order.products.map(p => `
+                        <div style="padding: 10px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
+                            <p style="margin: 0; font-weight: 500;">${p.name} (${p.quantity})</p>
+
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <h5 style="color: #333; margin-bottom: 10px;">Order Status</h5>
+                    <span class="status-badge status-${order.status}">${order.status.replace('-', ' ')}</span>
+                    ${returnSection}
+                </div>
+                <div style="border-top: 2px solid #dee2e6; padding-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Subtotal:</span>
+                        <span>₹${(order.amount + order.discount).toFixed(2)}</span>
+                    </div>
+                   
+                    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #1A5D8C;">
+                        <span>Total:</span>
+                        <span>₹${order.amount.toFixed(2)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('orderDetailsContent').innerHTML = content;
+        const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+        modal.show();
+    }
+
+   const modalElement = document.getElementById('orderDetailsModal');
+const modal = new bootstrap.Modal(modalElement, {
+    backdrop: 'static',
+    keyboard: true,
+    enforceFocus: false
+});
+
+    async function handleReturnApproval(orderId, action) {
+    if (action === 'approve') {
+        Swal.fire({
+            title: 'Approve Return?',
+            text: 'Stock will be restored for this order.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Approve',
+            cancelButtonText: 'Cancel'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/order/${orderId}/status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'returned' })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const order = allOrders.find(o => o.id === orderId);
+                        if (order) {
+                            order.status = 'returned';
+                            applyFilters();
+                        }
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Return Approved!',
+                            text: 'Stock has been restored',
+                            timer: 2000
+                        }).then(() => {
+                            viewOrderDetails(orderId); // Refresh modal
+                        });
+                    } else {
+                        Swal.fire('Error', data.error || 'Failed to approve', 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Error', 'Network error', 'error');
+                }
+            }
+        });
+    } else {
+        Swal.fire({
+            title: 'Reject Return Request',
+            text: 'Please provide a reason for rejection:',
+            input: 'textarea',
+            inputPlaceholder: 'e.g., Product shows signs of use, Return window expired... (min 10 characters)',
+            inputAttributes: {
+                'aria-label': 'Rejection reason',
+                'rows': 4,  // Taller textarea for better UX
+                'style': 'font-size: 14px; padding: 10px; resize: vertical;'  // Ensure focus and resizing
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Reject Return',
+            cancelButtonText: 'Cancel',
+            allowOutsideClick: false,  // Lock to prevent accidental close
+            allowEscapeKey: false,     // Prevent ESC dismissal
+            inputValidator: (value) => {
+                if (!value || value.trim().length < 10) {
+                    return 'Please provide a detailed reason (min 10 characters)';
+                }
+            },
+            didOpen: () => {
+                // Force focus on textarea after Swal renders (bypasses modal issues)
+                const textarea = Swal.getTextarea();
+                if (textarea) {
+                    textarea.focus();
+                    textarea.setSelectionRange(0, 0);  // Cursor at start
+                }
+                // Optional: Temporarily hide modal backdrop to reduce z-index conflicts
+                const modalBackdrop = document.querySelector('.modal-backdrop');
+                if (modalBackdrop) modalBackdrop.style.opacity = '0.1';
+            },
+            didClose: () => {
+                // Restore modal backdrop opacity after close
+                const modalBackdrop = document.querySelector('.modal-backdrop');
+                if (modalBackdrop) modalBackdrop.style.opacity = '';
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/order/${orderId}/status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            status: 'delivered',
+                            rejectionReason: result.value
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const order = allOrders.find(o => o.id === orderId);
+                        if (order) {
+                            order.status = 'delivered';
+                            order.rejectionReason = result.value;
+                            applyFilters();
+                        }
+                        
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Return Rejected',
+                            text: 'Customer has been notified',
+                            timer: 2000
+                        }).then(() => {
+                            viewOrderDetails(orderId);
+                        });
+                    } else {
+                        Swal.fire('Error', data.error || 'Failed to reject', 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Error', 'Network error', 'error');
+                }
+            }
+        });
     }
 }
-// Initialize
-applyFilters();
-    </script>
+
+    // Initialize
+    applyFilters();
+</script>
 </body>
 </html>
